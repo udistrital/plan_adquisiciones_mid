@@ -11,7 +11,7 @@ import (
 //ObtenerRegistroPlanAdquisicion ...
 func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"v1/Registro_plan_adquisiciones/", &RegistroPlanAdquisicion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", &RegistroPlanAdquisicion)
 
 	if error != nil {
 		return nil, error
@@ -28,7 +28,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 	var unicos []string
 	FuentesRegistroPlanAdquisicion := make(map[string]interface{})
 	query := "PlanAdquisicionesId%3A" + planAdquisicionID + "&sortby=RubroId&order=asc"
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"v1/Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
 
 	if error != nil {
 		return nil, error
