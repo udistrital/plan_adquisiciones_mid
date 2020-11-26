@@ -1,0 +1,87 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "beego Test API",
+        "description": "beego has a very cool tools to autogenerate documents for your API",
+        "version": "1.0.0",
+        "termsOfService": "http://beego.me/",
+        "contact": {
+            "email": "astaxie@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "basePath": "/v1",
+    "paths": {
+        "/fuentes/{planAdquisicionID}": {
+            "get": {
+                "tags": [
+                    "fuentes"
+                ],
+                "description": "get Plan_adquisicion_por_fuentes",
+                "operationId": "Plan_adquisicion_por_fuentesController.GetAll",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "planAdquisicionID",
+                        "description": "Id del plan_de_adquisicioon",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Plan_adquisicion_por_fuentes"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/planAdquisicion/": {
+            "get": {
+                "tags": [
+                    "planAdquisicion"
+                ],
+                "description": "get Registro_plan_adquisicion",
+                "operationId": "Registro_plan_adquisicionController.GetAll",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_plan_adquisicion"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Plan_adquisicion_por_fuentes": {
+            "title": "Plan_adquisicion_por_fuentes",
+            "type": "object"
+        },
+        "models.Registro_plan_adquisicion": {
+            "title": "Registro_plan_adquisicion",
+            "type": "object"
+        }
+    },
+    "tags": [
+        {
+            "name": "planAdquisicion",
+            "description": "Registro_plan_adquisicionController operations for Registro_plan_adquisicion\n"
+        },
+        {
+            "name": "fuentes",
+            "description": "Plan_adquisicion_por_fuentesController operations for Plan_adquisicion_por_fuentes\n"
+        }
+    ]
+}
