@@ -27,7 +27,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 	var rubro []map[string]interface{}
 	var unicos []string
 	FuentesRegistroPlanAdquisicion := make(map[string]interface{})
-	query := "PlanAdquisicionesId%3A" + planAdquisicionID + "&sortby=RubroId&order=asc"
+	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=RubroId&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
 
 	if error != nil {
