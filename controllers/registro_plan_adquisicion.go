@@ -17,7 +17,7 @@ func (c *Registro_plan_adquisicionController) URLMapping() {
 
 // GetAll Regresa todos Registros_plan_adquisicion ordenados por rubro
 // @Title GetAll
-// @Description get Registro_plan_adquisicion
+// @Description Obtiene todos los registros de planes de adquisicion
 // @Success 200 {object} models.Registro_plan_adquisicion
 // @Failure 404
 // @router / [get]
