@@ -15,18 +15,18 @@
     },
     "basePath": "/v1",
     "paths": {
-        "/fuentes/{planAdquisicionID}": {
+        "/RegistrosOrdenadoPorRubro/{planAdquisicionID}": {
             "get": {
                 "tags": [
-                    "fuentes"
+                    "RegistrosOrdenadoPorRubro"
                 ],
-                "description": "get Plan_adquisicion_por_fuentes",
+                "description": "Obtiene todos los planes de adquisición separados por fuente de recurso y divididos por rubros segun el id dado",
                 "operationId": "Plan_adquisicion_por_fuentesController.GetAll",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "planAdquisicionID",
-                        "description": "Id del plan_de_adquisicioon",
+                        "description": "Id del plan_de_adquisicion",
                         "type": "string"
                     }
                 ],
@@ -43,12 +43,12 @@
                 }
             }
         },
-        "/planAdquisicion/": {
+        "/RegistrosPlanAdquisicion/": {
             "get": {
                 "tags": [
-                    "planAdquisicion"
+                    "RegistrosPlanAdquisicion"
                 ],
-                "description": "get Registro_plan_adquisicion",
+                "description": "Obtiene todos los registros de planes de adquisicion",
                 "operationId": "Registro_plan_adquisicionController.GetAll",
                 "responses": {
                     "200": {

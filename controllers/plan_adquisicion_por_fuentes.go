@@ -19,8 +19,8 @@ func (c *Plan_adquisicion_por_fuentesController) URLMapping() {
 
 // GetAll Regresa los Registros_plan_adquisicion separados por ID_fuente y ordenados por ID_rubro
 // @Title GetAll
-// @Description get Plan_adquisicion_por_fuentes
-// @Param	planAdquisicionID	path 	string	"Id del plan_de_adquisicioon"
+// @Description Obtiene todos los planes de adquisición separados por fuente de recurso y divididos por rubros segun el id dado
+// @Param	planAdquisicionID	path 	string	"Id del plan_de_adquisicion"
 // @Success 200 {object} models.Plan_adquisicion_por_fuentes
 // @Failure 403
 // @router /:planAdquisicionID [get]
