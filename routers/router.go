@@ -25,6 +25,16 @@ func init() {
 				&controllers.Plan_adquisicion_por_fuentesController{},
 			),
 		),
+		beego.NSNamespace("/RegistrosPlanAdquisicionActividad",
+			beego.NSInclude(
+				&controllers.Registro_PlanAdquisiciones_ActividadController{},
+			),
+		),
+		beego.NSNamespace("/RegistrosPlanInversionActividadFuente",
+			beego.NSInclude(
+				&controllers.Registro_PlanInversion_ActividadFuente_financiamientoController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
