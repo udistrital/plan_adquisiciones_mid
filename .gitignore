@@ -1,6 +1,10 @@
 
 lastupdate.tmp
-evaluacion_mid
+.vscode/
+plan_adquisiciones_mid
+plan_adquisiciones_mid.exe
+main
+.scannerwork/
 swagger/*.png
 swagger/*.html
 swagger/*.js
