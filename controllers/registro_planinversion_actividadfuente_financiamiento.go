@@ -72,21 +72,23 @@ func (c *Registro_PlanInversion_ActividadFuente_financiamientoController) Post()
 // @Param	offset	query	string	false	"Start position of result set. Must be an integer"
 // @Success 200 {object} models.Registro_PlanInversion_ActividadFuente_financiamiento
 // @Failure 403
-// @router / [get]
+// @router /:idPlanAdquisicion [get]
 func (c *Registro_PlanInversion_ActividadFuente_financiamientoController) GetAll() {
 
+	idStr := c.Ctx.Input.Param(":idPlanAdquisicion")
 	var alertErr models.Alert
 	alertas := append([]interface{}{"Response:"})
-	RegistroPlanInversionActividadFuente, errRegistroPlanInversionActividadFuente := models.ObtenerRegistroPlanInversionActividadFuente()
+	//RegistroPlanInversionActividadFuente, errRegistroPlanInversionActividadFuente := models.ObtenerRegistroPlanInversionActividadFuente()
+	RegistroTablaActividades, errRegistroTablaActividades := models.ObtenerRegistroTablaActividades(idStr)
 
-	if RegistroPlanInversionActividadFuente != nil {
+	if RegistroTablaActividades != nil {
 		alertErr.Type = "OK"
 		alertErr.Code = "200"
-		alertErr.Body = RegistroPlanInversionActividadFuente
+		alertErr.Body = RegistroTablaActividades
 	} else {
 		alertErr.Type = "error"
 		alertErr.Code = "404"
-		alertas = append(alertas, errRegistroPlanInversionActividadFuente)
+		alertas = append(alertas, errRegistroTablaActividades)
 		alertErr.Body = alertas
 		c.Ctx.Output.SetStatus(404)
 	}

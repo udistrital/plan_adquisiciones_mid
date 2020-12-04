@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 
@@ -102,17 +103,61 @@ func ObtenerRegistroPlanAdquisicionActividadFuenteByID(idStr string) (registroPl
 }
 
 //ObtenerRegistroPlanAdquisicionActividadFuenteByActividadID ...
-func ObtenerRegistroPlanAdquisicionActividadFuenteByActividadID(idStr string) (registroPlanAdquisicionActividadFuente []map[string]interface{}, outputError interface{}) {
+func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActividadFuente []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/?query=RegistroPlanAdquisicionesActividadId.Id%3A"+idStr, &RegistroPlanAdquisicionActividadFuente)
+	var unicos []string
+	registro := make(map[string]interface{})
+	registros := make([]map[string]interface{}, 0)
+	fuentesFinanciamiento := make([]map[string]interface{}, 0)
+	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id%3A" + idStr + "&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
+
 	if error != nil {
 		return nil, error
 	} else {
-		return RegistroPlanAdquisicionActividadFuente, nil
+		if len(RegistroPlanAdquisicionActividadFuente) == 1 {
+			if len(RegistroPlanAdquisicionActividadFuente[0]) == 0 {
+				error := "No existe plan adquisicion"
+				return nil, error
+			}
+		}
+		for index := range RegistroPlanAdquisicionActividadFuente {
+			ActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Id"]
+			ValorActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Valor"]
+			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
+			newdata := stringInSlice(fmt.Sprintf("%.0f", RegistroActividadID.(float64)), unicos)
+			if !newdata {
+				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
+				registros = append(registros, registro)
+				fuentesFinanciamiento = make([]map[string]interface{}, 0)
+			}
+
+			fuenteFinanciamiento := map[string]interface{}{
+				"ValorAsignado":        RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"],
+				"Activo":               RegistroPlanAdquisicionActividadFuente[index]["Activo"],
+				"FuenteFinanciamiento": RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"],
+			}
+			fuentesFinanciamiento = append(fuentesFinanciamiento, fuenteFinanciamiento)
+
+			registro = map[string]interface{}{
+				"ActividadId":                 ActividadID,
+				"RegistroPlanAdquisicionesId": idStr,
+				"Valor":                       ValorActividad,
+				"Activo":                      RegistroPlanAdquisicionActividadFuente[index]["Activo"],
+				"RegistroActividadId":         RegistroActividadID,
+				"FuentesFinanciamiento":       fuentesFinanciamiento,
+			}
+
+		}
+		// valor := SumaFuenteFinanciamiento(idStr)
+		// fmt.Println(valor)
+		registros = append(registros[1:], registro)
+		return registros, nil
 	}
 
 }
 
+//RegistroFuenteModificado ...
 func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPlanAdquisicionActividadFuente map[string]interface{}) (validacion bool) {
 	registroFuenteActual := make(map[string]interface{})
 
@@ -129,4 +174,21 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 		return false
 	}
 
+}
+
+//SumaFuenteFinanciamiento ...
+func SumaFuenteFinanciamiento(idStr string) (total interface{}) {
+	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
+	var valor float64
+	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id%3A" + idStr + "&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
+
+	if error != nil {
+		return error
+	} else {
+		for index := range RegistroPlanAdquisicionActividadFuente {
+			valor = valor + RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"].(float64)
+		}
+		return valor
+	}
 }
