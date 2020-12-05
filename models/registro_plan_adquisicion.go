@@ -35,6 +35,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 	} else {
 
 		for rubroindex := range RegistroPlanAdquisicion {
+			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
 			fuentes, errFuente := SeparaFuentes(RegistroPlanAdquisicion[rubroindex]["RubroId"])
 			if errFuente != nil {
 				return nil, errFuente
