@@ -1,7 +1,9 @@
 plan_adquisiciones_mid
 plan_adquisiciones_mid.exe
 lastupdate.tmp
-evaluacion_mid
+.vscode/
+main
+.scannerwork/
 swagger/*.png
 swagger/*.html
 swagger/*.js
