@@ -62,11 +62,271 @@
                     }
                 }
             }
+        },
+        "/RegistrosPlanAdquisicionActividad/": {
+            "get": {
+                "tags": [
+                    "RegistrosPlanAdquisicionActividad"
+                ],
+                "description": "get Registro_PlanAdquisiciones_Actividad",
+                "operationId": "Registro_PlanAdquisiciones_ActividadController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanAdquisiciones_Actividad"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "RegistrosPlanAdquisicionActividad"
+                ],
+                "description": "create Registro_PlanAdquisiciones_Actividad",
+                "operationId": "Registro_PlanAdquisiciones_ActividadController.Create",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registro_PlanAdquisiciones_Actividad content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanAdquisiciones_Actividad"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanAdquisiciones_Actividad"
+                        }
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/RegistrosPlanAdquisicionActividad/{id}": {
+            "put": {
+                "tags": [
+                    "RegistrosPlanAdquisicionActividad"
+                ],
+                "description": "update the Registro_PlanAdquisiciones_Actividad",
+                "operationId": "Registro_PlanAdquisiciones_ActividadController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registro_PlanAdquisiciones_Actividad content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanAdquisiciones_Actividad"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanAdquisiciones_Actividad"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            }
+        },
+        "/RegistrosPlanInversionActividadFuente/": {
+            "post": {
+                "tags": [
+                    "RegistrosPlanInversionActividadFuente"
+                ],
+                "description": "create Registro_PlanInversion_ActividadFuente_financiamiento",
+                "operationId": "Registro_PlanInversion_ActividadFuente_financiamientoController.Create",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registro_PlanInversion_ActividadFuente_financiamiento content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento"
+                        }
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/RegistrosPlanInversionActividadFuente/{idPlanAdquisicion}": {
+            "get": {
+                "tags": [
+                    "RegistrosPlanInversionActividadFuente"
+                ],
+                "description": "get Registro_PlanInversion_ActividadFuente_financiamiento",
+                "operationId": "Registro_PlanInversion_ActividadFuente_financiamientoController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/RegistrosPlanInversionActividadFuente/{id}": {
+            "put": {
+                "tags": [
+                    "RegistrosPlanInversionActividadFuente"
+                ],
+                "description": "update the Registro_PlanInversion_ActividadFuente_financiamiento",
+                "operationId": "Registro_PlanInversion_ActividadFuente_financiamientoController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registro_PlanInversion_ActividadFuente_financiamiento content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "models.Plan_adquisicion_por_fuentes": {
             "title": "Plan_adquisicion_por_fuentes",
+            "type": "object"
+        },
+        "models.Registro_PlanAdquisiciones_Actividad": {
+            "title": "Registro_PlanAdquisiciones_Actividad",
+            "type": "object"
+        },
+        "models.Registro_PlanInversion_ActividadFuente_financiamiento": {
+            "title": "Registro_PlanInversion_ActividadFuente_financiamiento",
             "type": "object"
         },
         "models.Registro_plan_adquisicion": {
@@ -76,12 +336,20 @@
     },
     "tags": [
         {
-            "name": "planAdquisicion",
+            "name": "RegistrosPlanAdquisicion",
             "description": "Registro_plan_adquisicionController operations for Registro_plan_adquisicion\n"
         },
         {
-            "name": "fuentes",
+            "name": "RegistrosOrdenadoPorRubro",
             "description": "Plan_adquisicion_por_fuentesController operations for Plan_adquisicion_por_fuentes\n"
+        },
+        {
+            "name": "RegistrosPlanAdquisicionActividad",
+            "description": "Registro_PlanAdquisiciones_ActividadController operations for Registro_PlanAdquisiciones_Actividad\n"
+        },
+        {
+            "name": "RegistrosPlanInversionActividadFuente",
+            "description": "Registro_PlanInversion_ActividadFuente_financiamientoController operations for Registro_PlanInversion_ActividadFuente_financiamiento\n"
         }
     ]
 }
