@@ -108,6 +108,22 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 	}
 }
 
+//GuardarPlanAdquisicionActividad ...
+func GuardarPlanAdquisicionActividad(PlanAdquisicionActividades []interface{}, idPost interface{}) (registroPlanAdquisicionActividadRespuesta []map[string]interface{}, outputError interface{}) {
+	resultPlanAdquisicionActividad := make([]map[string]interface{}, 0)
+	for Index := range PlanAdquisicionActividades {
+		PlanAdquisicionActividad := PlanAdquisicionActividades[Index].(map[string]interface{})
+		PlanAdquisicionActividad["RegistroPlanAdquisicionesId"] = idPost
+		RegistroPlanAdquisicionActividad, errRegistroPlanAdquisicionActividad := IngresoRegistroActividad(PlanAdquisicionActividad)
+		if errRegistroPlanAdquisicionActividad != nil {
+			return nil, errRegistroPlanAdquisicionActividad
+		} else {
+			resultPlanAdquisicionActividad = append(resultPlanAdquisicionActividad, RegistroPlanAdquisicionActividad...)
+		}
+	}
+	return resultPlanAdquisicionActividad, nil
+}
+
 //ObtenerRegistroPlanAdquisicionActividadByID ...
 func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdquisicionActividad map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividad map[string]interface{}
