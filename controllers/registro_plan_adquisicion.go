@@ -129,6 +129,37 @@ func (c *Registro_plan_adquisicionController) GetAll() {
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *Registro_plan_adquisicionController) Put() {
+	idStr := c.Ctx.Input.Param(":id")
+	var registroPlanAdquisicionRecibida map[string]interface{}
+	var alertErr models.Alert
+	alertas := append([]interface{}{"Response:"})
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &registroPlanAdquisicionRecibida); err == nil {
+
+		registroPlanAdquisicionRespuesta, errRegistroPlanAdquisicion := models.ActualizarRegistroPlanAdquisicion(registroPlanAdquisicionRecibida, idStr)
+
+		if registroPlanAdquisicionRespuesta != nil {
+			alertErr.Type = "OK"
+			alertErr.Code = "200"
+			alertErr.Body = registroPlanAdquisicionRespuesta
+			//alertErr.Body = models.CrearSuccess("Registro de actividad ingresado con exito")
+		} else {
+			alertErr.Type = "error"
+			alertErr.Code = "400"
+			alertas = append(alertas, errRegistroPlanAdquisicion)
+			alertErr.Body = alertas
+			c.Ctx.Output.SetStatus(400)
+		}
+
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "400"
+		alertas = append(alertas, err.Error())
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(400)
+	}
+
+	c.Data["json"] = alertErr
+	c.ServeJSON()
 
 }
 
