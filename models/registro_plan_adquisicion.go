@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/astaxie/beego"
@@ -116,11 +117,11 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 			error := "No existe Registro Plan Adquisicion"
 			return nil, error
 		}
-		CodigoArka, error := ObtenerRegistroCodigoArkaByID(idStr)
+		CodigoArka, error := ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr)
 		if error != nil {
 			return nil, error
 		} else {
-			ModalidadSeleccion, error := ObtenerRegistroModalidadSeleccionByID(idStr)
+			ModalidadSeleccion, error := ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr)
 			if error != nil {
 				return nil, error
 			} else {
@@ -137,6 +138,124 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 			}
 		}
 		return RenglonRegistroPlanAdquisicion, nil
+	}
+
+}
+
+//ActualizarRegistroPlanAdquisicion ...
+func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interface{}, idStr string) (registroActividadRespuesta map[string]interface{}, outputError interface{}) {
+	registroPlanAdquisicionPut := make(map[string]interface{})
+	registroPlanAdquisicionActualizar := make(map[string]interface{})
+	RegistroPlanAdquisicionAntiguo, error := ObtenerRenglonRegistroPlanAdquisicionByID(idStr)
+	if error != nil && error != "No existe Registro Plan Adquisicion" {
+		return nil, error
+	} else {
+		if error == "No existe Registro Plan Adquisicion" {
+			//fmt.Println("No existe Registro Plan Adquisicion, toca crearlo")
+			_, errRegistroPlanAdquisicion := IngresoPlanAdquisicion(registroPlanAdquisicion)
+			if errRegistroPlanAdquisicion != nil {
+				return nil, errRegistroPlanAdquisicion
+			} else {
+				return registroPlanAdquisicion, nil
+			}
+
+		} else {
+			validacion := RegistroPlanAdquisicionModificado(registroPlanAdquisicion, RegistroPlanAdquisicionAntiguo[0], idStr)
+			if validacion {
+				//fmt.Println("existe registro Plan Adquisicion y no toca modificarlo")
+				error := CodigoArkaModificado(registroPlanAdquisicion, idStr)
+				if error != nil {
+					return nil, error
+				} else {
+					error := ModalidadSeleccionModificado(registroPlanAdquisicion, idStr)
+					if error != nil {
+						return nil, error
+					} else {
+						error := RegistroActividadModificado(registroPlanAdquisicion, idStr)
+						if error != nil {
+							return nil, error
+						} else {
+							return registroPlanAdquisicion, nil
+						}
+					}
+				}
+			} else {
+				//fmt.Println("existe registro y  toca modificarlo")
+				registroPlanAdquisicionActualizar = map[string]interface{}{
+					"AreaFuncional":       registroPlanAdquisicion["AreaFuncional"],
+					"CentroGestor":        registroPlanAdquisicion["CentroGestor"],
+					"ResponsableId":       registroPlanAdquisicion["ResponsableId"],
+					"MetaId":              registroPlanAdquisicion["MetaId"],
+					"ProductoId":          registroPlanAdquisicion["ProductoId"],
+					"RubroId":             registroPlanAdquisicion["RubroId"],
+					"FechaCreacion":       RegistroPlanAdquisicionAntiguo[0]["FechaCreacion"],
+					"FechaEstimadaInicio": registroPlanAdquisicion["FechaEstimadaInicio"],
+					"FechaEstimadaFin":    registroPlanAdquisicion["FechaEstimadaFin"],
+					"Activo":              registroPlanAdquisicion["Activo"],
+					"PlanAdquisicionesId": map[string]interface{}{"Id": registroPlanAdquisicion["PlanAdquisicionesId"]},
+				}
+
+				error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/"+idStr, "PUT", &registroPlanAdquisicionPut, registroPlanAdquisicionActualizar)
+				if error != nil {
+					return nil, error
+				} else {
+					error := CodigoArkaModificado(registroPlanAdquisicion, idStr)
+					if error != nil {
+						return nil, error
+					} else {
+						error := ModalidadSeleccionModificado(registroPlanAdquisicion, idStr)
+						if error != nil {
+							return nil, error
+						} else {
+							error := RegistroActividadModificado(registroPlanAdquisicion, idStr)
+							if error != nil {
+								return nil, error
+							} else {
+								return registroPlanAdquisicion, nil
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+}
+
+//RegistroPlanAdquisicionModificado ...
+func RegistroPlanAdquisicionModificado(registroPlanAdquisicion map[string]interface{}, RegistroPlanAdquisicionAntiguo map[string]interface{}, idStr string) (validacion bool) {
+	registroPlanAdquisicionActual := make(map[string]interface{})
+
+	registroPlanAdquisicionActual = map[string]interface{}{
+		"AreaFuncional":       RegistroPlanAdquisicionAntiguo["AreaFuncional"],
+		"CentroGestor":        RegistroPlanAdquisicionAntiguo["CentroGestor"],
+		"ResponsableId":       RegistroPlanAdquisicionAntiguo["ResponsableId"],
+		"MetaId":              RegistroPlanAdquisicionAntiguo["MetaId"],
+		"ProductoId":          RegistroPlanAdquisicionAntiguo["ProductoId"],
+		"RubroId":             RegistroPlanAdquisicionAntiguo["RubroId"],
+		"FechaCreacion":       RegistroPlanAdquisicionAntiguo["FechaCreacion"],
+		"FechaEstimadaInicio": RegistroPlanAdquisicionAntiguo["FechaEstimadaInicio"],
+		"FechaEstimadaFin":    RegistroPlanAdquisicionAntiguo["FechaEstimadaFin"],
+		"Activo":              RegistroPlanAdquisicionAntiguo["Activo"],
+		"PlanAdquisicionesId": map[string]interface{}{"Id": RegistroPlanAdquisicionAntiguo["PlanAdquisicionesId"]},
+	}
+
+	id := registroPlanAdquisicionActual["PlanAdquisicionesId"].(map[string]interface{})
+	idRegistroPlanAdquisicion := id["Id"].(map[string]interface{})
+
+	if reflect.DeepEqual(idRegistroPlanAdquisicion["Id"], registroPlanAdquisicion["PlanAdquisicionesId"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["AreaFuncional"], registroPlanAdquisicion["AreaFuncional"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["CentroGestor"], registroPlanAdquisicion["CentroGestor"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["ResponsableId"], registroPlanAdquisicion["ResponsableId"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["MetaId"], registroPlanAdquisicion["MetaId"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["ProductoId"], registroPlanAdquisicion["ProductoId"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["RubroId"], registroPlanAdquisicion["RubroId"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["FechaEstimadaInicio"], registroPlanAdquisicion["FechaEstimadaInicio"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["FechaEstimadaFin"], registroPlanAdquisicion["FechaEstimadaFin"]) &&
+		reflect.DeepEqual(registroPlanAdquisicionActual["Activo"], registroPlanAdquisicion["Activo"]) {
+		return true
+	} else {
+		return false
 	}
 
 }
