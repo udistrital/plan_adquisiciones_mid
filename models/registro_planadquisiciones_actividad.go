@@ -3,12 +3,13 @@ package models
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/utils_oas/request"
 )
 
-//ObtenerRegistroPlanAdquisicionActividad ...
+//ObtenerRegistroPlanAdquisicionActividad regresa todos los elementos de la tabla registro_plan_adquisicion_Actividad
 func ObtenerRegistroPlanAdquisicionActividad() (registroPlanAdquisicionActividad []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividad []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/", &RegistroPlanAdquisicionActividad)
@@ -21,7 +22,7 @@ func ObtenerRegistroPlanAdquisicionActividad() (registroPlanAdquisicionActividad
 
 }
 
-//IngresoRegistroActividad ...
+//IngresoRegistroActividad crea un nuevo elemento en la tabla registro_plan_adquisicion_Actividad
 func IngresoRegistroActividad(registroActividad map[string]interface{}) (registroActividadRespuesta []map[string]interface{}, outputError interface{}) {
 	registroActividadIngresado := make(map[string]interface{})
 	registroActividadPost := make(map[string]interface{})
@@ -54,7 +55,22 @@ func IngresoRegistroActividad(registroActividad map[string]interface{}) (registr
 
 }
 
-//ActualizarRegistroActividad ...
+//RegistroActividadModificado descompone un array para actualizar uno a uno un registro de actividad
+func RegistroActividadModificado(registroPlanAdquisicion map[string]interface{}, idStr string) (outputError interface{}) {
+	RegistroActividades := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+	for Index := range RegistroActividades {
+		RegistroActividad := RegistroActividades[Index].(map[string]interface{})
+		idFloat, _ := strconv.ParseFloat(idStr, 64)
+		RegistroActividad["RegistroPlanAdquisicionesId"] = idFloat
+		_, errRegistroActividad := ActualizarRegistroActividad(RegistroActividad, fmt.Sprintf("%v", RegistroActividad["RegistroActividadId"]))
+		if errRegistroActividad != nil {
+			return errRegistroActividad
+		}
+	}
+	return nil
+}
+
+//ActualizarRegistroActividad actualiza registro de actividad, si no existe se crea
 func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr string) (registroActividadRespuesta map[string]interface{}, outputError interface{}) {
 	registroActividadPut := make(map[string]interface{})
 	registroActividadActualizar := make(map[string]interface{})
@@ -63,7 +79,7 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 		return nil, error
 	} else {
 		if RegistroPlanAdquisicionActividad["Status"] != nil {
-			//fmt.Println("No existe registro toca crearlo")
+			//fmt.Println("No existe registro Actividad toca crearlo")
 			_, errRegistroActividad := IngresoRegistroActividad(registroActividad)
 			if errRegistroActividad != nil {
 				return nil, errRegistroActividad
@@ -72,9 +88,9 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 			}
 
 		} else {
-			validacion := RegistroModificado(registroActividad, RegistroPlanAdquisicionActividad, idStr)
+			validacion := RegistroActividadValidacion(registroActividad, RegistroPlanAdquisicionActividad, idStr)
 			if validacion {
-				//fmt.Println("existe registro y no toca modificarlo")
+				//fmt.Println("existe registro Actividad y no toca modificarlo")
 				error := FuenteFinanciamientoModificado(registroActividad, idStr)
 				if error != nil {
 					return nil, error
@@ -82,7 +98,7 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 					return RegistroPlanAdquisicionActividad, nil
 				}
 			} else {
-				//fmt.Println("existe registro y  toca modificarlo")
+				//fmt.Println("existe registro Actividad y  toca modificarlo")
 				registroActividadActualizar = map[string]interface{}{
 					"ActividadId":                 map[string]interface{}{"Id": registroActividad["ActividadId"]},
 					"RegistroPlanAdquisicionesId": map[string]interface{}{"Id": registroActividad["RegistroPlanAdquisicionesId"]},
@@ -108,7 +124,23 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 	}
 }
 
-//ObtenerRegistroPlanAdquisicionActividadByID ...
+//GuardarPlanAdquisicionActividad descompone array para ingresar uno a uno los registros de actividad
+func GuardarPlanAdquisicionActividad(PlanAdquisicionActividades []interface{}, idPost interface{}) (registroPlanAdquisicionActividadRespuesta []map[string]interface{}, outputError interface{}) {
+	resultPlanAdquisicionActividad := make([]map[string]interface{}, 0)
+	for Index := range PlanAdquisicionActividades {
+		PlanAdquisicionActividad := PlanAdquisicionActividades[Index].(map[string]interface{})
+		PlanAdquisicionActividad["RegistroPlanAdquisicionesId"] = idPost
+		RegistroPlanAdquisicionActividad, errRegistroPlanAdquisicionActividad := IngresoRegistroActividad(PlanAdquisicionActividad)
+		if errRegistroPlanAdquisicionActividad != nil {
+			return nil, errRegistroPlanAdquisicionActividad
+		} else {
+			resultPlanAdquisicionActividad = append(resultPlanAdquisicionActividad, RegistroPlanAdquisicionActividad...)
+		}
+	}
+	return resultPlanAdquisicionActividad, nil
+}
+
+//ObtenerRegistroPlanAdquisicionActividadByID un registro de actividad segun su ID
 func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdquisicionActividad map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividad map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/"+idStr, &RegistroPlanAdquisicionActividad)
@@ -120,8 +152,8 @@ func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdqu
 
 }
 
-//RegistroModificado
-func RegistroModificado(registroActividad map[string]interface{}, RegistroPlanAdquisicionActividad map[string]interface{}, idStr string) (validacion bool) {
+//RegistroActividadValidacion valida si se modificaron campos de un registro de actividad
+func RegistroActividadValidacion(registroActividad map[string]interface{}, RegistroPlanAdquisicionActividad map[string]interface{}, idStr string) (validacion bool) {
 	registroActividadActual := make(map[string]interface{})
 
 	registroActividadActual = map[string]interface{}{
@@ -134,10 +166,12 @@ func RegistroModificado(registroActividad map[string]interface{}, RegistroPlanAd
 
 	id := registroActividadActual["ActividadId"].(map[string]interface{})
 	idActividad := id["Id"].(map[string]interface{})
-	id = registroActividadActual["RegistroPlanAdquisicionesId"].(map[string]interface{})
-	idRegistroPlan := id["Id"].(map[string]interface{})
+	//id = registroActividadActual["RegistroPlanAdquisicionesId"].(map[string]interface{})
+	//idRegistroPlan := id["Id"].(map[string]interface{})
 
-	if reflect.DeepEqual(idActividad["Id"], registroActividad["ActividadId"]) && reflect.DeepEqual(idRegistroPlan["Id"], registroActividad["RegistroPlanAdquisicionesId"]) && reflect.DeepEqual(registroActividadActual["Valor"], registroActividad["Valor"]) && reflect.DeepEqual(registroActividadActual["Activo"], registroActividad["Activo"]) {
+	if reflect.DeepEqual(idActividad["Id"], registroActividad["ActividadId"]) &&
+		reflect.DeepEqual(registroActividadActual["Valor"], registroActividad["Valor"]) &&
+		reflect.DeepEqual(registroActividadActual["Activo"], registroActividad["Activo"]) {
 		return true
 	} else {
 		return false
@@ -145,6 +179,7 @@ func RegistroModificado(registroActividad map[string]interface{}, RegistroPlanAd
 
 }
 
+//FuenteFinanciamientoModificado valida si se modificaron campos de una fuente de financiamiento
 func FuenteFinanciamientoModificado(registroActividad map[string]interface{}, idStr string) (outputError interface{}) {
 	FuentesFinanciamiento := registroActividad["FuentesFinanciamiento"].([]interface{})
 	for fuenteIndex := range FuentesFinanciamiento {
