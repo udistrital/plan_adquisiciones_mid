@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-//IngresoRegistroModalidadSeleccion ...
+//IngresoRegistroModalidadSeleccion ingresa un elemento a la tabla modalid de seleccion
 func IngresoRegistroModalidadSeleccion(registroModalidadSeleccion map[string]interface{}) (registroModalidadSeleccionRespuesta map[string]interface{}, outputError interface{}) {
 	registroModalidadSeleccionIngresado := make(map[string]interface{})
 	registroModalidadSeleccionPost := make(map[string]interface{})
@@ -28,7 +28,7 @@ func IngresoRegistroModalidadSeleccion(registroModalidadSeleccion map[string]int
 
 }
 
-//GuardarModalidadSeleccion ...
+//GuardarModalidadSeleccion descompone el array de modalidad de selección para crear uno a uno
 func GuardarModalidadSeleccion(ModalidadesSeleccion []interface{}, idPost interface{}) (registroModalidadSeleccionRespuesta []map[string]interface{}, outputError interface{}) {
 	resultModalidad := make([]map[string]interface{}, 0)
 	for Index := range ModalidadesSeleccion {
@@ -44,7 +44,7 @@ func GuardarModalidadSeleccion(ModalidadesSeleccion []interface{}, idPost interf
 	return resultModalidad, nil
 }
 
-//ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion ...
+//ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion regresa una registro de la tabla modalidad de seleccioón segun un Id de un registro_plan_adquisicion
 func ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr string) (ModalidadSeleccion []map[string]interface{}, outputError interface{}) {
 	var modalidadSeleccion []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/?query=RegistroPlanAdquisicionesId.id%3A"+idStr+"%2CActivo%3Atrue", &modalidadSeleccion)
@@ -56,7 +56,7 @@ func ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr string) (Modalid
 
 }
 
-//ObtenerRegistroModalidadSeleccionByID ...
+//ObtenerRegistroModalidadSeleccionByID regresa una registro de la tabla modalidad de seleccioón segun el ID
 func ObtenerRegistroModalidadSeleccionByID(idStr string) (ModalidadSeleccion map[string]interface{}, outputError interface{}) {
 	var modalidadSeleccion map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/"+idStr, &modalidadSeleccion)
@@ -68,7 +68,7 @@ func ObtenerRegistroModalidadSeleccionByID(idStr string) (ModalidadSeleccion map
 
 }
 
-//ModalidadSeleccionModificado ...
+//ModalidadSeleccionModificado descompone el array de modalidad de selección para actualizar uno a uno
 func ModalidadSeleccionModificado(registroPlanAdquisicion map[string]interface{}, idStr string) (outputError interface{}) {
 	ModalidadesSeleccion := registroPlanAdquisicion["ModalidadSeleccion"].([]interface{})
 	for Index := range ModalidadesSeleccion {
@@ -81,7 +81,7 @@ func ModalidadSeleccionModificado(registroPlanAdquisicion map[string]interface{}
 	return nil
 }
 
-//ActualizarRegistroModalidadSeleccion ...
+//ActualizarRegistroModalidadSeleccion Actualiza la modalidad de selección y la crea en caso de que no exista
 func ActualizarRegistroModalidadSeleccion(registroModalidadSeleccion map[string]interface{}, idStr string, idStrPlanAdquisicion string) (registroModalidadSeleccionRespuesta map[string]interface{}, outputError interface{}) {
 	ModalidadSeleccionPut := make(map[string]interface{})
 	ModalidadSeleccionActualizar := make(map[string]interface{})
@@ -128,7 +128,7 @@ func ActualizarRegistroModalidadSeleccion(registroModalidadSeleccion map[string]
 
 }
 
-//RegistroModalidadSeleccionValidacion ...
+//RegistroModalidadSeleccionValidacion Valida si se requiere actualizar campos , regresa false en caso que se requiera actualizar
 func RegistroModalidadSeleccionValidacion(registroModalidadSeleccion map[string]interface{}, RegistroModalidadSeleccionAntiguo map[string]interface{}) (validacion bool) {
 	registroModalidadSeleccionActual := make(map[string]interface{})
 

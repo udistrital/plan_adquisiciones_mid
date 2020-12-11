@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-//ObtenerRegistroPlanAdquisicion ...
+//ObtenerRegistroPlanAdquisicion regresa todos los registros de plan de adquisicion
 func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", &RegistroPlanAdquisicion)
@@ -22,7 +22,7 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 
 }
 
-//ObtenerRegistroPlanAdquisicionByIDplan ...
+//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun su ID
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroPlanAdquisicion map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	var rubro []map[string]interface{}
@@ -53,7 +53,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 	}
 }
 
-//IngresoPlanAdquisicion ...
+//IngresoPlanAdquisicion crea un registro de plan de adquisicion
 func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
 	registroPlanAdquisicionIngresado := make(map[string]interface{})
 	registroPlanAdquisicionPost := make(map[string]interface{})
@@ -105,7 +105,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 
 }
 
-//ObtenerRenglonRegistroPlanAdquisicionByID ...
+//ObtenerRenglonRegistroPlanAdquisicionByID regresa un renglon segun el id del registro de plan de adquisicion
 func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id%3A"+idStr, &RenglonRegistroPlanAdquisicion)
@@ -142,7 +142,7 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 
 }
 
-//ActualizarRegistroPlanAdquisicion ...
+//ActualizarRegistroPlanAdquisicion verifica y actualiza los campos de un renglon segun el ID de un registro plan de adquisicion
 func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interface{}, idStr string) (registroActividadRespuesta map[string]interface{}, outputError interface{}) {
 	registroPlanAdquisicionPut := make(map[string]interface{})
 	registroPlanAdquisicionActualizar := make(map[string]interface{})
@@ -222,7 +222,7 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 	}
 }
 
-//RegistroPlanAdquisicionModificado ...
+//RegistroPlanAdquisicionModificado Valida si existen actualizaciones en los campos del registro de plan de adquisicion
 func RegistroPlanAdquisicionModificado(registroPlanAdquisicion map[string]interface{}, RegistroPlanAdquisicionAntiguo map[string]interface{}, idStr string) (validacion bool) {
 	registroPlanAdquisicionActual := make(map[string]interface{})
 
@@ -260,7 +260,7 @@ func RegistroPlanAdquisicionModificado(registroPlanAdquisicion map[string]interf
 
 }
 
-//EliminarCampos ...
+//EliminarCampos eliminar campos que no se quieran ver en el JSON
 func EliminarCampos(mapa []map[string]interface{}, campo string) {
 	for index := range mapa {
 		delete(mapa[index], campo)
@@ -268,7 +268,7 @@ func EliminarCampos(mapa []map[string]interface{}, campo string) {
 
 }
 
-//SeparaFuentes ...
+//SeparaFuentes separa el id del rubro y su fuente
 func SeparaFuentes(RubroRegistroPlanAdquisicion interface{}) (string, interface{}) {
 	str := MapToString(RubroRegistroPlanAdquisicion)
 	fuente := strings.Split(str, "-")
@@ -280,13 +280,13 @@ func SeparaFuentes(RubroRegistroPlanAdquisicion interface{}) (string, interface{
 	return fuentes, nil
 }
 
-//MapToString ...
+//MapToString convierte un MAP a string
 func MapToString(RubroRegistroPlanAdquisicion interface{}) string {
 	str := fmt.Sprintf("%v", RubroRegistroPlanAdquisicion)
 	return str
 }
 
-// stringInSlice returns true/false if there is a repeated item
+// stringInSlice regresa true/false si se repite un elemento
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {

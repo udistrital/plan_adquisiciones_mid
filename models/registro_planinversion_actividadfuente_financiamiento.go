@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-//ObtenerRegistroPlanInversionActividadFuente ...
+//ObtenerRegistroPlanInversionActividadFuente regresa los elementos de la tabla registros_inversion_actividad-fuente_financiamiento
 func ObtenerRegistroPlanInversionActividadFuente() (registroPlanAdquisicionActividadFuente []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/", &RegistroPlanAdquisicionActividadFuente)
@@ -22,7 +22,7 @@ func ObtenerRegistroPlanInversionActividadFuente() (registroPlanAdquisicionActiv
 
 }
 
-//IngresoRegistroPlanInversionActividadFuente ...
+//IngresoRegistroPlanInversionActividadFuente ingresa un elemento a la tabla los registros_inversion_actividad-fuente_financiamiento
 func IngresoRegistroPlanInversionActividadFuente(registroActividadFuente map[string]interface{}) (registroActividadFuenteRespuesta map[string]interface{}, outputError interface{}) {
 	registroActividadFuenteIngresado := make(map[string]interface{})
 	registroActividadFuentePost := make(map[string]interface{})
@@ -42,7 +42,7 @@ func IngresoRegistroPlanInversionActividadFuente(registroActividadFuente map[str
 
 }
 
-//ActualizarRegistroActividadFuente ...
+//ActualizarRegistroActividadFuente actualiza un elemento de registro inversion fuente financiamiento, si no existe lo crea
 func ActualizarRegistroActividadFuente(registroActividadFuente map[string]interface{}, idStr string, idStrActividad string) (registroActividadFuenteRespuesta map[string]interface{}, outputError interface{}) {
 	fuenteActividadPut := make(map[string]interface{})
 	fuenteActividadActualizar := make(map[string]interface{})
@@ -90,7 +90,7 @@ func ActualizarRegistroActividadFuente(registroActividadFuente map[string]interf
 
 }
 
-//ObtenerRegistroPlanAdquisicionActividadFuenteByID ...
+//ObtenerRegistroPlanAdquisicionActividadFuenteByID obtener un elemento segun el ID del registro inversion fuente financiamiento
 func ObtenerRegistroPlanAdquisicionActividadFuenteByID(idStr string) (registroPlanAdquisicionActividadFuente map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+idStr, &RegistroPlanAdquisicionActividadFuente)
@@ -102,7 +102,7 @@ func ObtenerRegistroPlanAdquisicionActividadFuenteByID(idStr string) (registroPl
 
 }
 
-//ObtenerRegistroTablaActividades ...
+//ObtenerRegistroTablaActividades regresa una tabla ordenada del registro de actividades con sus fuentes de financiamiento
 func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActividadFuente []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
 	var unicos []string
@@ -159,7 +159,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 
 }
 
-//RegistroFuenteModificado ...
+//RegistroFuenteModificado valida si algun campo de la fuente de financiamiento fue modificado
 func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPlanAdquisicionActividadFuente map[string]interface{}) (validacion bool) {
 	registroFuenteActual := make(map[string]interface{})
 
@@ -178,7 +178,7 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 
 }
 
-//SumaFuenteFinanciamiento ...
+//SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento segun el ID de un registro plan de adquisicion
 func SumaFuenteFinanciamiento(idStr string) (total interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
 	var valor float64

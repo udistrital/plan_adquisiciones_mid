@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-//IngresoRegistroCodigoArka ...
+//IngresoRegistroCodigoArka ingresar elemento en la tabla de Registro_Plan_adquisiciones_codigo_arka
 func IngresoRegistroCodigoArka(registroCodigoArka map[string]interface{}) (registroCodigoArkaRespuesta map[string]interface{}, outputError interface{}) {
 	registroCodigoArkaIngresado := make(map[string]interface{})
 	registroCodigoArkaPost := make(map[string]interface{})
@@ -28,7 +28,7 @@ func IngresoRegistroCodigoArka(registroCodigoArka map[string]interface{}) (regis
 
 }
 
-//GuardarCodigoArka ...
+//GuardarCodigoArka descompone array para ingresar uno a uno los registro codigo arka
 func GuardarCodigoArka(CodigosArka []interface{}, idPost interface{}) (registroCodigosArkaRespuesta []map[string]interface{}, outputError interface{}) {
 	resultCodigo := make([]map[string]interface{}, 0)
 	for Index := range CodigosArka {
@@ -44,7 +44,7 @@ func GuardarCodigoArka(CodigosArka []interface{}, idPost interface{}) (registroC
 	return resultCodigo, nil
 }
 
-//ObtenerRegistroCodigoArkaByIDPlanAdquisicion ...
+//ObtenerRegistroCodigoArkaByIDPlanAdquisicion regresa registro codigo arka segun ID de registro plan adquisiciones
 func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []map[string]interface{}, outputError interface{}) {
 	var codigoArka []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/?query=RegistroPlanAdquisicionesId.id%3A"+idStr+"%2CActivo%3Atrue", &codigoArka)
@@ -56,7 +56,7 @@ func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []ma
 
 }
 
-//ObtenerRegistroCodigoArkaByID ...
+//ObtenerRegistroCodigoArkaByID regresa registro codigo arka segun ID
 func ObtenerRegistroCodigoArkaByID(idStr string) (CodigoArka map[string]interface{}, outputError interface{}) {
 	var codigoArka map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/"+idStr, &codigoArka)
@@ -68,7 +68,7 @@ func ObtenerRegistroCodigoArkaByID(idStr string) (CodigoArka map[string]interfac
 
 }
 
-//CodigoArkaModificado ...
+//CodigoArkaModificado descompone array para actualizar codigo arka uno a uno
 func CodigoArkaModificado(registroPlanAdquisicion map[string]interface{}, idStr string) (outputError interface{}) {
 	CodigosArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
 	for Index := range CodigosArka {
@@ -81,7 +81,7 @@ func CodigoArkaModificado(registroPlanAdquisicion map[string]interface{}, idStr 
 	return nil
 }
 
-//ActualizarRegistroCodigoArka ...
+//ActualizarRegistroCodigoArka actualiza un registro de codigo arka y si no existe lo crea
 func ActualizarRegistroCodigoArka(registroCodigoArka map[string]interface{}, idStr string, idStrPlanAdquisicion string) (registroCodigoArkaRespuesta map[string]interface{}, outputError interface{}) {
 	CodigoArkaPut := make(map[string]interface{})
 	CodigoArkaActualizar := make(map[string]interface{})
@@ -128,7 +128,7 @@ func ActualizarRegistroCodigoArka(registroCodigoArka map[string]interface{}, idS
 
 }
 
-//RegistroCodigoArkaValidacion ...
+//RegistroCodigoArkaValidacion valida si se debe modificar campos del codigo arka
 func RegistroCodigoArkaValidacion(registroCodigoArka map[string]interface{}, RegistroCodigoArkaAntiguo map[string]interface{}) (validacion bool) {
 	registroCodigoArkaActual := make(map[string]interface{})
 

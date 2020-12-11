@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-//ObtenerRegistroPlanAdquisicionActividad ...
+//ObtenerRegistroPlanAdquisicionActividad regresa todos los elementos de la tabla registro_plan_adquisicion_Actividad
 func ObtenerRegistroPlanAdquisicionActividad() (registroPlanAdquisicionActividad []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividad []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/", &RegistroPlanAdquisicionActividad)
@@ -22,7 +22,7 @@ func ObtenerRegistroPlanAdquisicionActividad() (registroPlanAdquisicionActividad
 
 }
 
-//IngresoRegistroActividad ...
+//IngresoRegistroActividad crea un nuevo elemento en la tabla registro_plan_adquisicion_Actividad
 func IngresoRegistroActividad(registroActividad map[string]interface{}) (registroActividadRespuesta []map[string]interface{}, outputError interface{}) {
 	registroActividadIngresado := make(map[string]interface{})
 	registroActividadPost := make(map[string]interface{})
@@ -55,7 +55,7 @@ func IngresoRegistroActividad(registroActividad map[string]interface{}) (registr
 
 }
 
-//CodigoArkaModificado ...
+//RegistroActividadModificado descompone un array para actualizar uno a uno un registro de actividad
 func RegistroActividadModificado(registroPlanAdquisicion map[string]interface{}, idStr string) (outputError interface{}) {
 	RegistroActividades := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
 	for Index := range RegistroActividades {
@@ -70,7 +70,7 @@ func RegistroActividadModificado(registroPlanAdquisicion map[string]interface{},
 	return nil
 }
 
-//ActualizarRegistroActividad ...
+//ActualizarRegistroActividad actualiza registro de actividad, si no existe se crea
 func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr string) (registroActividadRespuesta map[string]interface{}, outputError interface{}) {
 	registroActividadPut := make(map[string]interface{})
 	registroActividadActualizar := make(map[string]interface{})
@@ -124,7 +124,7 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 	}
 }
 
-//GuardarPlanAdquisicionActividad ...
+//GuardarPlanAdquisicionActividad descompone array para ingresar uno a uno los registros de actividad
 func GuardarPlanAdquisicionActividad(PlanAdquisicionActividades []interface{}, idPost interface{}) (registroPlanAdquisicionActividadRespuesta []map[string]interface{}, outputError interface{}) {
 	resultPlanAdquisicionActividad := make([]map[string]interface{}, 0)
 	for Index := range PlanAdquisicionActividades {
@@ -140,7 +140,7 @@ func GuardarPlanAdquisicionActividad(PlanAdquisicionActividades []interface{}, i
 	return resultPlanAdquisicionActividad, nil
 }
 
-//ObtenerRegistroPlanAdquisicionActividadByID ...
+//ObtenerRegistroPlanAdquisicionActividadByID un registro de actividad segun su ID
 func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdquisicionActividad map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividad map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/"+idStr, &RegistroPlanAdquisicionActividad)
@@ -152,7 +152,7 @@ func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdqu
 
 }
 
-//RegistroActividadValidacion ...
+//RegistroActividadValidacion valida si se modificaron campos de un registro de actividad
 func RegistroActividadValidacion(registroActividad map[string]interface{}, RegistroPlanAdquisicionActividad map[string]interface{}, idStr string) (validacion bool) {
 	registroActividadActual := make(map[string]interface{})
 
@@ -179,7 +179,7 @@ func RegistroActividadValidacion(registroActividad map[string]interface{}, Regis
 
 }
 
-//FuenteFinanciamientoModificado ...
+//FuenteFinanciamientoModificado valida si se modificaron campos de una fuente de financiamiento
 func FuenteFinanciamientoModificado(registroActividad map[string]interface{}, idStr string) (outputError interface{}) {
 	FuentesFinanciamiento := registroActividad["FuentesFinanciamiento"].([]interface{})
 	for fuenteIndex := range FuentesFinanciamiento {

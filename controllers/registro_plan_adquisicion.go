@@ -18,10 +18,10 @@ func (c *Registro_plan_adquisicionController) URLMapping() {
 	c.Mapping("GetOne", c.GetOne)
 	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
+
 }
 
-// Post ...
+// Post Función para ingresar un nuevo renglon de un registro de plan de adquisición incluye modalidad selección, CodigoArka, Plan_adquisicion_actividad y Fuente de financiamiento
 // @Title Create
 // @Description create Registro_plan_adquisicionController
 // @Param	body		body 	models.Registro_plan_adquisicion	true		"body for Registro_plan_adquisicion content"
@@ -62,10 +62,10 @@ func (c *Registro_plan_adquisicionController) Post() {
 
 }
 
-// GetOne ...
+// GetOne Función para obterner un renglon con toda la información de un regristro de plan de adquisición incluye modalidad selección, CodigoArka, Plan_adquisicion_actividad y Fuente de financiamiento
 // @Title GetOne
 // @Description get Registro_plan_adquisicionController by id
-// @Param	id		path 	string	true		"The key for staticblock"
+// @Param	id		path 	string	true		"Id de un registro de plan de adquisicion"
 // @Success 200 {object} models.Registro_plan_adquisicion
 // @Failure 403 :id is empty
 // @router /:id [get]
@@ -120,10 +120,10 @@ func (c *Registro_plan_adquisicionController) GetAll() {
 
 }
 
-// Put ...
+// Put Función encargada de actualizar un renglon del plan de adquisición incluye modalidad selección, CodigoArka, Plan_adquisicion_actividad y Fuente de financiamiento
 // @Title Put
 // @Description update the Registro_plan_adquisicionController
-// @Param	id		path 	string	true		"The id you want to update"
+// @Param	id		path 	string	true		"Id del registro del plan de adquisición que se actualizará"
 // @Param	body		body 	models.Registro_plan_adquisicion	true		"body for Registro_plan_adquisicion content"
 // @Success 200 {object} models.Registro_plan_adquisicion
 // @Failure 403 :id is not int
@@ -160,16 +160,5 @@ func (c *Registro_plan_adquisicionController) Put() {
 
 	c.Data["json"] = alertErr
 	c.ServeJSON()
-
-}
-
-// Delete ...
-// @Title Delete
-// @Description delete the Registro_plan_adquisicionController
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *Registro_plan_adquisicionController) Delete() {
 
 }
