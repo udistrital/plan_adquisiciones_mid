@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
-//ObtenerRegistroPlanInversionActividadFuente ...
+//ObtenerRegistroPlanInversionActividadFuente regresa los elementos de la tabla registros_inversion_actividad-fuente_financiamiento
 func ObtenerRegistroPlanInversionActividadFuente() (registroPlanAdquisicionActividadFuente []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/", &RegistroPlanAdquisicionActividadFuente)
@@ -22,7 +22,7 @@ func ObtenerRegistroPlanInversionActividadFuente() (registroPlanAdquisicionActiv
 
 }
 
-//IngresoRegistroActividad ...
+//IngresoRegistroPlanInversionActividadFuente ingresa un elemento a la tabla los registros_inversion_actividad-fuente_financiamiento
 func IngresoRegistroPlanInversionActividadFuente(registroActividadFuente map[string]interface{}) (registroActividadFuenteRespuesta map[string]interface{}, outputError interface{}) {
 	registroActividadFuenteIngresado := make(map[string]interface{})
 	registroActividadFuentePost := make(map[string]interface{})
@@ -42,7 +42,7 @@ func IngresoRegistroPlanInversionActividadFuente(registroActividadFuente map[str
 
 }
 
-//ActualizarRegistroActividad ...
+//ActualizarRegistroActividadFuente actualiza un elemento de registro inversion fuente financiamiento, si no existe lo crea
 func ActualizarRegistroActividadFuente(registroActividadFuente map[string]interface{}, idStr string, idStrActividad string) (registroActividadFuenteRespuesta map[string]interface{}, outputError interface{}) {
 	fuenteActividadPut := make(map[string]interface{})
 	fuenteActividadActualizar := make(map[string]interface{})
@@ -90,7 +90,7 @@ func ActualizarRegistroActividadFuente(registroActividadFuente map[string]interf
 
 }
 
-//ObtenerRegistroPlanAdquisicionActividadFuenteByID ...
+//ObtenerRegistroPlanAdquisicionActividadFuenteByID obtener un elemento segun el ID del registro inversion fuente financiamiento
 func ObtenerRegistroPlanAdquisicionActividadFuenteByID(idStr string) (registroPlanAdquisicionActividadFuente map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+idStr, &RegistroPlanAdquisicionActividadFuente)
@@ -102,14 +102,14 @@ func ObtenerRegistroPlanAdquisicionActividadFuenteByID(idStr string) (registroPl
 
 }
 
-//ObtenerRegistroPlanAdquisicionActividadFuenteByActividadID ...
+//ObtenerRegistroTablaActividades regresa una tabla ordenada del registro de actividades con sus fuentes de financiamiento
 func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActividadFuente []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
 	var unicos []string
 	registro := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	fuentesFinanciamiento := make([]map[string]interface{}, 0)
-	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id%3A" + idStr + "&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
+	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id%3A" + idStr + "%2CRegistroPlanAdquisicionesActividadId.Activo%3Atrue%2CActivo%3Atrue&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
 
 	if error != nil {
@@ -125,6 +125,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			ActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Id"]
 			ValorActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Valor"]
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
+			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
 			newdata := stringInSlice(fmt.Sprintf("%.0f", RegistroActividadID.(float64)), unicos)
 			if !newdata {
 				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
@@ -133,6 +134,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			}
 
 			fuenteFinanciamiento := map[string]interface{}{
+				"Id":                   RegistroPlanAdquisicionActividadFuente[index]["Id"],
 				"ValorAsignado":        RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"],
 				"Activo":               RegistroPlanAdquisicionActividadFuente[index]["Activo"],
 				"FuenteFinanciamiento": RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"],
@@ -143,7 +145,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				"ActividadId":                 ActividadID,
 				"RegistroPlanAdquisicionesId": idStr,
 				"Valor":                       ValorActividad,
-				"Activo":                      RegistroPlanAdquisicionActividadFuente[index]["Activo"],
+				"Activo":                      ActivoActividad,
 				"RegistroActividadId":         RegistroActividadID,
 				"FuentesFinanciamiento":       fuentesFinanciamiento,
 			}
@@ -157,7 +159,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 
 }
 
-//RegistroFuenteModificado ...
+//RegistroFuenteModificado valida si algun campo de la fuente de financiamiento fue modificado
 func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPlanAdquisicionActividadFuente map[string]interface{}) (validacion bool) {
 	registroFuenteActual := make(map[string]interface{})
 
@@ -176,7 +178,7 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 
 }
 
-//SumaFuenteFinanciamiento ...
+//SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento segun el ID de un registro plan de adquisicion
 func SumaFuenteFinanciamiento(idStr string) (total interface{}) {
 	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
 	var valor float64

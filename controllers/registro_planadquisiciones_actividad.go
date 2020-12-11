@@ -19,7 +19,7 @@ func (c *Registro_PlanAdquisiciones_ActividadController) URLMapping() {
 	c.Mapping("Put", c.Put)
 }
 
-// Post ...
+// Post Funcion para ingresar un nuevo registro de actividad a la tabla registro_plan_adquisición_actividad
 // @Title Create
 // @Description create Registro_PlanAdquisiciones_Actividad
 // @Param	body		body 	models.Registro_PlanAdquisiciones_Actividad	true		"body for Registro_PlanAdquisiciones_Actividad content"
@@ -61,7 +61,7 @@ func (c *Registro_PlanAdquisiciones_ActividadController) Post() {
 
 }
 
-// GetAll ...
+// GetAll Funcion para regresar todos los elementos de la tabla registro_plan_adquisición_actividad
 // @Title GetAll
 // @Description get Registro_PlanAdquisiciones_Actividad
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
@@ -95,10 +95,10 @@ func (c *Registro_PlanAdquisiciones_ActividadController) GetAll() {
 
 }
 
-// Put ...
+// Put Función para actualizar un elemento de la tabla registro_plan_adquisición_actividad
 // @Title Put
 // @Description update the Registro_PlanAdquisiciones_Actividad
-// @Param	id		path 	string	true		"The id you want to update"
+// @Param	id		path 	string	true		"Id del registro_plan_adquisición_actividad"
 // @Param	body		body 	models.Registro_PlanAdquisiciones_Actividad	true		"body for Registro_PlanAdquisiciones_Actividad content"
 // @Success 200 {object} models.Registro_PlanAdquisiciones_Actividad
 // @Failure 403 :id is not int

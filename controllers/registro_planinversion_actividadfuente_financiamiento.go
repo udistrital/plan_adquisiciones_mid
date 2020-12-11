@@ -20,7 +20,7 @@ func (c *Registro_PlanInversion_ActividadFuente_financiamientoController) URLMap
 
 }
 
-// Post ...
+// Post Función para ingresar un nuevo elemento en la tabla registro_inversion_actividad-Fuente_financiamiento
 // @Title Create
 // @Description create Registro_PlanInversion_ActividadFuente_financiamiento
 // @Param	body		body 	models.Registro_PlanInversion_ActividadFuente_financiamiento	true		"body for Registro_PlanInversion_ActividadFuente_financiamiento content"
@@ -61,9 +61,10 @@ func (c *Registro_PlanInversion_ActividadFuente_financiamientoController) Post()
 
 }
 
-// GetAll ...
+// GetAll Funcion para regresar la tabla de actividades con sus fuentes de financiamiento segun el Id del un registro_plan_adquisicion
 // @Title GetAll
 // @Description get Registro_PlanInversion_ActividadFuente_financiamiento
+// @Param	id		path 	string	true	"Id de un elemento de la tabla registro_plan_adquisicion"
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
 // @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
@@ -97,10 +98,10 @@ func (c *Registro_PlanInversion_ActividadFuente_financiamientoController) GetAll
 
 }
 
-// Put ...
+// Put Función para actualizar un elemento de la tabla registro_inversion_actividad-Fuente_financiamiento
 // @Title Put
 // @Description update the Registro_PlanInversion_ActividadFuente_financiamiento
-// @Param	id		path 	string	true		"The id you want to update"
+// @Param	id		path 	string	true		"Id de un elemento de la tabla registro_inversion_actividad-Fuente_financiamiento"
 // @Param	body		body 	models.Registro_PlanInversion_ActividadFuente_financiamiento	true		"body for Registro_PlanInversion_ActividadFuente_financiamiento content"
 // @Success 200 {object} models.Registro_PlanInversion_ActividadFuente_financiamiento
 // @Failure 403 :id is not int
