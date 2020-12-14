@@ -75,6 +75,11 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
 	PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
 
+	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string))
+	if errorSuma != nil {
+		return nil, errorSuma
+	}
+
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", "POST", &registroPlanAdquisicionPost, registroPlanAdquisicionIngresado)
 	if error != nil {
 		return nil, nil
@@ -109,7 +114,6 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id%3A"+idStr, &RenglonRegistroPlanAdquisicion)
-
 	if error != nil {
 		return nil, error
 	} else {
@@ -163,6 +167,12 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 			validacion := RegistroPlanAdquisicionModificado(registroPlanAdquisicion, RegistroPlanAdquisicionAntiguo[0], idStr)
 			if validacion {
 				//fmt.Println("existe registro Plan Adquisicion y no toca modificarlo")
+				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string))
+				if errorSuma != nil {
+					return nil, errorSuma
+				}
+
 				error := CodigoArkaModificado(registroPlanAdquisicion, idStr)
 				if error != nil {
 					return nil, error
@@ -181,6 +191,12 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 				}
 			} else {
 				//fmt.Println("existe registro y  toca modificarlo")
+				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string))
+				if errorSuma != nil {
+					return nil, errorSuma
+				}
+
 				registroPlanAdquisicionActualizar = map[string]interface{}{
 					"AreaFuncional":       registroPlanAdquisicion["AreaFuncional"],
 					"CentroGestor":        registroPlanAdquisicion["CentroGestor"],
