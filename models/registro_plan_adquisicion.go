@@ -39,7 +39,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
 			fuentes, errFuente := SeparaFuentes(RegistroPlanAdquisicion[rubroindex]["RubroId"])
 			if errFuente != nil {
-				return nil, errFuente
+				return RegistroPlanAdquisicion[rubroindex], nil
 			}
 			newfuente := stringInSlice(fuentes, unicos)
 			if !newfuente {
