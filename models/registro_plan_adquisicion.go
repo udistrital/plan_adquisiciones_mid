@@ -75,7 +75,8 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
 	PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
 
-	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string))
+	idRegistroPlan := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), idRegistroPlan)
 	if errorSuma != nil {
 		return nil, errorSuma
 	}
@@ -129,11 +130,11 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 			if error != nil {
 				return nil, error
 			} else {
-				RegistroPlanAdquisicionActividad, error := ObtenerRegistroTablaActividades(idStr)
+				Meta, error := ObtenerMetaByID(RenglonRegistroPlanAdquisicion[0]["MetaId"].(string))
 				if error != nil {
 					return nil, error
 				} else {
-					Meta, error := ObtenerMetaByID(RenglonRegistroPlanAdquisicion[0]["MetaId"].(string))
+					RegistroPlanAdquisicionActividad, error := ObtenerRegistroTablaActividades(idStr)
 					if error != nil {
 						return nil, error
 					} else {
@@ -141,11 +142,12 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 						if error != nil {
 							return nil, error
 						} else {
-							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string))
-							if error != nil {
+							Vigencia, CentroGestor, errorVigenciaYCentroGestor := VigenciaYCentroGestor(idStr)
+							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, CentroGestor)
+							if error != nil && errorVigenciaYCentroGestor != nil {
 								return nil, error
 							} else {
-								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string))
+								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, CentroGestor)
 								if error != nil {
 									return nil, error
 								} else {
@@ -192,7 +194,7 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 			if validacion {
 				//fmt.Println("existe registro Plan Adquisicion y no toca modificarlo")
 				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string))
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), idStr)
 				if errorSuma != nil {
 					return nil, errorSuma
 				}
@@ -216,7 +218,7 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 			} else {
 				//fmt.Println("existe registro y  toca modificarlo")
 				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string))
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), idStr)
 				if errorSuma != nil {
 					return nil, errorSuma
 				}
@@ -334,4 +336,19 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+// VigenciaYCentroGestor regresa vigencia y centroGestor gestor
+func VigenciaYCentroGestor(RegistroplanAdquisicionID string) (Vigencia string, CentroGestor string, outputError interface{}) {
+	var RegistroPlanAdquisicion []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id%3A33&fields=MetaId%2CPlanAdquisicionesId", &RegistroPlanAdquisicion)
+	if error != nil {
+		return "", "", error
+	} else {
+		lineamiento, _ := ObtenerLineamiento(RegistroPlanAdquisicion[0]["MetaId"].(string))
+		centroGestor := fmt.Sprintf("%.0f", lineamiento[0]["LineamientoId"].(map[string]interface{})["CentroGestor"].(float64))
+		vigencia := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["PlanAdquisicionesId"].(map[string]interface{})["Vigencia"].(float64))
+		return vigencia, centroGestor, nil
+	}
+
 }
