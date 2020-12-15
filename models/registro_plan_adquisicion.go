@@ -133,11 +133,35 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 				if error != nil {
 					return nil, error
 				} else {
-					EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
-					EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
-					RenglonRegistroPlanAdquisicion[0]["CodigoArka"] = CodigoArka
-					RenglonRegistroPlanAdquisicion[0]["ModalidadSeleccion"] = ModalidadSeleccion
-					RenglonRegistroPlanAdquisicion[0]["RegistroPlanAdquisicionActividad"] = RegistroPlanAdquisicionActividad
+					Meta, error := ObtenerMetaByID(RenglonRegistroPlanAdquisicion[0]["MetaId"].(string))
+					if error != nil {
+						return nil, error
+					} else {
+						Producto, error := ObtenerProductoByID(RenglonRegistroPlanAdquisicion[0]["ProductoId"].(string))
+						if error != nil {
+							return nil, error
+						} else {
+							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string))
+							if error != nil {
+								return nil, error
+							} else {
+								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string))
+								if error != nil {
+									return nil, error
+								} else {
+									EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
+									EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
+									RenglonRegistroPlanAdquisicion[0]["CodigoArka"] = CodigoArka
+									RenglonRegistroPlanAdquisicion[0]["ModalidadSeleccion"] = ModalidadSeleccion
+									RenglonRegistroPlanAdquisicion[0]["RegistroPlanAdquisicionActividad"] = RegistroPlanAdquisicionActividad
+									RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
+									RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
+									RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
+									RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -292,7 +316,7 @@ func SeparaFuentes(RubroRegistroPlanAdquisicion interface{}) (string, interface{
 		error := "No existe Plan de adquisicion"
 		return "", error
 	}
-	fuentes := fuente[0] + fuente[1]
+	fuentes := fuente[0] + "-" + fuente[1]
 	return fuentes, nil
 }
 

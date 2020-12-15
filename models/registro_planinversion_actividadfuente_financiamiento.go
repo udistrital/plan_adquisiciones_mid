@@ -126,6 +126,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			ValorActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Valor"]
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
 			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
+			NombreActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Nombre"]
 			newdata := stringInSlice(fmt.Sprintf("%.0f", RegistroActividadID.(float64)), unicos)
 			if !newdata {
 				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
@@ -133,16 +134,22 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				fuentesFinanciamiento = make([]map[string]interface{}, 0)
 			}
 
+			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string))
+			if errorFuente != nil {
+				return nil, errorFuente
+			}
 			fuenteFinanciamiento := map[string]interface{}{
 				"Id":                   RegistroPlanAdquisicionActividadFuente[index]["Id"],
 				"ValorAsignado":        RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"],
 				"Activo":               RegistroPlanAdquisicionActividadFuente[index]["Activo"],
 				"FuenteFinanciamiento": RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"],
+				"Nombre":               Fuente["Nombre"],
 			}
 			fuentesFinanciamiento = append(fuentesFinanciamiento, fuenteFinanciamiento)
 
 			registro = map[string]interface{}{
 				"ActividadId":                 ActividadID,
+				"Nombre":                      NombreActividad,
 				"RegistroPlanAdquisicionesId": idStr,
 				"Valor":                       ValorActividad,
 				"Activo":                      ActivoActividad,
@@ -151,8 +158,6 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			}
 
 		}
-		// valor := SumaFuenteFinanciamiento(idStr)
-		// fmt.Println(valor)
 		registros = append(registros[1:], registro)
 		return registros, nil
 	}
@@ -205,5 +210,22 @@ func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro 
 			return errorValorRubro
 		}
 		return nil
+	}
+}
+
+//ObtenerFuenteFinanciamientoByCodigo Trae campos de fuente financiamiento segun codigo
+func ObtenerFuenteFinanciamientoByCodigo(Codigo string) (fuentefinanciamiento map[string]interface{}, outputError interface{}) {
+	var FuenteFinanciamientoMongo map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"fuente_financiamiento/"+Codigo+"/2020/1", &FuenteFinanciamientoMongo)
+	if error != nil {
+		return nil, error
+	} else {
+		if FuenteFinanciamientoMongo["Body"] == nil {
+			error := "No se encontro fuente de financiamiento"
+			return nil, error
+		}
+		m := FuenteFinanciamientoMongo["Body"].(interface{})
+		FuenteFinanciamiento := m.(map[string]interface{})
+		return FuenteFinanciamiento, nil
 	}
 }
