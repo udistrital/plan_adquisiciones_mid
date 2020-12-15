@@ -188,14 +188,9 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 }
 
 //SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento Antes de realizar un POST o PUT de un renglon
-func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, idRegistroPlanAdquisicion string) (outputError interface{}) {
+func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, Vigencia string, CentroGestor string) (outputError interface{}) {
 	var RubroMongo map[string]interface{}
 	var valor float64
-	fmt.Print(idRegistroPlanAdquisicion)
-	Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestor(idRegistroPlanAdquisicion)
-	if errorVigencia != nil {
-		return errorVigencia
-	}
 	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+CentroGestor+"/", &RubroMongo)
 	if error != nil {
 		return error
