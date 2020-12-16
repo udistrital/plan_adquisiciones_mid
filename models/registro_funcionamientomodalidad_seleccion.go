@@ -47,7 +47,7 @@ func GuardarModalidadSeleccion(ModalidadesSeleccion []interface{}, idPost interf
 //ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion regresa una registro de la tabla modalidad de seleccioón segun un Id de un registro_plan_adquisicion
 func ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr string) (ModalidadSeleccion []map[string]interface{}, outputError interface{}) {
 	var modalidadSeleccion []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/?query=RegistroPlanAdquisicionesId.id%3A"+idStr+"%2CActivo%3Atrue", &modalidadSeleccion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/?query=RegistroPlanAdquisicionesId.id:"+idStr+",Activo:true", &modalidadSeleccion)
 	if error != nil {
 		return nil, error
 	} else {
