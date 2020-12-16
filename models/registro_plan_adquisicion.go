@@ -75,6 +75,17 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
 	PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
 
+	metaID := registroPlanAdquisicion["MetaId"].(string)
+	PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+	Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestorByMetaIDPlanID(metaID, PlanAdquisicionesID)
+	if errorVigencia != nil {
+		return nil, errorVigencia
+	}
+	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, CentroGestor)
+	if errorSuma != nil {
+		return nil, errorSuma
+	}
+
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", "POST", &registroPlanAdquisicionPost, registroPlanAdquisicionIngresado)
 	if error != nil {
 		return nil, nil
@@ -108,8 +119,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 //ObtenerRenglonRegistroPlanAdquisicionByID regresa un renglon segun el id del registro de plan de adquisicion
 func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id%3A"+idStr, &RenglonRegistroPlanAdquisicion)
-
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:"+idStr, &RenglonRegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
@@ -125,15 +135,40 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 			if error != nil {
 				return nil, error
 			} else {
-				RegistroPlanAdquisicionActividad, error := ObtenerRegistroTablaActividades(idStr)
+				Meta, error := ObtenerMetaByID(RenglonRegistroPlanAdquisicion[0]["MetaId"].(string))
 				if error != nil {
 					return nil, error
 				} else {
-					EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
-					EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
-					RenglonRegistroPlanAdquisicion[0]["CodigoArka"] = CodigoArka
-					RenglonRegistroPlanAdquisicion[0]["ModalidadSeleccion"] = ModalidadSeleccion
-					RenglonRegistroPlanAdquisicion[0]["RegistroPlanAdquisicionActividad"] = RegistroPlanAdquisicionActividad
+					RegistroPlanAdquisicionActividad, error := ObtenerRegistroTablaActividades(idStr)
+					if error != nil {
+						return nil, error
+					} else {
+						Producto, error := ObtenerProductoByID(RenglonRegistroPlanAdquisicion[0]["ProductoId"].(string))
+						if error != nil {
+							return nil, error
+						} else {
+							Vigencia, CentroGestor, errorVigenciaYCentroGestor := VigenciaYCentroGestor(idStr)
+							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, CentroGestor)
+							if error != nil && errorVigenciaYCentroGestor != nil {
+								return nil, error
+							} else {
+								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, CentroGestor)
+								if error != nil {
+									return nil, error
+								} else {
+									EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
+									EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
+									RenglonRegistroPlanAdquisicion[0]["CodigoArka"] = CodigoArka
+									RenglonRegistroPlanAdquisicion[0]["ModalidadSeleccion"] = ModalidadSeleccion
+									RenglonRegistroPlanAdquisicion[0]["RegistroPlanAdquisicionActividad"] = RegistroPlanAdquisicionActividad
+									RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
+									RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
+									RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
+									RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -163,6 +198,16 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 			validacion := RegistroPlanAdquisicionModificado(registroPlanAdquisicion, RegistroPlanAdquisicionAntiguo[0], idStr)
 			if validacion {
 				//fmt.Println("existe registro Plan Adquisicion y no toca modificarlo")
+				Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestor(idStr)
+				if errorVigencia != nil {
+					return nil, errorVigencia
+				}
+				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, CentroGestor)
+				if errorSuma != nil {
+					return nil, errorSuma
+				}
+
 				error := CodigoArkaModificado(registroPlanAdquisicion, idStr)
 				if error != nil {
 					return nil, error
@@ -181,6 +226,16 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 				}
 			} else {
 				//fmt.Println("existe registro y  toca modificarlo")
+				Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestor(idStr)
+				if errorVigencia != nil {
+					return nil, errorVigencia
+				}
+				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, CentroGestor)
+				if errorSuma != nil {
+					return nil, errorSuma
+				}
+
 				registroPlanAdquisicionActualizar = map[string]interface{}{
 					"AreaFuncional":       registroPlanAdquisicion["AreaFuncional"],
 					"CentroGestor":        registroPlanAdquisicion["CentroGestor"],
@@ -276,7 +331,7 @@ func SeparaFuentes(RubroRegistroPlanAdquisicion interface{}) (string, interface{
 		error := "No existe Plan de adquisicion"
 		return "", error
 	}
-	fuentes := fuente[0] + fuente[1]
+	fuentes := fuente[0] + "-" + fuente[1]
 	return fuentes, nil
 }
 
@@ -294,4 +349,38 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+// VigenciaYCentroGestor regresa vigencia y centroGestor gestor
+func VigenciaYCentroGestor(RegistroplanAdquisicionID string) (Vigencia string, CentroGestor string, outputError interface{}) {
+	var RegistroPlanAdquisicion []map[string]interface{}
+
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:33&fields=MetaId,PlanAdquisicionesId", &RegistroPlanAdquisicion)
+	if error != nil {
+		return "", "", error
+	} else {
+		lineamiento, _ := ObtenerLineamiento(RegistroPlanAdquisicion[0]["MetaId"].(string))
+		centroGestor := fmt.Sprintf("%.0f", lineamiento[0]["LineamientoId"].(map[string]interface{})["CentroGestor"].(float64))
+		vigencia := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["PlanAdquisicionesId"].(map[string]interface{})["Vigencia"].(float64))
+		return vigencia, centroGestor, nil
+	}
+}
+
+// VigenciaYCentroGestorByMetaIDPlanID regresa vigencia y centroGestor gestor si no se tiene un Id del registro de plan de adquisicion
+func VigenciaYCentroGestorByMetaIDPlanID(metaID string, PlanID string) (Vigencia string, CentroGestor string, outputError interface{}) {
+	var Meta []map[string]interface{}
+	var Planadquisicion map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Meta/?query=Id:"+metaID+"&fields=LineamientoId", &Meta)
+	if error != nil {
+		return "", "", error
+	} else {
+		error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones/"+PlanID, &Planadquisicion)
+		if error != nil {
+			return "", "", error
+		} else {
+			centroGestor := fmt.Sprintf("%.0f", Meta[0]["LineamientoId"].(map[string]interface{})["CentroGestor"].(float64))
+			vigencia := fmt.Sprintf("%.0f", Planadquisicion["Vigencia"].(float64))
+			return vigencia, centroGestor, nil
+		}
+	}
 }

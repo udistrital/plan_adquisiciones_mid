@@ -109,7 +109,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 	registro := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	fuentesFinanciamiento := make([]map[string]interface{}, 0)
-	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id%3A" + idStr + "%2CRegistroPlanAdquisicionesActividadId.Activo%3Atrue%2CActivo%3Atrue&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
+	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id:" + idStr + ",RegistroPlanAdquisicionesActividadId.Activo:true,Activo:true&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
 
 	if error != nil {
@@ -121,11 +121,16 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				return nil, error
 			}
 		}
+		Vigencia, CentroGestor, error := VigenciaYCentroGestor(idStr)
+		if error != nil {
+			return nil, error
+		}
 		for index := range RegistroPlanAdquisicionActividadFuente {
 			ActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Id"]
 			ValorActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Valor"]
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
 			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
+			NombreActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Nombre"]
 			newdata := stringInSlice(fmt.Sprintf("%.0f", RegistroActividadID.(float64)), unicos)
 			if !newdata {
 				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
@@ -133,16 +138,22 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				fuentesFinanciamiento = make([]map[string]interface{}, 0)
 			}
 
+			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string), Vigencia, CentroGestor)
+			if errorFuente != nil {
+				return nil, errorFuente
+			}
 			fuenteFinanciamiento := map[string]interface{}{
 				"Id":                   RegistroPlanAdquisicionActividadFuente[index]["Id"],
 				"ValorAsignado":        RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"],
 				"Activo":               RegistroPlanAdquisicionActividadFuente[index]["Activo"],
 				"FuenteFinanciamiento": RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"],
+				"Nombre":               Fuente["Nombre"],
 			}
 			fuentesFinanciamiento = append(fuentesFinanciamiento, fuenteFinanciamiento)
 
 			registro = map[string]interface{}{
 				"ActividadId":                 ActividadID,
+				"Nombre":                      NombreActividad,
 				"RegistroPlanAdquisicionesId": idStr,
 				"Valor":                       ValorActividad,
 				"Activo":                      ActivoActividad,
@@ -151,8 +162,6 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			}
 
 		}
-		// valor := SumaFuenteFinanciamiento(idStr)
-		// fmt.Println(valor)
 		registros = append(registros[1:], registro)
 		return registros, nil
 	}
@@ -178,19 +187,49 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 
 }
 
-//SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento segun el ID de un registro plan de adquisicion
-func SumaFuenteFinanciamiento(idStr string) (total interface{}) {
-	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
+//SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento Antes de realizar un POST o PUT de un renglon
+func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, Vigencia string, CentroGestor string) (outputError interface{}) {
+	var RubroMongo map[string]interface{}
 	var valor float64
-	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id%3A" + idStr + "&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
-
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+CentroGestor+"/", &RubroMongo)
 	if error != nil {
 		return error
 	} else {
-		for index := range RegistroPlanAdquisicionActividadFuente {
-			valor = valor + RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"].(float64)
+		m := RubroMongo["Body"].(interface{})
+		ValorActualRubro := m.(map[string]interface{})["ValorActual"].(float64)
+		for Index := range PlanAdquisicionActividades {
+			PlanAdquisicionActividad := PlanAdquisicionActividades[Index].(map[string]interface{})
+			FuentesFinanciamiento := PlanAdquisicionActividad["FuentesFinanciamiento"].([]interface{})
+			if PlanAdquisicionActividad["Activo"].(bool) {
+				for fuenteIndex := range FuentesFinanciamiento {
+					FuenteFinanciamiento := FuentesFinanciamiento[fuenteIndex].(map[string]interface{})
+					if FuenteFinanciamiento["Activo"].(bool) {
+						valor = valor + FuenteFinanciamiento["ValorAsignado"].(float64)
+					}
+				}
+			}
 		}
-		return valor
+		if valor > ValorActualRubro {
+			errorValorRubro := "La suma de las fuentes de financiamiento supera el valor actual del rubro"
+			return errorValorRubro
+		}
+		return nil
+	}
+}
+
+//ObtenerFuenteFinanciamientoByCodigo Trae campos de fuente financiamiento segun codigo
+func ObtenerFuenteFinanciamientoByCodigo(Codigo string, Vigencia string, UnidadEjecutora string) (fuentefinanciamiento map[string]interface{}, outputError interface{}) {
+	var FuenteFinanciamientoMongo map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"fuente_financiamiento/"+Codigo+"/"+Vigencia+"/"+UnidadEjecutora, &FuenteFinanciamientoMongo)
+	if error != nil {
+		return nil, error
+	} else {
+		if FuenteFinanciamientoMongo["Body"] == nil {
+			error := "No se encontro fuente de financiamiento"
+			return nil, error
+		}
+		m := FuenteFinanciamientoMongo["Body"].(interface{})
+		FuenteFinanciamiento := m.(map[string]interface{})
+		return FuenteFinanciamiento, nil
 	}
 }
