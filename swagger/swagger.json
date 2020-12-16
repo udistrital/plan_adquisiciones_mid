@@ -61,6 +61,100 @@
                         "description": ""
                     }
                 }
+            },
+            "post": {
+                "tags": [
+                    "RegistrosPlanAdquisicion"
+                ],
+                "description": "create Registro_plan_adquisicionController",
+                "operationId": "Registro_plan_adquisicionController.Create",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registro_plan_adquisicion content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_plan_adquisicion"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_plan_adquisicion"
+                        }
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/RegistrosPlanAdquisicion/{id}": {
+            "get": {
+                "tags": [
+                    "RegistrosPlanAdquisicion"
+                ],
+                "description": "get Registro_plan_adquisicionController by id",
+                "operationId": "Registro_plan_adquisicionController.GetOne",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id de un registro de plan de adquisicion",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_plan_adquisicion"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "RegistrosPlanAdquisicion"
+                ],
+                "description": "update the Registro_plan_adquisicionController",
+                "operationId": "Registro_plan_adquisicionController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id del registro del plan de adquisición que se actualizará",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registro_plan_adquisicion content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_plan_adquisicion"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Registro_plan_adquisicion"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
             }
         },
         "/RegistrosPlanAdquisicionActividad/": {
@@ -161,7 +255,7 @@
                     {
                         "in": "path",
                         "name": "id",
-                        "description": "The id you want to update",
+                        "description": "Id del registro_plan_adquisición_actividad",
                         "required": true,
                         "type": "string"
                     },
@@ -228,6 +322,13 @@
                 "operationId": "Registro_PlanInversion_ActividadFuente_financiamientoController.GetAll",
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id de un elemento de la tabla registro_plan_adquisicion",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "query",
                         "name": "query",
                         "description": "Filter. e.g. col1:v1,col2:v2 ...",
@@ -288,7 +389,7 @@
                     {
                         "in": "path",
                         "name": "id",
-                        "description": "The id you want to update",
+                        "description": "Id de un elemento de la tabla registro_inversion_actividad-Fuente_financiamiento",
                         "required": true,
                         "type": "string"
                     },
@@ -327,14 +428,6 @@
         },
         "models.Registro_PlanInversion_ActividadFuente_financiamiento": {
             "title": "Registro_PlanInversion_ActividadFuente_financiamiento",
-            "type": "object"
-        },
-        "models.Registro_PlanAdquisiciones_CogigoArka": {
-            "title": "Registro_PlanAdquisiciones_CogigoArka",
-            "type": "object"
-        },
-        "models.Registro_FuncionamientoModalidad_Seleccion": {
-            "title": "Registro_FuncionamientoModalidad_Seleccion",
             "type": "object"
         },
         "models.Registro_plan_adquisicion": {

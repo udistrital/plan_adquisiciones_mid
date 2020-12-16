@@ -118,7 +118,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 //ObtenerRenglonRegistroPlanAdquisicionByID regresa un renglon segun el id del registro de plan de adquisicion
 func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id%3A"+idStr, &RenglonRegistroPlanAdquisicion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:"+idStr, &RenglonRegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
@@ -354,7 +354,7 @@ func stringInSlice(a string, list []string) bool {
 func VigenciaYCentroGestor(RegistroplanAdquisicionID string) (Vigencia string, CentroGestor string, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id%3A33&fields=MetaId%2CPlanAdquisicionesId", &RegistroPlanAdquisicion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:33&fields=MetaId,PlanAdquisicionesId", &RegistroPlanAdquisicion)
 	if error != nil {
 		return "", "", error
 	} else {
@@ -369,7 +369,7 @@ func VigenciaYCentroGestor(RegistroplanAdquisicionID string) (Vigencia string, C
 func VigenciaYCentroGestorByMetaIDPlanID(metaID string, PlanID string) (Vigencia string, CentroGestor string, outputError interface{}) {
 	var Meta []map[string]interface{}
 	var Planadquisicion map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Meta/?query=Id%3A"+metaID+"&fields=LineamientoId", &Meta)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Meta/?query=Id:"+metaID+"&fields=LineamientoId", &Meta)
 	if error != nil {
 		return "", "", error
 	} else {
