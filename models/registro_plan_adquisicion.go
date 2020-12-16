@@ -30,7 +30,6 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 	FuentesRegistroPlanAdquisicion := make(map[string]interface{})
 	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=RubroId&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
-
 	if error != nil {
 		return nil, error
 	} else {
@@ -39,7 +38,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
 			fuentes, errFuente := SeparaFuentes(RegistroPlanAdquisicion[rubroindex]["RubroId"])
 			if errFuente != nil {
-				return nil, errFuente
+				return RegistroPlanAdquisicion[rubroindex], nil
 			}
 			newfuente := stringInSlice(fuentes, unicos)
 			if !newfuente {
