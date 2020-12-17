@@ -131,6 +131,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
 			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
 			NombreActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Nombre"]
+			FechaCreacionActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["FechaCreacion"]
+			FechaModificacionActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["FechaModificacion"]
 			newdata := stringInSlice(fmt.Sprintf("%.0f", RegistroActividadID.(float64)), unicos)
 			if !newdata {
 				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
@@ -147,6 +149,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				"ValorAsignado":        RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"],
 				"Activo":               RegistroPlanAdquisicionActividadFuente[index]["Activo"],
 				"FuenteFinanciamiento": RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"],
+				"FechaCreacion":        RegistroPlanAdquisicionActividadFuente[index]["FechaCreacion"],
+				"FechaModificacion":    RegistroPlanAdquisicionActividadFuente[index]["FechaModificacion"],
 				"Nombre":               Fuente["Nombre"],
 			}
 			fuentesFinanciamiento = append(fuentesFinanciamiento, fuenteFinanciamiento)
@@ -159,6 +163,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				"Activo":                      ActivoActividad,
 				"RegistroActividadId":         RegistroActividadID,
 				"FuentesFinanciamiento":       fuentesFinanciamiento,
+				"FechaCreacion":               FechaCreacionActividad,
+				"FechaModificacion":           FechaModificacionActividad,
 			}
 
 		}

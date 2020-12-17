@@ -22,7 +22,7 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 
 }
 
-//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun su ID
+//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroPlanAdquisicion map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	var rubro []map[string]interface{}
@@ -157,9 +157,9 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 								} else {
 									EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
 									EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
-									RenglonRegistroPlanAdquisicion[0]["CodigoArka"] = CodigoArka
-									RenglonRegistroPlanAdquisicion[0]["ModalidadSeleccion"] = ModalidadSeleccion
-									RenglonRegistroPlanAdquisicion[0]["RegistroPlanAdquisicionActividad"] = RegistroPlanAdquisicionActividad
+									RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
+									RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
+									RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
 									RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
 									RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
 									RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
