@@ -121,7 +121,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				return nil, error
 			}
 		}
-		Vigencia, CentroGestor, error := VigenciaYCentroGestor(idStr)
+		Vigencia, AreaFuncional, error := VigenciaYAreaFuncional(idStr)
 		if error != nil {
 			return nil, error
 		}
@@ -140,7 +140,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				fuentesFinanciamiento = make([]map[string]interface{}, 0)
 			}
 
-			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string), Vigencia, CentroGestor)
+			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string), Vigencia, AreaFuncional)
 			if errorFuente != nil {
 				return nil, errorFuente
 			}
@@ -194,10 +194,10 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 }
 
 //SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento Antes de realizar un POST o PUT de un renglon
-func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, Vigencia string, CentroGestor string) (outputError interface{}) {
+func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, Vigencia string, AreaFuncional string) (outputError interface{}) {
 	var RubroMongo map[string]interface{}
 	var valor float64
-	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+CentroGestor+"/", &RubroMongo)
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+AreaFuncional+"/", &RubroMongo)
 	if error != nil {
 		return error
 	} else {

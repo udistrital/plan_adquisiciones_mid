@@ -74,13 +74,13 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
 	PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
 
-	metaID := registroPlanAdquisicion["MetaId"].(string)
 	PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
-	Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestorByMetaIDPlanID(metaID, PlanAdquisicionesID)
+	AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
+	Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
 	if errorVigencia != nil {
 		return nil, errorVigencia
 	}
-	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, CentroGestor)
+	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
 	if errorSuma != nil {
 		return nil, errorSuma
 	}
@@ -146,12 +146,12 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 						if error != nil {
 							return nil, error
 						} else {
-							Vigencia, CentroGestor, errorVigenciaYCentroGestor := VigenciaYCentroGestor(idStr)
-							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, CentroGestor)
-							if error != nil && errorVigenciaYCentroGestor != nil {
+							Vigencia, AreaFuncional, errorVigenciaYAreaFuncional := VigenciaYAreaFuncional(idStr)
+							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
+							if error != nil && errorVigenciaYAreaFuncional != nil {
 								return nil, error
 							} else {
-								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, CentroGestor)
+								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
 								if error != nil {
 									return nil, error
 								} else {
@@ -197,12 +197,12 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 			validacion := RegistroPlanAdquisicionModificado(registroPlanAdquisicion, RegistroPlanAdquisicionAntiguo[0], idStr)
 			if validacion {
 				//fmt.Println("existe registro Plan Adquisicion y no toca modificarlo")
-				Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestor(idStr)
+				Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
 				if errorVigencia != nil {
 					return nil, errorVigencia
 				}
 				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, CentroGestor)
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
 				if errorSuma != nil {
 					return nil, errorSuma
 				}
@@ -225,12 +225,12 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 				}
 			} else {
 				//fmt.Println("existe registro y  toca modificarlo")
-				Vigencia, CentroGestor, errorVigencia := VigenciaYCentroGestor(idStr)
+				Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
 				if errorVigencia != nil {
 					return nil, errorVigencia
 				}
 				PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, CentroGestor)
+				errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
 				if errorSuma != nil {
 					return nil, errorSuma
 				}
@@ -350,36 +350,30 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-// VigenciaYCentroGestor regresa vigencia y centroGestor gestor
-func VigenciaYCentroGestor(RegistroplanAdquisicionID string) (Vigencia string, CentroGestor string, outputError interface{}) {
+// VigenciaYAreaFuncional regresa vigencia y AreaFuncional
+func VigenciaYAreaFuncional(RegistroplanAdquisicionID string) (Vigencia string, AreaFuncional string, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:33&fields=MetaId,PlanAdquisicionesId", &RegistroPlanAdquisicion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:"+RegistroplanAdquisicionID+"&fields=AreaFuncional,PlanAdquisicionesId", &RegistroPlanAdquisicion)
 	if error != nil {
 		return "", "", error
 	} else {
-		lineamiento, _ := ObtenerLineamiento(RegistroPlanAdquisicion[0]["MetaId"].(string))
-		centroGestor := fmt.Sprintf("%.0f", lineamiento[0]["LineamientoId"].(map[string]interface{})["CentroGestor"].(float64))
+		AreaFuncional := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["AreaFuncional"].(float64))
 		vigencia := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["PlanAdquisicionesId"].(map[string]interface{})["Vigencia"].(float64))
-		return vigencia, centroGestor, nil
+		return vigencia, AreaFuncional, nil
 	}
 }
 
-// VigenciaYCentroGestorByMetaIDPlanID regresa vigencia y centroGestor gestor si no se tiene un Id del registro de plan de adquisicion
-func VigenciaYCentroGestorByMetaIDPlanID(metaID string, PlanID string) (Vigencia string, CentroGestor string, outputError interface{}) {
-	var Meta []map[string]interface{}
+// VigenciaYCentroGestorByPlanID regresa vigencia si no se tiene un Id del registro de plan de adquisicion
+func VigenciaYCentroGestorByPlanID(PlanID string) (Vigencia string, outputError interface{}) {
+
 	var Planadquisicion map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Meta/?query=Id:"+metaID+"&fields=LineamientoId", &Meta)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones/"+PlanID, &Planadquisicion)
 	if error != nil {
-		return "", "", error
+		return "", error
 	} else {
-		error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones/"+PlanID, &Planadquisicion)
-		if error != nil {
-			return "", "", error
-		} else {
-			centroGestor := fmt.Sprintf("%.0f", Meta[0]["LineamientoId"].(map[string]interface{})["CentroGestor"].(float64))
-			vigencia := fmt.Sprintf("%.0f", Planadquisicion["Vigencia"].(float64))
-			return vigencia, centroGestor, nil
-		}
+		vigencia := fmt.Sprintf("%.0f", Planadquisicion["Vigencia"].(float64))
+		return vigencia, nil
 	}
+
 }
