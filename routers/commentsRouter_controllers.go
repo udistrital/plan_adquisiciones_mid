@@ -7,6 +7,24 @@ import (
 
 func init() {
 
+    beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicionController"] = append(beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicionController"],
+        beego.ControllerComments{
+            Method: "Post",
+            Router: "/:id",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicionController"] = append(beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicionController"],
+        beego.ControllerComments{
+            Method: "Put",
+            Router: "/:id",
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicion_por_fuentesController"] = append(beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicion_por_fuentesController"],
         beego.ControllerComments{
             Method: "GetAll",

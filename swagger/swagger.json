@@ -15,6 +15,71 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/PlanAdquisicion/{id}": {
+            "put": {
+                "tags": [
+                    "PlanAdquisicion"
+                ],
+                "description": "update the Plan_adquisicion",
+                "operationId": "Plan_adquisicionController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "ID del plan de adquisicion a actualizar",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Plan_adquisicion content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Plan_adquisicion"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Plan_adquisicion"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "PlanAdquisicion"
+                ],
+                "description": "create Plan_adquisicion",
+                "operationId": "Plan_adquisicionController.Create",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id del registro de plan de adquisicion",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Plan_adquisicion"
+                        }
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
         "/RegistrosOrdenadoPorRubro/{planAdquisicionID}": {
             "get": {
                 "tags": [
@@ -418,6 +483,10 @@
         }
     },
     "definitions": {
+        "models.Plan_adquisicion": {
+            "title": "Plan_adquisicion",
+            "type": "object"
+        },
         "models.Plan_adquisicion_por_fuentes": {
             "title": "Plan_adquisicion_por_fuentes",
             "type": "object"
@@ -451,6 +520,10 @@
         {
             "name": "RegistrosPlanInversionActividadFuente",
             "description": "Registro_PlanInversion_ActividadFuente_financiamientoController operations for Registro_PlanInversion_ActividadFuente_financiamiento\n"
+        },
+        {
+            "name": "PlanAdquisicion",
+            "description": "Plan_adquisicionController operations for Plan_adquisicion\n"
         }
     ]
 }

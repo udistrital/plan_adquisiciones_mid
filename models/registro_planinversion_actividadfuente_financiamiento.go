@@ -121,7 +121,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				return nil, error
 			}
 		}
-		Vigencia, CentroGestor, error := VigenciaYCentroGestor(idStr)
+		Vigencia, AreaFuncional, error := VigenciaYAreaFuncional(idStr)
 		if error != nil {
 			return nil, error
 		}
@@ -131,6 +131,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
 			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
 			NombreActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Nombre"]
+			FechaCreacionActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["FechaCreacion"]
+			FechaModificacionActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["FechaModificacion"]
 			newdata := stringInSlice(fmt.Sprintf("%.0f", RegistroActividadID.(float64)), unicos)
 			if !newdata {
 				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
@@ -138,7 +140,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				fuentesFinanciamiento = make([]map[string]interface{}, 0)
 			}
 
-			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string), Vigencia, CentroGestor)
+			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string), Vigencia, AreaFuncional)
 			if errorFuente != nil {
 				return nil, errorFuente
 			}
@@ -147,6 +149,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				"ValorAsignado":        RegistroPlanAdquisicionActividadFuente[index]["ValorAsignado"],
 				"Activo":               RegistroPlanAdquisicionActividadFuente[index]["Activo"],
 				"FuenteFinanciamiento": RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"],
+				"FechaCreacion":        RegistroPlanAdquisicionActividadFuente[index]["FechaCreacion"],
+				"FechaModificacion":    RegistroPlanAdquisicionActividadFuente[index]["FechaModificacion"],
 				"Nombre":               Fuente["Nombre"],
 			}
 			fuentesFinanciamiento = append(fuentesFinanciamiento, fuenteFinanciamiento)
@@ -159,6 +163,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				"Activo":                      ActivoActividad,
 				"RegistroActividadId":         RegistroActividadID,
 				"FuentesFinanciamiento":       fuentesFinanciamiento,
+				"FechaCreacion":               FechaCreacionActividad,
+				"FechaModificacion":           FechaModificacionActividad,
 			}
 
 		}
@@ -188,10 +194,10 @@ func RegistroFuenteModificado(registroFuente map[string]interface{}, RegistroPla
 }
 
 //SumaFuenteFinanciamiento regresa la suma de todas las fuentes de financimiento Antes de realizar un POST o PUT de un renglon
-func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, Vigencia string, CentroGestor string) (outputError interface{}) {
+func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro string, Vigencia string, AreaFuncional string) (outputError interface{}) {
 	var RubroMongo map[string]interface{}
 	var valor float64
-	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+CentroGestor+"/", &RubroMongo)
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+AreaFuncional+"/", &RubroMongo)
 	if error != nil {
 		return error
 	} else {
