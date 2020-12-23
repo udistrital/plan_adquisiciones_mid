@@ -22,6 +22,29 @@ func ObtenerPlanAdquisicionByID(idstr string) (respuestaPlanAdquisicion map[stri
 	}
 }
 
+//ObtenerVersionesMongoByID regresa Versiones almacenadas en Mongo segun ID plan adquisicion
+func ObtenerVersionesMongoByID(idstr string) (respuestaVersionesMongo []map[string]interface{}, outputError interface{}) {
+	var versionesMongo []map[string]interface{}
+
+	mongoIDs := make([]map[string]interface{}, 0)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+`Plan_adquisiciones_mongo/?query={"id":`+idstr+`}`, &versionesMongo)
+	if error != nil {
+		return nil, error
+	} else {
+		if versionesMongo[0]["Message"] == "Not found resource" {
+			error := "No existen versiones del plan adquisicion"
+			return nil, error
+		}
+		for index := range versionesMongo {
+			mongoID := make(map[string]interface{})
+			mongoID["_id"] = versionesMongo[index]["_id"]
+			mongoID["id"] = versionesMongo[index]["id"]
+			mongoIDs = append(mongoIDs, mongoID)
+		}
+		return mongoIDs, nil
+	}
+}
+
 //ActualizarPlanAdquisicion actualizar los campo Publicado de la tabla plan de adquisicion
 func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta map[string]interface{}, outputError interface{}) {
 	PlanAdquisicionPut := make(map[string]interface{})

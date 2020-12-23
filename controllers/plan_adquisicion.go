@@ -16,6 +16,7 @@ type Plan_adquisicionController struct {
 func (c *Plan_adquisicionController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("Put", c.Put)
+	c.Mapping("GetOne", c.GetOne)
 
 }
 
@@ -89,6 +90,36 @@ func (c *Plan_adquisicionController) Put() {
 		c.Ctx.Output.SetStatus(400)
 	}
 
+	c.Data["json"] = alertErr
+	c.ServeJSON()
+
+}
+
+// GetOne Función para obterner la version del plan de adquision almacenadas en mongo
+// @Title GetOne
+// @Description get Plan_adquisicionController by id
+// @Param	id		path 	string	true		"Id de un  plan de adquisicion"
+// @Success 200 {object} models.Plan_adquisicion
+// @Failure 403 :id is empty
+// @router /versiones/:id [get]
+func (c *Plan_adquisicionController) GetOne() {
+
+	planAdquisicionID := c.Ctx.Input.Param(":id")
+	var alertErr models.Alert
+	alertas := append([]interface{}{"Response:"})
+	RegistroPlanAdquisicion, errRegistroPlanAdquisicion := models.ObtenerVersionesMongoByID(planAdquisicionID)
+
+	if RegistroPlanAdquisicion != nil {
+		alertErr.Type = "OK"
+		alertErr.Code = "200"
+		alertErr.Body = RegistroPlanAdquisicion
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "404"
+		alertas = append(alertas, errRegistroPlanAdquisicion)
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(404)
+	}
 	c.Data["json"] = alertErr
 	c.ServeJSON()
 

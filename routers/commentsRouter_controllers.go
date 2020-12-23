@@ -25,6 +25,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicionController"] = append(beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicionController"],
+        beego.ControllerComments{
+            Method: "GetOne",
+            Router: "/versiones/:id",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicion_por_fuentesController"] = append(beego.GlobalControllerRouter["github.com/udistrital/plan_adquisiciones_mid/controllers:Plan_adquisicion_por_fuentesController"],
         beego.ControllerComments{
             Method: "GetAll",
