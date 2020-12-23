@@ -15,6 +15,35 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/PlanAdquisicion/versiones/{id}": {
+            "get": {
+                "tags": [
+                    "PlanAdquisicion"
+                ],
+                "description": "get Plan_adquisicionController by id",
+                "operationId": "Plan_adquisicionController.GetOne",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id de un  plan de adquisicion",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Plan_adquisicion"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
         "/PlanAdquisicion/{id}": {
             "put": {
                 "tags": [
