@@ -50,7 +50,7 @@ func ActualizarRegistroActividadFuente(registroActividadFuente map[string]interf
 	if error != nil {
 		return nil, error
 	} else {
-		if RegistroPlanAdquisicionActividadFuente["Status"] != nil {
+		if len(RegistroPlanAdquisicionActividadFuente) == 0 {
 			//fmt.Println("No existe fuente toca crearla")
 			idint, _ := strconv.Atoi(idStrActividad)
 			registroActividadFuente["ActividadId"] = idint
@@ -92,12 +92,12 @@ func ActualizarRegistroActividadFuente(registroActividadFuente map[string]interf
 
 //ObtenerRegistroPlanAdquisicionActividadFuenteByID obtener un elemento segun el ID del registro inversion fuente financiamiento
 func ObtenerRegistroPlanAdquisicionActividadFuenteByID(idStr string) (registroPlanAdquisicionActividadFuente map[string]interface{}, outputError interface{}) {
-	var RegistroPlanAdquisicionActividadFuente map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+idStr, &RegistroPlanAdquisicionActividadFuente)
+	var RegistroPlanAdquisicionActividadFuente []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/?query=id:"+idStr, &RegistroPlanAdquisicionActividadFuente)
 	if error != nil {
 		return nil, error
 	} else {
-		return RegistroPlanAdquisicionActividadFuente, nil
+		return RegistroPlanAdquisicionActividadFuente[0], nil
 	}
 
 }
