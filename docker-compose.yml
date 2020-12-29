@@ -11,9 +11,9 @@ services:
     env_file: 
       - .env
     ports: 
-      - "${PORT}:${PORT}"
+      - "${PLAN_ADQUISICIONES_MID_PORT}:${PLAN_ADQUISICIONES_MID_PORT}"
     environment:
-      - PLAN_ADQUISICIONES_MID_HTTP_PORT=${PORT}
+      - PLAN_ADQUISICIONES_MID_HTTP_PORT=${PLAN_ADQUISICIONES_MID_PORT}
       - API_NAME=${API_NAME}
       - PLAN_ADQUISICIONES_MID_RUN_MODE=dev
       - RUN_MODE=dev 
