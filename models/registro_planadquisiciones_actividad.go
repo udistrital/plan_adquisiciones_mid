@@ -143,7 +143,7 @@ func GuardarPlanAdquisicionActividad(PlanAdquisicionActividades []interface{}, i
 //ObtenerRegistroPlanAdquisicionActividadByID un registro de actividad segun su ID
 func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdquisicionActividad map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicionActividad []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/?query=id:"+idStr, &RegistroPlanAdquisicionActividad)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/?query=Id:"+idStr, &RegistroPlanAdquisicionActividad)
 	if error != nil {
 		return nil, error
 	} else {

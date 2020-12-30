@@ -67,7 +67,7 @@ func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []ma
 //ObtenerRegistroCodigoArkaByID regresa registro codigo arka segun ID
 func ObtenerRegistroCodigoArkaByID(idStr string) (CodigoArka map[string]interface{}, outputError interface{}) {
 	var codigoArka []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/?query=id:"+idStr, &codigoArka)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/?query=Id:"+idStr, &codigoArka)
 	if error != nil {
 		return nil, error
 	} else {
