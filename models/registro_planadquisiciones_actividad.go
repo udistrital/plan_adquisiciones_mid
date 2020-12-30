@@ -78,7 +78,7 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 	if error != nil {
 		return nil, error
 	} else {
-		if RegistroPlanAdquisicionActividad["Status"] != nil {
+		if len(RegistroPlanAdquisicionActividad) == 0 {
 			//fmt.Println("No existe registro Actividad toca crearlo")
 			_, errRegistroActividad := IngresoRegistroActividad(registroActividad)
 			if errRegistroActividad != nil {
@@ -142,12 +142,12 @@ func GuardarPlanAdquisicionActividad(PlanAdquisicionActividades []interface{}, i
 
 //ObtenerRegistroPlanAdquisicionActividadByID un registro de actividad segun su ID
 func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdquisicionActividad map[string]interface{}, outputError interface{}) {
-	var RegistroPlanAdquisicionActividad map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/"+idStr, &RegistroPlanAdquisicionActividad)
+	var RegistroPlanAdquisicionActividad []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Actividad/?query=Id:"+idStr, &RegistroPlanAdquisicionActividad)
 	if error != nil {
 		return nil, error
 	} else {
-		return RegistroPlanAdquisicionActividad, nil
+		return RegistroPlanAdquisicionActividad[0], nil
 	}
 
 }
