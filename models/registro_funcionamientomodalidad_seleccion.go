@@ -59,7 +59,7 @@ func ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr string) (Modalid
 //ObtenerRegistroModalidadSeleccionByID regresa una registro de la tabla modalidad de seleccioón segun el ID
 func ObtenerRegistroModalidadSeleccionByID(idStr string) (ModalidadSeleccion map[string]interface{}, outputError interface{}) {
 	var modalidadSeleccion []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/?query=id:"+idStr, &modalidadSeleccion)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/?query=Id:"+idStr, &modalidadSeleccion)
 	if error != nil {
 		return nil, error
 	} else {
