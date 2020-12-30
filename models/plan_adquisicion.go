@@ -103,7 +103,7 @@ func ObtenerIDRegistrosPlanAdquisicion(idstr string) (respuestaRegistroID []map[
 //ObtenerActividadbyID regresa la informacion relacionada a la tabla de actividad, meta, lineamiento
 func ObtenerActividadbyID(idstr string) (respuestaActividad []map[string]interface{}, outputError interface{}) {
 	var Actividad []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Actividad/?query=id:"+idstr, &Actividad)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Actividad/?query=Id:"+idstr, &Actividad)
 	if error != nil {
 		return nil, error
 	} else {

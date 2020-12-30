@@ -58,12 +58,12 @@ func ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr string) (Modalid
 
 //ObtenerRegistroModalidadSeleccionByID regresa una registro de la tabla modalidad de seleccioón segun el ID
 func ObtenerRegistroModalidadSeleccionByID(idStr string) (ModalidadSeleccion map[string]interface{}, outputError interface{}) {
-	var modalidadSeleccion map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/"+idStr, &modalidadSeleccion)
+	var modalidadSeleccion []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_funcionamiento-Modalidad_seleccion/?query=Id:"+idStr, &modalidadSeleccion)
 	if error != nil {
 		return nil, error
 	} else {
-		return modalidadSeleccion, nil
+		return modalidadSeleccion[0], nil
 	}
 
 }
@@ -89,7 +89,7 @@ func ActualizarRegistroModalidadSeleccion(registroModalidadSeleccion map[string]
 	if error != nil {
 		return nil, error
 	} else {
-		if RegistroModalidadSeleccionAntiguo["Status"] != nil {
+		if len(RegistroModalidadSeleccionAntiguo) == 0 {
 			//fmt.Println("No existe ModalidadSeleccion toca crearlo")
 			idint, _ := strconv.Atoi(idStrPlanAdquisicion)
 			registroModalidadSeleccion["RegistroPlanAdquisicionesId"] = idint
