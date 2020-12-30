@@ -66,12 +66,12 @@ func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []ma
 
 //ObtenerRegistroCodigoArkaByID regresa registro codigo arka segun ID
 func ObtenerRegistroCodigoArkaByID(idStr string) (CodigoArka map[string]interface{}, outputError interface{}) {
-	var codigoArka map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/"+idStr, &codigoArka)
+	var codigoArka []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/?query=Id:"+idStr, &codigoArka)
 	if error != nil {
 		return nil, error
 	} else {
-		return codigoArka, nil
+		return codigoArka[0], nil
 	}
 
 }
@@ -97,7 +97,7 @@ func ActualizarRegistroCodigoArka(registroCodigoArka map[string]interface{}, idS
 	if error != nil {
 		return nil, error
 	} else {
-		if RegistroCodigoArkaAntiguo["Status"] != nil {
+		if len(RegistroCodigoArkaAntiguo) == 0 {
 			//fmt.Println("No existe CodigoARKA toca crearlo")
 			idint, _ := strconv.Atoi(idStrPlanAdquisicion)
 			registroCodigoArka["RegistroPlanAdquisicionesId"] = idint
