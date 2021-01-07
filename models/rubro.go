@@ -25,20 +25,21 @@ func ObtenerRubroByID(idstr string, Vigencia string, UnidadEjecutora string) (In
 
 //ObtenerFuenteRecursoByIDRubro regresa los elementos de la fuente de recursos
 func ObtenerFuenteRecursoByIDRubro(idstr string, Vigencia string, UnidadEjecutora string) (InfoFuenterecuerso map[string]interface{}, outputError interface{}) {
-	var fuenteRecurso map[string]interface{}
+	var fuenteRecurso []map[string]interface{}
 	fuentes, errFuente := SeparaFuentes(idstr)
 	if errFuente != nil {
 		return nil, errFuente
 	}
-	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+fuentes+"/"+Vigencia+"/"+UnidadEjecutora+"/", &fuenteRecurso)
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"/arbol_rubro/arbol/"+fuentes, &fuenteRecurso)
+
 	if error != nil {
 		return nil, error
 	} else {
-		if fuenteRecurso["Body"] == nil {
+		if fuenteRecurso[0]["data"] == nil {
 			error := "No se encontro Fuente de Recurso"
 			return nil, error
 		}
-		m := fuenteRecurso["Body"].(interface{})
+		m := fuenteRecurso[0]["data"].(interface{})
 		FuenteRecurso := m.(map[string]interface{})
 		return FuenteRecurso, nil
 	}
