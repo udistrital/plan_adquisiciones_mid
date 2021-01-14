@@ -118,6 +118,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 //ObtenerRenglonRegistroPlanAdquisicionByID regresa un renglon segun el id del registro de plan de adquisicion
 func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
+	var Responsable []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:"+idStr, &RenglonRegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
@@ -155,15 +156,24 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 								if error != nil {
 									return nil, error
 								} else {
-									EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
-									EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
-									RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
-									RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
-									RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
-									RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
-									RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
-									RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
-									RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
+									s := fmt.Sprintf("%.0f", RenglonRegistroPlanAdquisicion[0]["ResponsableId"].(float64))
+									error := request.GetJson(beego.AppConfig.String("oikos_api_url")+"dependencia/?query=Id:"+s, &Responsable)
+									if error != nil {
+										return nil, error
+									} else {
+										valorTotalActividad := SumaActividades(RegistroPlanAdquisicionActividad)
+										EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
+										EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
+										RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
+										RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
+										RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
+										RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
+										RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
+										RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
+										RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
+										RenglonRegistroPlanAdquisicion[0]["ResponsableNombre"] = Responsable[0]["Nombre"]
+										RenglonRegistroPlanAdquisicion[0]["ValorTotalActividades"] = valorTotalActividad
+									}
 								}
 							}
 						}
