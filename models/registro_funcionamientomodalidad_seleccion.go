@@ -53,7 +53,7 @@ func ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr string) (Modalid
 		return nil, error
 	} else {
 		for index := range modalidadSeleccion {
-			s := fmt.Sprintf("%.0f", modalidadSeleccion[index]["Id"].(float64))
+			s := modalidadSeleccion[index]["IdModalidadSeleccion"].(string)
 			error := request.GetJson(beego.AppConfig.String("administrativa_crud_api_url")+"modalidad_seleccion/?query=Id:"+s+"&fields=Nombre", &nombreModalidadSeleccion)
 			if error != nil {
 				return nil, error
