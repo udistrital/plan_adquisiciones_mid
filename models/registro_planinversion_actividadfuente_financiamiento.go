@@ -153,6 +153,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				"FechaModificacion":    RegistroPlanAdquisicionActividadFuente[index]["FechaModificacion"],
 				"Nombre":               Fuente["Nombre"],
 			}
+
 			fuentesFinanciamiento = append(fuentesFinanciamiento, fuenteFinanciamiento)
 
 			registro = map[string]interface{}{
@@ -168,6 +169,7 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 			}
 
 		}
+
 		registros = append(registros[1:], registro)
 		return registros, nil
 	}
@@ -238,4 +240,13 @@ func ObtenerFuenteFinanciamientoByCodigo(Codigo string, Vigencia string, UnidadE
 		FuenteFinanciamiento := m.(map[string]interface{})
 		return FuenteFinanciamiento, nil
 	}
+}
+
+//SumaActividades Realiza suma el campo "valor" de los registros_plan_adquisiciones-actividad
+func SumaActividades(regitroActividad []map[string]interface{}) (valorTotal float64) {
+	var valor float64 = 0
+	for index := range regitroActividad {
+		valor = valor + regitroActividad[index]["Valor"].(float64)
+	}
+	return valor
 }
