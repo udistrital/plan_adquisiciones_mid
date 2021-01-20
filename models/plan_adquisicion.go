@@ -46,7 +46,7 @@ func ObtenerVersionesMongoByID(idstr string) (respuestaVersionesMongo []map[stri
 }
 
 //ActualizarPlanAdquisicion actualizar los campo Publicado de la tabla plan de adquisicion
-func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta map[string]interface{}, outputError interface{}) {
+func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta interface{}, outputError interface{}) {
 	PlanAdquisicionPut := make(map[string]interface{})
 	PlanAdquisicionActualizar := make(map[string]interface{})
 	PlanAdquisicionAntiguo, error := ObtenerPlanAdquisicionByID(idStr)
@@ -112,7 +112,7 @@ func ObtenerActividadbyID(idstr string) (respuestaActividad []map[string]interfa
 }
 
 //ObtenerPlanAdquisicionMongo construye un de plan de adquisicion segun ID con el formato Json plan_adquisiciones_mongo
-func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo map[string]interface{}, outputError interface{}) {
+func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo interface{}, outputError interface{}) {
 	PlanAdquisicionMongo := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	PlanAdquisicion, error := ObtenerPlanAdquisicionByID(idStr)
@@ -157,13 +157,13 @@ func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo ma
 }
 
 //IngresoPlanAdquisicionMongo crea una copia del plan de adquisicion en mongo
-func IngresoPlanAdquisicionMongo(registroPlanAdquisicion map[string]interface{}) (PlanAdquisicionRespuesta map[string]interface{}, outputError interface{}) {
+func IngresoPlanAdquisicionMongo(registroPlanAdquisicion map[string]interface{}) (PlanAdquisicionRespuesta interface{}, outputError interface{}) {
 	PlanAdquisicionPost := make(map[string]interface{})
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones_mongo/", "POST", &PlanAdquisicionPost, registroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
-		return PlanAdquisicionPost, nil
+		return "Copia Generada", nil
 	}
 
 }
