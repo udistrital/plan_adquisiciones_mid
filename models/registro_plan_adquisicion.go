@@ -25,12 +25,23 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 //ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroPlanAdquisicion map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
+	registros := make([]map[string]interface{}, 0)
 	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=RubroId&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
-		FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(RegistroPlanAdquisicion)
+		for index := range RegistroPlanAdquisicion {
+			id := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[index]["Id"].(float64))
+			registro, error := ObtenerRenglonRegistroPlanAdquisicionByID(id)
+			if error != nil {
+				return nil, error
+			} else {
+				delete(registro[0], "registro_plan_adquisiciones-actividad")
+				registros = append(registros, registro[0])
+			}
+		}
+		FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
 		if error != nil {
 			return nil, error
 		} else {
