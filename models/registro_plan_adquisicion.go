@@ -22,7 +22,7 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 
 }
 
-//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion
+//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion seprados por fuentes de financiamiento
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroPlanAdquisicion map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	registros := make([]map[string]interface{}, 0)
@@ -31,21 +31,25 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 	if error != nil {
 		return nil, error
 	} else {
-		for index := range RegistroPlanAdquisicion {
-			id := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[index]["Id"].(float64))
-			registro, error := ObtenerRenglonRegistroPlanAdquisicionByID(id)
+		if len(RegistroPlanAdquisicion[0]) == 0 {
+			return RegistroPlanAdquisicion[0], nil
+		} else {
+			for index := range RegistroPlanAdquisicion {
+				id := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[index]["Id"].(float64))
+				registro, error := ObtenerRenglonRegistroPlanAdquisicionByID(id)
+				if error != nil {
+					return nil, error
+				} else {
+					delete(registro[0], "registro_plan_adquisiciones-actividad")
+					registros = append(registros, registro[0])
+				}
+			}
+			FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
 			if error != nil {
 				return nil, error
 			} else {
-				delete(registro[0], "registro_plan_adquisiciones-actividad")
-				registros = append(registros, registro[0])
+				return FuentesRegistroPlanAdquisicion, nil
 			}
-		}
-		FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
-		if error != nil {
-			return nil, error
-		} else {
-			return FuentesRegistroPlanAdquisicion, nil
 		}
 	}
 }
