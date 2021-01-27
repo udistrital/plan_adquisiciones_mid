@@ -46,7 +46,7 @@ func ObtenerVersionesMongoByID(idstr string) (respuestaVersionesMongo []map[stri
 }
 
 //ActualizarPlanAdquisicion actualizar los campo Publicado de la tabla plan de adquisicion
-func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta map[string]interface{}, outputError interface{}) {
+func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta interface{}, outputError interface{}) {
 	PlanAdquisicionPut := make(map[string]interface{})
 	PlanAdquisicionActualizar := make(map[string]interface{})
 	PlanAdquisicionAntiguo, error := ObtenerPlanAdquisicionByID(idStr)
@@ -92,7 +92,7 @@ func ObtenerFichaEBMGAByIDPlan(idstr string) (respuestaFichaEBMGA []map[string]i
 //ObtenerIDRegistrosPlanAdquisicion regresa los Id de los registros_plan_adquisicion asociados a un ID plan adquisicion
 func ObtenerIDRegistrosPlanAdquisicion(idstr string) (respuestaRegistroID []map[string]interface{}, outputError interface{}) {
 	var RegistroID []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=PlanAdquisicionesId.id:"+idstr+"&fields=Id", &RegistroID)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=PlanAdquisicionesId.id:"+idstr+"&fields=Id&sortby=RubroId&order=asc", &RegistroID)
 	if error != nil {
 		return nil, error
 	} else {
@@ -112,7 +112,7 @@ func ObtenerActividadbyID(idstr string) (respuestaActividad []map[string]interfa
 }
 
 //ObtenerPlanAdquisicionMongo construye un de plan de adquisicion segun ID con el formato Json plan_adquisiciones_mongo
-func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo map[string]interface{}, outputError interface{}) {
+func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo interface{}, outputError interface{}) {
 	PlanAdquisicionMongo := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	PlanAdquisicion, error := ObtenerPlanAdquisicionByID(idStr)
@@ -132,19 +132,23 @@ func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo ma
 				for _, index := range RegistrosID {
 					id := fmt.Sprintf("%.0f", index["Id"].(float64))
 					RegistroPlanAdquisicion, _ := ObtenerRenglonRegistroPlanAdquisicionByID(id)
-					idActividad := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[0]["ActividadId"].(float64))
-					InfoActividad, _ := ObtenerActividadbyID(idActividad)
-					RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[0]["actividad"] = InfoActividad[0]
+					for i := range RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}) {
+						idActividad := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["ActividadId"].(float64))
+						InfoActividad, _ := ObtenerActividadbyID(idActividad)
+						RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["actividad"] = InfoActividad[0]
+					}
 					EliminarCampos(RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}), "ActividadId")
 					EliminarCampos(RegistroPlanAdquisicion, "PlanAdquisicionesId")
 					registros = append(registros, RegistroPlanAdquisicion[0])
 				}
-				PlanAdquisicionMongo["registro_plan_adquisiciones"] = registros
+				registrosSperados, _ := SepararRegistrosPorFuente(registros)
+				PlanAdquisicionMongo["registro_plan_adquisiciones"] = registrosSperados
 				planMongo, erroMOngo := IngresoPlanAdquisicionMongo(PlanAdquisicionMongo)
 				if erroMOngo != nil {
 					return nil, erroMOngo
 				}
 				return planMongo, nil
+
 			}
 
 		}
@@ -153,13 +157,13 @@ func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo ma
 }
 
 //IngresoPlanAdquisicionMongo crea una copia del plan de adquisicion en mongo
-func IngresoPlanAdquisicionMongo(registroPlanAdquisicion map[string]interface{}) (PlanAdquisicionRespuesta map[string]interface{}, outputError interface{}) {
+func IngresoPlanAdquisicionMongo(registroPlanAdquisicion map[string]interface{}) (PlanAdquisicionRespuesta interface{}, outputError interface{}) {
 	PlanAdquisicionPost := make(map[string]interface{})
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones_mongo/", "POST", &PlanAdquisicionPost, registroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
-		return PlanAdquisicionPost, nil
+		return "Copia Generada", nil
 	}
 
 }

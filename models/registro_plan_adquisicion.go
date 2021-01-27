@@ -22,34 +22,60 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 
 }
 
-//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion
+//ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion seprados por fuentes de financiamiento
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroPlanAdquisicion map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
-	var rubro []map[string]interface{}
-	var unicos []string
-	FuentesRegistroPlanAdquisicion := make(map[string]interface{})
+	registros := make([]map[string]interface{}, 0)
 	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=RubroId&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
-
-		for rubroindex := range RegistroPlanAdquisicion {
-			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
-			fuentes, errFuente := SeparaFuentes(RegistroPlanAdquisicion[rubroindex]["RubroId"])
-			if errFuente != nil {
-				return RegistroPlanAdquisicion[rubroindex], nil
+		if len(RegistroPlanAdquisicion[0]) == 0 {
+			return RegistroPlanAdquisicion[0], nil
+		} else {
+			for index := range RegistroPlanAdquisicion {
+				id := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[index]["Id"].(float64))
+				registro, error := ObtenerRenglonRegistroPlanAdquisicionByID(id)
+				if error != nil {
+					return nil, error
+				} else {
+					delete(registro[0], "registro_plan_adquisiciones-actividad")
+					registros = append(registros, registro[0])
+				}
 			}
-			newfuente := stringInSlice(fuentes, unicos)
-			if !newfuente {
-				unicos = append(unicos, fuentes)
-				rubro = make([]map[string]interface{}, 0)
+			FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
+			if error != nil {
+				return nil, error
+			} else {
+				return FuentesRegistroPlanAdquisicion, nil
 			}
-			rubro = append(rubro, RegistroPlanAdquisicion[rubroindex])
-			FuentesRegistroPlanAdquisicion["Rubro: "+fuentes] = rubro
 		}
-		return FuentesRegistroPlanAdquisicion, nil
 	}
+}
+
+//SepararRegistrosPorFuente separa los registros del plan adquisicion por rubro
+func SepararRegistrosPorFuente(RegistroPlanAdquisicion []map[string]interface{}) (registroSeparados map[string]interface{}, outputError interface{}) {
+	var rubro []map[string]interface{}
+	var unicos []string
+	FuentesRegistroPlanAdquisicion := make(map[string]interface{})
+	for rubroindex := range RegistroPlanAdquisicion {
+		delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
+		fuentes, errFuente := SeparaFuentes(RegistroPlanAdquisicion[rubroindex]["RubroId"])
+		if errFuente != nil {
+			return RegistroPlanAdquisicion[rubroindex], nil
+		}
+		newfuente := stringInSlice(fuentes, unicos)
+		if !newfuente {
+			unicos = append(unicos, fuentes)
+			rubro = make([]map[string]interface{}, 0)
+		}
+		// RegistroPlanAdquisicion[rubroindex]["Fuente"] = fuentes
+		rubro = append(rubro, RegistroPlanAdquisicion[rubroindex])
+		FuentesRegistroPlanAdquisicion["Rubro: "+fuentes] = rubro
+
+	}
+	return FuentesRegistroPlanAdquisicion, nil
 }
 
 //IngresoPlanAdquisicion crea un registro de plan de adquisicion
