@@ -16,7 +16,7 @@ func IngresoRegistroProductosAsociados(registroProductosAsociados map[string]int
 
 	registroProductosAsociadosIngresado = map[string]interface{}{
 		"RegistroPlanAdquisicionesId": 	map[string]interface{}{"Id": registroProductosAsociados["RegistroPlanAdquisicionesId"]},
-		"ProductoId":        			registroProductosAsociados["ProductoId"],
+		"ProductoAsociadoId":        	registroProductosAsociados["ProductoAsociadoId"],
 		"Activo":                      	registroProductosAsociados["Activo"],
 	}
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/", "POST", &registroProductosAsociadosPost, registroProductosAsociadosIngresado)
@@ -49,13 +49,13 @@ func GuardarProductosAsociados(ProductosAsociados []interface{}, idPost interfac
 func ObtenerRegistroProductosAsociadosByIDPlanAdquisicion(idStr string) (ProductosAsociados []map[string]interface{}, outputError interface{}) {
 	var productosAsociados map[string]interface{}
 	// var nombreProductosAsociados []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true", &productosAsociados)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,ProductoAsociadoId,Activo", &productosAsociados)
 	if error != nil {
 		return nil, error
 	} else {
 		m := ExtraerDataPeticionArreglo(productosAsociados)
 		for index := range m {
-			producto, error := ObtenerProductoByID(MapToString(m[index]["ProductoId"]))
+			producto, error := ObtenerProductoByID(MapToString(m[index]["ProductoAsociadoId"]))
 			if error != nil {
 				return nil, error
 			} else {
@@ -70,7 +70,7 @@ func ObtenerRegistroProductosAsociadosByIDPlanAdquisicion(idStr string) (Product
 //ObtenerRegistroProductosAsociadosByID regresa una registro de la tabla modalidad de seleccioón segun el ID
 func ObtenerRegistroProductosAsociadosByID(idStr string) (ProductosAsociados map[string]interface{}, outputError interface{}) {
 	var productosAsociados map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=Id:"+idStr+"&fields=Id,ProductoId,Activo", &productosAsociados)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=Id:"+idStr+"&fields=Id,ProductoAsociadoId,Activo", &productosAsociados)
 	if error != nil {
 		return nil, error
 	} else {
@@ -118,7 +118,7 @@ func ActualizarRegistroProductosAsociados(registroProductosAsociados map[string]
 		ProductosAsociadosActualizar = map[string]interface{}{
 			"RegistroPlanAdquisicionesId": map[string]interface{}{"Id": registroProductosAsociados["RegistroPlanAdquisicionesId"]},
 			"FechaCreacion":               RegistroProductosAsociadosAntiguo["FechaCreacion"],
-			"IdProductosAsociados":        registroProductosAsociados["IdProductosAsociados"],
+			"ProductoAsociadoId":        registroProductosAsociados["ProductoAsociadoId"],
 			"Activo":                      registroProductosAsociados["Activo"],
 		}
 		error2 := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/"+idStr, "PUT", &ProductosAsociadosPut, ProductosAsociadosActualizar)
