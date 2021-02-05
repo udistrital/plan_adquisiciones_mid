@@ -49,7 +49,7 @@ func GuardarProductosAsociados(ProductosAsociados []interface{}, idPost interfac
 func ObtenerRegistroProductosAsociadosByIDPlanAdquisicion(idStr string) (ProductosAsociados []map[string]interface{}, outputError interface{}) {
 	var productosAsociados map[string]interface{}
 	// var nombreProductosAsociados []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,ProductoAsociadoId,Activo", &productosAsociados)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,ProductoAsociadoId,Activo,FechaCreacion,FechaModificacion", &productosAsociados)
 	if error != nil {
 		return nil, error
 	} else {
@@ -70,10 +70,11 @@ func ObtenerRegistroProductosAsociadosByIDPlanAdquisicion(idStr string) (Product
 //ObtenerRegistroProductosAsociadosByID regresa una registro de la tabla modalidad de seleccioón segun el ID
 func ObtenerRegistroProductosAsociadosByID(idStr string) (ProductosAsociados map[string]interface{}, outputError interface{}) {
 	var productosAsociados map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=Id:"+idStr+"&fields=Id,ProductoAsociadoId,Activo", &productosAsociados)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=Id:"+idStr+"&fields=Id,ProductoAsociadoId,Activo,FechaCreacion,FechaModificacion", &productosAsociados)
 	if error != nil {
 		return nil, error
 	} else {
+		// fmt.Println(productosAsociados["Data"])
 		m := ExtraerDataPeticionArreglo(productosAsociados)
 		return m[0], nil
 	}
@@ -99,7 +100,7 @@ func ActualizarRegistroProductosAsociados(registroProductosAsociados map[string]
 	ProductosAsociadosActualizar := make(map[string]interface{})
 	
 
-	if registroProductosAsociados["Id"] == nil {
+	if registroProductosAsociados["Id"].(float64) == 0 {
 		//fmt.Println("No existe ProductosAsociados toca crearlo")
 		idint, _ := strconv.Atoi(idStrPlanAdquisicion)
 		registroProductosAsociados["RegistroPlanAdquisicionesId"] = idint
@@ -111,6 +112,7 @@ func ActualizarRegistroProductosAsociados(registroProductosAsociados map[string]
 		}
 
 	} else {
+		// fmt.Println(idStr)
 		RegistroProductosAsociadosAntiguo, _ := ObtenerRegistroProductosAsociadosByID(idStr)
 		//fmt.Println("existe ProductosAsociados toca modificar")
 		idint, _ := strconv.Atoi(idStrPlanAdquisicion)
