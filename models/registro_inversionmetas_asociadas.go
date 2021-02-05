@@ -48,11 +48,11 @@ func GuardarMetasAsociadas(Metas_Asociadas []interface{}, idPost interface{}) (r
 //ObtenerRegistroMetasAsociadasByIDPlanAdquisicion regresa una registro de la tabla modalidad de seleccioón segun un Id de un registro_plan_adquisicion
 func ObtenerRegistroMetasAsociadasByIDPlanAdquisicion(idStr string) (MetasAsociadas []map[string]interface{}, outputError interface{}) {
 	var metasAsociadas map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,MetaId,Activo", &metasAsociadas)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,MetaId,Activo,FechaCreacion,FechaModificacion", &metasAsociadas)
 	if error != nil {
 		return nil, error
 	} else {
-		fmt.Println(metasAsociadas)
+		// fmt.Println(metasAsociadas)
 		m := ExtraerDataPeticionArreglo(metasAsociadas)
 		return m, nil
 	}
@@ -62,11 +62,11 @@ func ObtenerRegistroMetasAsociadasByIDPlanAdquisicion(idStr string) (MetasAsocia
 //ObtenerRegistroMetasAsociadasByID regresa una registro de la tabla modalidad de seleccioón segun el ID
 func ObtenerRegistroMetasAsociadasByID(idStr string) (MetasAsociadas map[string]interface{}, outputError interface{}) {
 	var metasAsociadas map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/?query=Id:"+idStr+"&fields=Id,MetaId,Activo", &metasAsociadas)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/?query=Id:"+idStr+"&fields=Id,MetaId,Activo,FechaCreacion,FechaModificacion", &metasAsociadas)
 	if error != nil {
 		return nil, error
 	} else {
-		fmt.Println(metasAsociadas)
+		// fmt.Println(metasAsociadas)
 		m := ExtraerDataPeticionArreglo(metasAsociadas)
 		return m[0], nil
 	}
@@ -92,7 +92,7 @@ func ActualizarRegistroMetasAsociadas(registroMetasAsociadas map[string]interfac
 	MetasAsociadasActualizar := make(map[string]interface{})
 	
 
-	if registroMetasAsociadas["Id"] == nil {
+	if registroMetasAsociadas["Id"].(float64) == 0 {
 
 		idint, _ := strconv.Atoi(idStrPlanAdquisicion)
 		registroMetasAsociadas["RegistroPlanAdquisicionesId"] = idint
@@ -112,6 +112,7 @@ func ActualizarRegistroMetasAsociadas(registroMetasAsociadas map[string]interfac
 			"MetaId":        				map[string]interface{}{"Id": registroMetasAsociadas["MetaId"]},
 			"Activo":                      	registroMetasAsociadas["Activo"],
 		}
+		// fmt.Println(MetasAsociadasActualizar)
 		error2 := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/"+idStr, "PUT", &MetasAsociadasPut, MetasAsociadasActualizar)
 		if error2 != nil {
 			return nil, error2
