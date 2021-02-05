@@ -132,14 +132,18 @@ func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo in
 				for _, index := range RegistrosID {
 					id := fmt.Sprintf("%.0f", index["Id"].(float64))
 					RegistroPlanAdquisicion, _ := ObtenerRenglonRegistroPlanAdquisicionByID(id)
-					for i := range RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}) {
-						idActividad := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["ActividadId"].(float64))
-						InfoActividad, _ := ObtenerActividadbyID(idActividad)
-						RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["actividad"] = InfoActividad[0]
+					if RegistroPlanAdquisicion[0]["FuenteFinanciamientoId"] != "" {
+						for i := range RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}) {
+							idActividad := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["ActividadId"].(float64))
+							InfoActividad, _ := ObtenerActividadbyID(idActividad)
+							RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["actividad"] = InfoActividad[0]
+						}
+						EliminarCampos(RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}), "ActividadId")
+						EliminarCampos(RegistroPlanAdquisicion, "PlanAdquisicionesId")
+						registros = append(registros, RegistroPlanAdquisicion[0])
+					} else {
+						registros = append(registros, RegistroPlanAdquisicion[0])
 					}
-					EliminarCampos(RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}), "ActividadId")
-					EliminarCampos(RegistroPlanAdquisicion, "PlanAdquisicionesId")
-					registros = append(registros, RegistroPlanAdquisicion[0])
 				}
 				registrosSperados, _ := SepararRegistrosPorFuente(registros)
 				PlanAdquisicionMongo["registro_plan_adquisiciones"] = registrosSperados
