@@ -40,10 +40,14 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 				if error != nil {
 					return nil, error
 				} else {
-					delete(registro[0], "registro_plan_adquisiciones-actividad")
+					if registro[0]["FuenteFinanciamientoId"] == "" {
+						delete(registro[0], "registro_plan_adquisiciones-actividad")
+					}
 					registros = append(registros, registro[0])
 				}
 			}
+			fmt.Println(len(registros))
+			fmt.Println(registros)
 			FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
 			if error != nil {
 				return nil, error
@@ -237,11 +241,12 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 	if error != nil {
 		return nil, error
 	} else {
+		// fmt.Println(RenglonRegistroPlanAdquisicion)
 		if len(RenglonRegistroPlanAdquisicion) == 1 && len(RenglonRegistroPlanAdquisicion[0]) == 0 {
 			error := "No existe Registro Plan Adquisicion"
 			return nil, error
 		} else {
-			fmt.Println(RenglonRegistroPlanAdquisicion[0])
+			// fmt.Println(RenglonRegistroPlanAdquisicion[0])
 			if RenglonRegistroPlanAdquisicion[0]["FuenteFinanciamientoId"] == "" {
 				RenglonRegistro, errorDatos := ObtenerRenglonInversion(RenglonRegistroPlanAdquisicion[0], idStr)
 				if errorDatos != nil {
