@@ -23,7 +23,8 @@ func IngresoRegistroMetasAsociadas(registroMetasAsociadas map[string]interface{}
 	if error != nil {
 		return nil, error
 	} else {
-		return registroMetasAsociadasPost, nil
+		m := ExtraerDataPeticion(registroMetasAsociadasPost)
+		return m, nil
 	}
 
 }
