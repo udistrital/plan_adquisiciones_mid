@@ -225,6 +225,23 @@ func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro 
 	}
 }
 
+func SumaFuenteFinanciamientoFuncionamiento(PlanAdquisicionActividades interface{}, IDRubro string, Vigencia string, AreaFuncional string) (outputError interface{}) {
+	var RubroMongo map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+AreaFuncional+"/", &RubroMongo)
+	if error != nil {
+		return error
+	} else {
+		m := RubroMongo["Body"].(interface{})
+		ValorActualRubro := m.(map[string]interface{})["ValorActual"].(float64)
+		valor := PlanAdquisicionActividades.(float64)
+		if valor > ValorActualRubro {
+			errorValorRubro := "La suma de las fuentes de financiamiento supera el valor actual del rubro"
+			return errorValorRubro
+		}
+		return nil
+	}
+}
+
 //ObtenerFuenteFinanciamientoByCodigo Trae campos de fuente financiamiento segun codigo
 func ObtenerFuenteFinanciamientoByCodigo(Codigo string, Vigencia string, UnidadEjecutora string) (fuentefinanciamiento map[string]interface{}, outputError interface{}) {
 	var FuenteFinanciamientoMongo map[string]interface{}

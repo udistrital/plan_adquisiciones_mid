@@ -23,7 +23,7 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 }
 
 //ObtenerRegistroPlanAdquisicionByIDplan regresa un registro del plan de adquisicion segun ID planADquisicion seprados por fuentes de financiamiento
-func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroPlanAdquisicion map[string]interface{}, outputError interface{}) {
+func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (PlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	registros := make([]map[string]interface{}, 0)
 	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=RubroId&order=asc"
@@ -32,7 +32,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 		return nil, error
 	} else {
 		if len(RegistroPlanAdquisicion[0]) == 0 {
-			return RegistroPlanAdquisicion[0], nil
+			return RegistroPlanAdquisicion, nil
 		} else {
 			for index := range RegistroPlanAdquisicion {
 				id := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[index]["Id"].(float64))
@@ -46,44 +46,94 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (registroP
 					registros = append(registros, registro[0])
 				}
 			}
-			fmt.Println(len(registros))
-			fmt.Println(registros)
+			// fmt.Println(len(registros))
+			// fmt.Println(registros)
 			FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
+			// RubrosRegistroPlanAdquisicion, error := SepararRegistrosPorRubro(registros)
 			if error != nil {
 				return nil, error
 			} else {
+				
 				return FuentesRegistroPlanAdquisicion, nil
+				// return RubrosRegistroPlanAdquisicion, nil
 			}
 		}
 	}
 }
 
 //SepararRegistrosPorFuente separa los registros del plan adquisicion por rubro
-func SepararRegistrosPorFuente(RegistroPlanAdquisicion []map[string]interface{}) (registroSeparados map[string]interface{}, outputError interface{}) {
-	var rubro []map[string]interface{}
+func SepararRegistrosPorFuente(RegistroPlanAdquisicion []map[string]interface{}) (registroSeparados []map[string]interface{}, outputError interface{}) {
+	var fuente map[string]interface{}
 	var unicos []string
-	FuentesRegistroPlanAdquisicion := make(map[string]interface{})
-	for rubroindex := range RegistroPlanAdquisicion {
-		delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
-		fuentes, errFuente := SeparaFuentes(RegistroPlanAdquisicion[rubroindex]["RubroId"])
+	FuentesRegistroPlanAdquisicion := make([]map[string]interface{},0)
+	rubrosSeparados, errorRubro := SepararRegistrosPorRubro(RegistroPlanAdquisicion)
+	if errorRubro != nil {
+		return nil, errorRubro
+	}
+	fmt.Println(rubrosSeparados)
+	for rubroindex := range rubrosSeparados {
+		fuentes, errFuente := SeparaFuentes(rubrosSeparados[rubroindex]["Rubro"])
+		fmt.Println(fuentes)
 		if errFuente != nil {
-			return RegistroPlanAdquisicion[rubroindex], nil
+			return RegistroPlanAdquisicion, nil
 		}
 		newfuente := stringInSlice(fuentes, unicos)
 		if !newfuente {
 			unicos = append(unicos, fuentes)
-			rubro = make([]map[string]interface{}, 0)
+			fuente = map[string]interface{}{
+				"Fuente":       	fuentes,
+				"datos":       		make([]map[string]interface{},0),
+			}
+			fuente["datos"] = append(fuente["datos"].([]map[string]interface{}), rubrosSeparados[rubroindex])
+			FuentesRegistroPlanAdquisicion = append(FuentesRegistroPlanAdquisicion, fuente)
+		} else {
+			index := BuscarIndexPorCampo(FuentesRegistroPlanAdquisicion, fuentes, "Fuente")
+			if index != -1 {
+				FuentesRegistroPlanAdquisicion[index]["datos"] = append(FuentesRegistroPlanAdquisicion[index]["datos"].([]map[string]interface{}), rubrosSeparados[rubroindex])
+			}
 		}
-		// RegistroPlanAdquisicion[rubroindex]["Fuente"] = fuentes
-		rubro = append(rubro, RegistroPlanAdquisicion[rubroindex])
-		FuentesRegistroPlanAdquisicion["Rubro: "+fuentes] = rubro
-
 	}
 	return FuentesRegistroPlanAdquisicion, nil
 }
 
+func SepararRegistrosPorRubro(RegistroPlanAdquisicion []map[string]interface{}) (registrosSeparados []map[string]interface{}, outputError interface{}) {
+	var rubro map[string]interface{}
+	var unicos []string
+	RubrosRegistroPlanAdquisicion := make([]map[string]interface{},0)
+	for rubroindex := range RegistroPlanAdquisicion {
+		delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
+		RubroPorAgregar := RegistroPlanAdquisicion[rubroindex]["RubroId"]
+		newRubro := stringInSlice(RubroPorAgregar.(string), unicos)
+		if !newRubro {
+			unicos = append(unicos, RubroPorAgregar.(string))
+			rubro = map[string]interface{}{
+				"Rubro":       		RubroPorAgregar,
+				"datos":       		make([]map[string]interface{},0),
+			}
+			rubro["datos"] = append(rubro["datos"].([]map[string]interface{}), RegistroPlanAdquisicion[rubroindex])
+			RubrosRegistroPlanAdquisicion = append(RubrosRegistroPlanAdquisicion, rubro)
+		} else {
+			index := BuscarIndexPorCampo(RubrosRegistroPlanAdquisicion, RubroPorAgregar.(string), "Rubro")
+			if index != -1 {
+				RubrosRegistroPlanAdquisicion[index]["datos"] = append(RubrosRegistroPlanAdquisicion[index]["datos"].([]map[string]interface{}), RegistroPlanAdquisicion[rubroindex])
+			}
+		}
+	}
+	return RubrosRegistroPlanAdquisicion, nil
+}
+func BuscarIndexPorCampo(RegistroPlanAdquisicion []map[string]interface{}, Rubro string, Campo string) (index int) {
+
+	for i := range RegistroPlanAdquisicion {
+		if RegistroPlanAdquisicion[i][Campo] == Rubro {
+			return i
+		}
+	}
+	return -1
+}
+
 //IngresoPlanAdquisicion crea un registro de plan de adquisicion
 func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
+
 
 	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
 		result, errorDatos := IngresoRenglonPlanInversion(registroPlanAdquisicion)
@@ -117,6 +167,8 @@ func IngresoRenglonPlanInversion(registroPlanAdquisicion map[string]interface{})
 		"MetaId":					nil,
 		"ProductoId":				nil,
 		"FuenteFinanciamientoId":	"",
+		"ActividadId":				0,
+		"ValorActividad":			0,
 		"FechaEstimadaInicio": 		registroPlanAdquisicion["FechaEstimadaInicio"],
 		"FechaEstimadaFin":    		registroPlanAdquisicion["FechaEstimadaFin"],
 		"Activo":              		registroPlanAdquisicion["Activo"],
@@ -190,6 +242,8 @@ func IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion map[string]interfa
 		"RubroId":             		registroPlanAdquisicion["RubroId"],
 		"MetaId":					nil,
 		"ProductoId":				nil,
+		"ActividadId":				registroPlanAdquisicion["ActividadId"],
+		"ValorActividad":			registroPlanAdquisicion["ValorActividad"],
 		"FuenteFinanciamientoId":	registroPlanAdquisicion["FuenteFinanciamientoId"],
 		"FechaEstimadaInicio": 		registroPlanAdquisicion["FechaEstimadaInicio"],
 		"FechaEstimadaFin":    		registroPlanAdquisicion["FechaEstimadaFin"],
@@ -198,18 +252,16 @@ func IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion map[string]interfa
 	}
 	ModalidadSeleccion := registroPlanAdquisicion["ModalidadSeleccion"].([]interface{})
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
-
-	// PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
-	// AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
-
-	// Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
-	// if errorVigencia != nil {
-	// 	return nil, errorVigencia
-	// }
-	// errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
-	// if errorSuma != nil {
-	// 	return nil, errorSuma
-	// }
+	PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+	AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
+	Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
+	if errorVigencia != nil {
+		return nil, errorVigencia
+	}
+	errorSuma := SumaFuenteFinanciamientoFuncionamiento(registroPlanAdquisicion["ValorActividad"], registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
+	if errorSuma != nil {
+		return nil, errorSuma
+	}
 
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", "POST", &registroPlanAdquisicionPost, registroPlanAdquisicionIngresado)
 	if error != nil {
@@ -428,22 +480,24 @@ func ActualizarRegistroFuncionamiento(registroPlanAdquisicion map[string]interfa
 	registroPlanAdquisicionActualizar := make(map[string]interface{})
 	RegistroPlanAdquisicionAntiguo, error := ObtenerRenglonRegistroPlanAdquisicionByID(idStr)
 	
-	// //fmt.Println("existe registro y  toca modificarlo")
-	// Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
-	// if errorVigencia != nil {
-	// 	return nil, errorVigencia
-	// }
+	//fmt.Println("existe registro y  toca modificarlo")
+	Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
+	if errorVigencia != nil {
+		return nil, errorVigencia
+	}
 	// PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-	// errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
-	// if errorSuma != nil {
-	// 	return nil, errorSuma
-	// }
+	errorSuma := SumaFuenteFinanciamientoFuncionamiento(registroPlanAdquisicion["ValorActividad"], registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
+	if errorSuma != nil {
+		return nil, errorSuma
+	}
 	registroPlanAdquisicionActualizar = map[string]interface{}{
 		"AreaFuncional":       		registroPlanAdquisicion["AreaFuncional"],
 		"CentroGestor":        		registroPlanAdquisicion["CentroGestor"],
 		"ResponsableId":       		registroPlanAdquisicion["ResponsableId"],
 		"MetaId":              		nil,
 		"ProductoId":          		nil,
+		"ActividadId":				registroPlanAdquisicion["ActividadId"],
+		"ValorActividad":			registroPlanAdquisicion["ValorActividad"],
 		"RubroId":             		registroPlanAdquisicion["RubroId"],
 		"FuenteFinanciamientoId": 	registroPlanAdquisicion["FuenteFinanciamientoId"],
 		"FechaCreacion":       		RegistroPlanAdquisicionAntiguo[0]["FechaCreacion"],
@@ -491,6 +545,8 @@ func ActualizarRegistroInversion(registroPlanAdquisicion map[string]interface{},
 		"MetaId":              		nil,
 		"ProductoId":          		nil,
 		"FuenteFinanciamientoId": 	"",
+		"ActividadId":				0,
+		"ValorActividad":			0,
 		"RubroId":             		registroPlanAdquisicion["RubroId"],
 		"FechaCreacion":       		RegistroPlanAdquisicionAntiguo[0]["FechaCreacion"],
 		"FechaEstimadaInicio": 		registroPlanAdquisicion["FechaEstimadaInicio"],

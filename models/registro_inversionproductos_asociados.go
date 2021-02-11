@@ -17,6 +17,7 @@ func IngresoRegistroProductosAsociados(registroProductosAsociados map[string]int
 	registroProductosAsociadosIngresado = map[string]interface{}{
 		"RegistroPlanAdquisicionesId": 	map[string]interface{}{"Id": registroProductosAsociados["RegistroPlanAdquisicionesId"]},
 		"ProductoAsociadoId":        	registroProductosAsociados["ProductoAsociadoId"],
+		"PorcentajeDistribucion":      	registroProductosAsociados["PorcentajeDistribucion"],
 		"Activo":                      	registroProductosAsociados["Activo"],
 	}
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/", "POST", &registroProductosAsociadosPost, registroProductosAsociadosIngresado)
@@ -118,10 +119,11 @@ func ActualizarRegistroProductosAsociados(registroProductosAsociados map[string]
 		idint, _ := strconv.Atoi(idStrPlanAdquisicion)
 		registroProductosAsociados["RegistroPlanAdquisicionesId"] = idint
 		ProductosAsociadosActualizar = map[string]interface{}{
-			"RegistroPlanAdquisicionesId": map[string]interface{}{"Id": registroProductosAsociados["RegistroPlanAdquisicionesId"]},
-			"FechaCreacion":               RegistroProductosAsociadosAntiguo["FechaCreacion"],
-			"ProductoAsociadoId":        registroProductosAsociados["ProductoAsociadoId"],
-			"Activo":                      registroProductosAsociados["Activo"],
+			"RegistroPlanAdquisicionesId": 	map[string]interface{}{"Id": registroProductosAsociados["RegistroPlanAdquisicionesId"]},
+			"FechaCreacion":               	RegistroProductosAsociadosAntiguo["FechaCreacion"],
+			"ProductoAsociadoId":     	   	registroProductosAsociados["ProductoAsociadoId"],
+			"PorcentajeDistribucion":		registroProductosAsociados["PorcentajeDistribucion"],
+			"Activo":                      	registroProductosAsociados["Activo"],
 		}
 		error2 := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/"+idStr, "PUT", &ProductosAsociadosPut, ProductosAsociadosActualizar)
 		if error2 != nil {
