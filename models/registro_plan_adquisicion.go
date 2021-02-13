@@ -40,9 +40,9 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (PlanAdqui
 				if error != nil {
 					return nil, error
 				} else {
-					if registro[0]["FuenteFinanciamientoId"] == "" {
-						delete(registro[0], "registro_plan_adquisiciones-actividad")
-					}
+					// if registro[0]["FuenteFinanciamientoId"] == "" {
+					// 	delete(registro[0], "registro_plan_adquisiciones-actividad")
+					// }
 					registros = append(registros, registro[0])
 				}
 			}
