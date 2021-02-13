@@ -132,7 +132,7 @@ func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo in
 				for _, index := range RegistrosID {
 					id := fmt.Sprintf("%.0f", index["Id"].(float64))
 					RegistroPlanAdquisicion, _ := ObtenerRenglonRegistroPlanAdquisicionByID(id)
-					if RegistroPlanAdquisicion[0]["FuenteFinanciamientoId"] != "" {
+					if RegistroPlanAdquisicion[0]["FuenteFinanciamientoId"] == "" {
 						for i := range RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{}) {
 							idActividad := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"].([]map[string]interface{})[i]["ActividadId"].(float64))
 							InfoActividad, _ := ObtenerActividadbyID(idActividad)

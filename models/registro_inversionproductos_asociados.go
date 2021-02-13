@@ -50,7 +50,7 @@ func GuardarProductosAsociados(ProductosAsociados []interface{}, idPost interfac
 func ObtenerRegistroProductosAsociadosByIDPlanAdquisicion(idStr string) (ProductosAsociados []map[string]interface{}, outputError interface{}) {
 	var productosAsociados map[string]interface{}
 	// var nombreProductosAsociados []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,ProductoAsociadoId,Activo,FechaCreacion,FechaModificacion", &productosAsociados)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Productos_Asociados/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,ProductoAsociadoId,Activo,FechaCreacion,FechaModificacion,PorcentajeDistribucion", &productosAsociados)
 	if error != nil {
 		return nil, error
 	} else {
