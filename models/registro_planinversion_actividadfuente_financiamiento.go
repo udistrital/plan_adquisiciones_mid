@@ -127,6 +127,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 		}
 		for index := range RegistroPlanAdquisicionActividadFuente {
 			ActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Id"]
+			NumeroActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Numero"]
+			NumeroMeta := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["MetaId"].(map[string]interface{})["Numero"]
 			ValorActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Valor"]
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
 			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
@@ -158,6 +160,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 
 			registro = map[string]interface{}{
 				"ActividadId":                 ActividadID,
+				"Numero":				   	   NumeroActividad,
+				"NumeroMeta":				   NumeroMeta,
 				"Nombre":                      NombreActividad,
 				"RegistroPlanAdquisicionesId": idStr,
 				"Valor":                       ValorActividad,
