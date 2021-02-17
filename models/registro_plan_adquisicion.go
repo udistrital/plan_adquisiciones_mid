@@ -101,19 +101,28 @@ func SepararRegistrosPorRubro(RegistroPlanAdquisicion []map[string]interface{}) 
 	var unicos []string
 	RubrosRegistroPlanAdquisicion := make([]map[string]interface{},0)
 	for rubroindex := range RegistroPlanAdquisicion {
-		delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
-		RubroPorAgregar := RegistroPlanAdquisicion[rubroindex]["RubroId"]
-		newRubro := stringInSlice(RubroPorAgregar.(string), unicos)
+		RubroPorAgregar := RegistroPlanAdquisicion[rubroindex]["RubroId"].(string)
+		newRubro := stringInSlice(RubroPorAgregar, unicos)
 		if !newRubro {
-			unicos = append(unicos, RubroPorAgregar.(string))
-			rubro = map[string]interface{}{
-				"Rubro":       		RubroPorAgregar,
-				"datos":       		make([]map[string]interface{},0),
+			Vigencia := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["PlanAdquisicionesId"].(map[string]interface{})["Vigencia"].(float64))
+			AreaFuncional := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["AreaFuncional"].(float64))
+			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
+			unicos = append(unicos, RubroPorAgregar)
+			Rubro, error := ObtenerRubroByID(RubroPorAgregar, Vigencia, AreaFuncional)
+			if error != nil {
+				return nil, error
+			} else {
+				rubro = map[string]interface{}{
+					"Rubro":       		RubroPorAgregar,
+					"RubroInfo":		Rubro,
+					"datos":       		make([]map[string]interface{},0),
+				}
+				rubro["datos"] = append(rubro["datos"].([]map[string]interface{}), RegistroPlanAdquisicion[rubroindex])
+				RubrosRegistroPlanAdquisicion = append(RubrosRegistroPlanAdquisicion, rubro)
 			}
-			rubro["datos"] = append(rubro["datos"].([]map[string]interface{}), RegistroPlanAdquisicion[rubroindex])
-			RubrosRegistroPlanAdquisicion = append(RubrosRegistroPlanAdquisicion, rubro)
+			
 		} else {
-			index := BuscarIndexPorCampo(RubrosRegistroPlanAdquisicion, RubroPorAgregar.(string), "Rubro")
+			index := BuscarIndexPorCampo(RubrosRegistroPlanAdquisicion, RubroPorAgregar, "Rubro")
 			if index != -1 {
 				RubrosRegistroPlanAdquisicion[index]["datos"] = append(RubrosRegistroPlanAdquisicion[index]["datos"].([]map[string]interface{}), RegistroPlanAdquisicion[rubroindex])
 			}
@@ -353,15 +362,15 @@ func ObtenerRenglonInversion(RenglonRegistro map[string]interface{}, idStr strin
 						if error != nil {
 							return nil, error
 						} else {
-							Vigencia, AreaFuncional, errorVigenciaYAreaFuncional := VigenciaYAreaFuncional(idStr)
-							Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
-							if error != nil && errorVigenciaYAreaFuncional != nil {
-								return nil, error
-							} else {
-								Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
-								if error != nil {
-									return nil, error
-								} else {
+							// Vigencia, AreaFuncional, errorVigenciaYAreaFuncional := VigenciaYAreaFuncional(idStr)
+							// Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
+							// if error != nil && errorVigenciaYAreaFuncional != nil {
+							// 	return nil, error
+							// } else {
+								// Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
+								// if error != nil {
+								// 	return nil, error
+								// } else {
 									s := fmt.Sprintf("%.0f", RenglonRegistroPlanAdquisicion[0]["ResponsableId"].(float64))
 									error := request.GetJson(beego.AppConfig.String("oikos_api_url")+"dependencia/?query=Id:"+s, &Responsable)
 									if error != nil {
@@ -375,13 +384,13 @@ func ObtenerRenglonInversion(RenglonRegistro map[string]interface{}, idStr strin
 										RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-metas_asociadas"] = Metas
 										RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-productos_asociados"] = Productos
 										RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
-										RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
-										RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
+										// RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
+										// RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
 										RenglonRegistroPlanAdquisicion[0]["ResponsableNombre"] = Responsable[0]["Nombre"]
 										RenglonRegistroPlanAdquisicion[0]["ValorTotalActividades"] = valorTotalActividad
 									}
-								}
-							}
+								// }
+							// }
 						}
 					}
 				}
@@ -414,7 +423,7 @@ func ObtenerRenglonFuncionamiento(RenglonRegistro map[string]interface{}, idStr 
 				return nil, error
 			} else {
 				Vigencia, AreaFuncional, errorVigenciaYAreaFuncional := VigenciaYAreaFuncional(idStr)
-				Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
+				// Fuente, error := ObtenerFuenteRecursoByIDRubro(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
 				if error != nil && errorVigenciaYAreaFuncional != nil {
 					return nil, error
 				} else {
@@ -422,30 +431,30 @@ func ObtenerRenglonFuncionamiento(RenglonRegistro map[string]interface{}, idStr 
 					if error != nil {
 						return nil, error
 					} else {
-						Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
+						// Rubro, error := ObtenerRubroByID(RenglonRegistroPlanAdquisicion[0]["RubroId"].(string), Vigencia, AreaFuncional)
+						// if error != nil {
+						// 	return nil, error
+						// } else {
+						s := fmt.Sprintf("%.0f", RenglonRegistroPlanAdquisicion[0]["ResponsableId"].(float64))
+						error := request.GetJson(beego.AppConfig.String("oikos_api_url")+"dependencia/?query=Id:"+s, &Responsable)
 						if error != nil {
 							return nil, error
 						} else {
-							s := fmt.Sprintf("%.0f", RenglonRegistroPlanAdquisicion[0]["ResponsableId"].(float64))
-							error := request.GetJson(beego.AppConfig.String("oikos_api_url")+"dependencia/?query=Id:"+s, &Responsable)
-							if error != nil {
-								return nil, error
-							} else {
-								// valorTotalActividad := SumaActividades(RegistroPlanAdquisicionActividad)
-								EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
-								EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
-								RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
-								RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
-								// RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
-								// RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
-								// RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
-								RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
-								RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
-								RenglonRegistroPlanAdquisicion[0]["FuenteFinanciamientoData"] = FuenteFinanciamiento
-								RenglonRegistroPlanAdquisicion[0]["ResponsableNombre"] = Responsable[0]["Nombre"]
-								// RenglonRegistroPlanAdquisicion[0]["ValorTotalActividades"] = valorTotalActividad
-							}
+							// valorTotalActividad := SumaActividades(RegistroPlanAdquisicionActividad)
+							EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
+							EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
+							RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
+							RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
+							// RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
+							// RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
+							// RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
+							// RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
+							// RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
+							RenglonRegistroPlanAdquisicion[0]["FuenteFinanciamientoData"] = FuenteFinanciamiento
+							RenglonRegistroPlanAdquisicion[0]["ResponsableNombre"] = Responsable[0]["Nombre"]
+							// RenglonRegistroPlanAdquisicion[0]["ValorTotalActividades"] = valorTotalActividad
 						}
+						// }
 					}
 				}
 			}
