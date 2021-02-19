@@ -8,7 +8,8 @@ import (
 //ObtenerRubroByID regresa los elementos del rubro
 func ObtenerRubroByID(idstr string, Vigencia string, UnidadEjecutora string) (InfoRubro map[string]interface{}, outputError interface{}) {
 	var rubro map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+idstr+"/"+Vigencia+"/"+UnidadEjecutora+"/", &rubro)
+	// error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+idstr+"/"+Vigencia+"/"+UnidadEjecutora+"/", &rubro)
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/arbol_apropiacion_valores/"+UnidadEjecutora+"/"+Vigencia+"/"+idstr+"?nivel=0", &rubro)
 	if error != nil {
 		return nil, error
 	} else {
@@ -16,9 +17,23 @@ func ObtenerRubroByID(idstr string, Vigencia string, UnidadEjecutora string) (In
 			error := "No se encontro Rubro"
 			return nil, error
 		}
-		m := rubro["Body"].(interface{})
-		Rubro := m.(map[string]interface{})
-		return Rubro, nil
+		m := rubro["Body"].([]interface{})
+		Rubro := m[0].(map[string]interface{})
+		return Rubro["data"].(map[string]interface{}), nil
+	}
+
+}
+
+//ObtenerRubroByID regresa los elementos del rubro
+func ObtenerFuenteReducidaByID(CodigoFuente string) (InfoFuente map[string]interface{}, outputError interface{}) {
+	var fuente []map[string]interface{}
+	// error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+idstr+"/"+Vigencia+"/"+UnidadEjecutora+"/", &rubro)
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro/arbol_reducido/"+CodigoFuente+"?nivel=0", &fuente)
+	if error != nil {
+		return nil, error
+	} else {
+		FuenteData := fuente[0]["data"].(map[string]interface{})
+		return FuenteData, nil
 	}
 
 }
