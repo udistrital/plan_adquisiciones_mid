@@ -56,7 +56,7 @@ func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []ma
 			if error != nil {
 				return nil, error
 			} else {
-				codigoArka[index]["Descripcion"] = ElementoCodigoArka["Descripcion"]
+				codigoArka[index]["Descripcion"] = ElementoCodigoArka["Codigo"].(string) + "-" + ElementoCodigoArka["Descripcion"].(string)
 			}
 		}
 		return codigoArka, nil
@@ -158,7 +158,7 @@ func RegistroCodigoArkaValidacion(registroCodigoArka map[string]interface{}, Reg
 //CatalogoElementosArka Consulta nombre en el catalogo de elementos de arka
 func CatalogoElementosArka(idStr string) (NombreElemento map[string]interface{}, outputError interface{}) {
 	var ElementoCodigoArka []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("catalogo_elementos_arka_url")+"elemento?fields=Id,Descripcion&query=Id:"+idStr, &ElementoCodigoArka)
+	error := request.GetJson(beego.AppConfig.String("catalogo_elementos_arka_url")+"subgrupo?fields=Id,Codigo,Descripcion&query=Id:"+idStr, &ElementoCodigoArka)
 	if error != nil {
 		return nil, error
 	} else {

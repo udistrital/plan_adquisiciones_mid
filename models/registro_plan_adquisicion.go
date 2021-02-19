@@ -70,22 +70,26 @@ func SepararRegistrosPorFuente(RegistroPlanAdquisicion []map[string]interface{})
 	if errorRubro != nil {
 		return nil, errorRubro
 	}
-	fmt.Println(rubrosSeparados)
 	for rubroindex := range rubrosSeparados {
 		fuentes, errFuente := SeparaFuentes(rubrosSeparados[rubroindex]["Rubro"])
-		fmt.Println(fuentes)
 		if errFuente != nil {
 			return RegistroPlanAdquisicion, nil
 		}
 		newfuente := stringInSlice(fuentes, unicos)
 		if !newfuente {
-			unicos = append(unicos, fuentes)
-			fuente = map[string]interface{}{
-				"Fuente":       	fuentes,
-				"datos":       		make([]map[string]interface{},0),
+			FuenteData, error := ObtenerFuenteReducidaByID(fuentes)
+			if error != nil {
+				return nil, error
+			} else {
+				unicos = append(unicos, fuentes)
+				fuente = map[string]interface{}{
+					"Fuente":       	fuentes,
+					"FuenteData":		FuenteData,
+					"datos":       		make([]map[string]interface{},0),
+				}
+				fuente["datos"] = append(fuente["datos"].([]map[string]interface{}), rubrosSeparados[rubroindex])
+				FuentesRegistroPlanAdquisicion = append(FuentesRegistroPlanAdquisicion, fuente)
 			}
-			fuente["datos"] = append(fuente["datos"].([]map[string]interface{}), rubrosSeparados[rubroindex])
-			FuentesRegistroPlanAdquisicion = append(FuentesRegistroPlanAdquisicion, fuente)
 		} else {
 			index := BuscarIndexPorCampo(FuentesRegistroPlanAdquisicion, fuentes, "Fuente")
 			if index != -1 {
@@ -104,8 +108,13 @@ func SepararRegistrosPorRubro(RegistroPlanAdquisicion []map[string]interface{}) 
 		RubroPorAgregar := RegistroPlanAdquisicion[rubroindex]["RubroId"].(string)
 		newRubro := stringInSlice(RubroPorAgregar, unicos)
 		if !newRubro {
-			Vigencia := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["PlanAdquisicionesId"].(map[string]interface{})["Vigencia"].(float64))
-			AreaFuncional := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[0]["AreaFuncional"].(float64))
+			idStr := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[rubroindex]["Id"].(float64))
+			Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
+			if errorVigencia != nil {
+				return nil, errorVigencia
+			}
+			// Vigencia := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[rubroindex]["PlanAdquisicionesId"].(map[string]interface{})["Vigencia"].(float64))
+			// AreaFuncional := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[rubroindex]["AreaFuncional"].(float64))
 			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
 			unicos = append(unicos, RubroPorAgregar)
 			Rubro, error := ObtenerRubroByID(RubroPorAgregar, Vigencia, AreaFuncional)
@@ -122,6 +131,7 @@ func SepararRegistrosPorRubro(RegistroPlanAdquisicion []map[string]interface{}) 
 			}
 			
 		} else {
+			delete(RegistroPlanAdquisicion[rubroindex], "PlanAdquisicionesId")
 			index := BuscarIndexPorCampo(RubrosRegistroPlanAdquisicion, RubroPorAgregar, "Rubro")
 			if index != -1 {
 				RubrosRegistroPlanAdquisicion[index]["datos"] = append(RubrosRegistroPlanAdquisicion[index]["datos"].([]map[string]interface{}), RegistroPlanAdquisicion[rubroindex])
@@ -189,16 +199,19 @@ func IngresoRenglonPlanInversion(registroPlanAdquisicion map[string]interface{})
 	MetasAsociadas := registroPlanAdquisicion["MetasAsociadas"].([]interface{})
 	ProductosAsociados := registroPlanAdquisicion["ProductosAsociados"].([]interface{})
 
-	PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
-	AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
-	Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
-	if errorVigencia != nil {
-		return nil, errorVigencia
-	}
-	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
-	if errorSuma != nil {
-		return nil, errorSuma
-	}
+
+	// Ojo comprobacion de los valores de los rubros con las fuentes !!!!!!!
+	// PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+	// AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
+	// Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
+	// if errorVigencia != nil {
+	// 	return nil, errorVigencia
+	// }
+	// errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
+	// if errorSuma != nil {
+	// 	return nil, errorSuma
+	// }
+	// !!!!!!!!!
 
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", "POST", &registroPlanAdquisicionPost, registroPlanAdquisicionIngresado)
 	if error != nil {
@@ -261,16 +274,20 @@ func IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion map[string]interfa
 	}
 	ModalidadSeleccion := registroPlanAdquisicion["ModalidadSeleccion"].([]interface{})
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
-	PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
-	AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
-	Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
-	if errorVigencia != nil {
-		return nil, errorVigencia
-	}
-	errorSuma := SumaFuenteFinanciamientoFuncionamiento(registroPlanAdquisicion["ValorActividad"], registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
-	if errorSuma != nil {
-		return nil, errorSuma
-	}
+	
+
+	// Ojo, se debe comprobar la suma de los rubros con los datos !!!!
+	// PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+	// AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
+	// Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
+	// if errorVigencia != nil {
+	// 	return nil, errorVigencia
+	// }
+	// errorSuma := SumaFuenteFinanciamientoFuncionamiento(registroPlanAdquisicion["ValorActividad"], registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
+	// if errorSuma != nil {
+	// 	return nil, errorSuma
+	// }
+	// !!!!!!
 
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/", "POST", &registroPlanAdquisicionPost, registroPlanAdquisicionIngresado)
 	if error != nil {
@@ -435,24 +452,29 @@ func ObtenerRenglonFuncionamiento(RenglonRegistro map[string]interface{}, idStr 
 						// if error != nil {
 						// 	return nil, error
 						// } else {
-						s := fmt.Sprintf("%.0f", RenglonRegistroPlanAdquisicion[0]["ResponsableId"].(float64))
-						error := request.GetJson(beego.AppConfig.String("oikos_api_url")+"dependencia/?query=Id:"+s, &Responsable)
+						ActividadData, error := ObtenerActividadById(RenglonRegistroPlanAdquisicion[0]["ActividadId"])
 						if error != nil {
 							return nil, error
 						} else {
-							// valorTotalActividad := SumaActividades(RegistroPlanAdquisicionActividad)
-							EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
-							EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
-							RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
-							RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
-							// RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
-							// RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
-							// RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
-							// RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
-							// RenglonRegistroPlanAdquisicion[0]["RubroNombre"] = Rubro["Nombre"]
-							RenglonRegistroPlanAdquisicion[0]["FuenteFinanciamientoData"] = FuenteFinanciamiento
-							RenglonRegistroPlanAdquisicion[0]["ResponsableNombre"] = Responsable[0]["Nombre"]
-							// RenglonRegistroPlanAdquisicion[0]["ValorTotalActividades"] = valorTotalActividad
+							s := fmt.Sprintf("%.0f", RenglonRegistroPlanAdquisicion[0]["ResponsableId"].(float64))
+							error := request.GetJson(beego.AppConfig.String("oikos_api_url")+"dependencia/?query=Id:"+s, &Responsable)
+							if error != nil {
+								return nil, error
+							} else {
+								// valorTotalActividad := SumaActividades(RegistroPlanAdquisicionActividad)
+								EliminarCampos(CodigoArka, "RegistroPlanAdquisicionesId")
+								EliminarCampos(ModalidadSeleccion, "RegistroPlanAdquisicionesId")
+								RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-codigo_arka"] = CodigoArka
+								RenglonRegistroPlanAdquisicion[0]["registro_funcionamiento-modalidad_seleccion"] = ModalidadSeleccion
+								// RenglonRegistroPlanAdquisicion[0]["registro_plan_adquisiciones-actividad"] = RegistroPlanAdquisicionActividad
+								// RenglonRegistroPlanAdquisicion[0]["MetaNombre"] = Meta["Nombre"]
+								// RenglonRegistroPlanAdquisicion[0]["ProductoNombre"] = Producto["Nombre"]
+								// RenglonRegistroPlanAdquisicion[0]["FuenteRecursosNombre"] = Fuente["Nombre"]
+								RenglonRegistroPlanAdquisicion[0]["ActividadData"] = ActividadData
+								RenglonRegistroPlanAdquisicion[0]["FuenteFinanciamientoData"] = FuenteFinanciamiento
+								RenglonRegistroPlanAdquisicion[0]["ResponsableNombre"] = Responsable[0]["Nombre"]
+								// RenglonRegistroPlanAdquisicion[0]["ValorTotalActividades"] = valorTotalActividad
+							}
 						}
 						// }
 					}
@@ -489,16 +511,20 @@ func ActualizarRegistroFuncionamiento(registroPlanAdquisicion map[string]interfa
 	registroPlanAdquisicionActualizar := make(map[string]interface{})
 	RegistroPlanAdquisicionAntiguo, error := ObtenerRenglonRegistroPlanAdquisicionByID(idStr)
 	
+
+	// Ojo, se debe comprobar la suma de los rubros con los datos !!!!!!
 	//fmt.Println("existe registro y  toca modificarlo")
-	Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
-	if errorVigencia != nil {
-		return nil, errorVigencia
-	}
+	// Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
+	// if errorVigencia != nil {
+	// 	return nil, errorVigencia
+	// }
 	// PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-	errorSuma := SumaFuenteFinanciamientoFuncionamiento(registroPlanAdquisicion["ValorActividad"], registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
-	if errorSuma != nil {
-		return nil, errorSuma
-	}
+	// errorSuma := SumaFuenteFinanciamientoFuncionamiento(registroPlanAdquisicion["ValorActividad"], registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
+	// if errorSuma != nil {
+	// 	return nil, errorSuma
+	// }
+	// !!!!!!!
+
 	registroPlanAdquisicionActualizar = map[string]interface{}{
 		"AreaFuncional":       		registroPlanAdquisicion["AreaFuncional"],
 		"CentroGestor":        		registroPlanAdquisicion["CentroGestor"],
@@ -537,16 +563,20 @@ func ActualizarRegistroInversion(registroPlanAdquisicion map[string]interface{},
 	registroPlanAdquisicionPut := make(map[string]interface{})
 	registroPlanAdquisicionActualizar := make(map[string]interface{})
 	RegistroPlanAdquisicionAntiguo, error := ObtenerRenglonRegistroPlanAdquisicionByID(idStr)
+
+	// Ojo funcion para comprobar valores de rubros !!!!!
 	//fmt.Println("existe registro y  toca modificarlo")
-	Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
-	if errorVigencia != nil {
-		return nil, errorVigencia
-	}
-	PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
-	errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
-	if errorSuma != nil {
-		return nil, errorSuma
-	}
+	// Vigencia, AreaFuncional, errorVigencia := VigenciaYAreaFuncional(idStr)
+	// if errorVigencia != nil {
+	// 	return nil, errorVigencia
+	// }
+	// PlanAdquisicionActividad := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+	// errorSuma := SumaFuenteFinanciamiento(PlanAdquisicionActividad, registroPlanAdquisicion["RubroId"].(string), Vigencia, AreaFuncional)
+	// if errorSuma != nil {
+	// 	return nil, errorSuma
+	// }
+	// !!!!!!!
+
 	registroPlanAdquisicionActualizar = map[string]interface{}{
 		"AreaFuncional":       		registroPlanAdquisicion["AreaFuncional"],
 		"CentroGestor":        		registroPlanAdquisicion["CentroGestor"],
