@@ -127,6 +127,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 		}
 		for index := range RegistroPlanAdquisicionActividadFuente {
 			ActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Id"]
+			NumeroActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["Numero"]
+			NumeroMeta := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["ActividadId"].(map[string]interface{})["MetaId"].(map[string]interface{})["Id"]
 			ValorActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Valor"]
 			RegistroActividadID := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Id"]
 			ActivoActividad := RegistroPlanAdquisicionActividadFuente[index]["RegistroPlanAdquisicionesActividadId"].(map[string]interface{})["Activo"]
@@ -138,6 +140,10 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 				unicos = append(unicos, fmt.Sprintf("%.0f", RegistroActividadID.(float64)))
 				registros = append(registros, registro)
 				fuentesFinanciamiento = make([]map[string]interface{}, 0)
+			}
+			Meta, errorMeta := ObtenerMetaByID(fmt.Sprintf("%.0f", NumeroMeta.(float64)))
+			if errorMeta != nil {
+				return nil, errorMeta
 			}
 
 			Fuente, errorFuente := ObtenerFuenteFinanciamientoByCodigo(RegistroPlanAdquisicionActividadFuente[index]["FuenteFinanciamientoId"].(string), Vigencia, AreaFuncional)
@@ -158,6 +164,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 
 			registro = map[string]interface{}{
 				"ActividadId":                 ActividadID,
+				"Numero":				   	   NumeroActividad,
+				"NumeroMeta":				   Meta["Numero"],
 				"Nombre":                      NombreActividad,
 				"RegistroPlanAdquisicionesId": idStr,
 				"Valor":                       ValorActividad,
@@ -217,6 +225,23 @@ func SumaFuenteFinanciamiento(PlanAdquisicionActividades []interface{}, IDRubro 
 				}
 			}
 		}
+		if valor > ValorActualRubro {
+			errorValorRubro := "La suma de las fuentes de financiamiento supera el valor actual del rubro"
+			return errorValorRubro
+		}
+		return nil
+	}
+}
+
+func SumaFuenteFinanciamientoFuncionamiento(PlanAdquisicionActividades interface{}, IDRubro string, Vigencia string, AreaFuncional string) (outputError interface{}) {
+	var RubroMongo map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("plan_cuentas_mongo_crud_url")+"arbol_rubro_apropiacion/"+IDRubro+"/"+Vigencia+"/"+AreaFuncional+"/", &RubroMongo)
+	if error != nil {
+		return error
+	} else {
+		m := RubroMongo["Body"].(interface{})
+		ValorActualRubro := m.(map[string]interface{})["ValorActual"].(float64)
+		valor := PlanAdquisicionActividades.(float64)
 		if valor > ValorActualRubro {
 			errorValorRubro := "La suma de las fuentes de financiamiento supera el valor actual del rubro"
 			return errorValorRubro
