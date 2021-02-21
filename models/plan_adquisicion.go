@@ -39,6 +39,7 @@ func ObtenerVersionesMongoByID(idstr string) (respuestaVersionesMongo []map[stri
 			mongoID := make(map[string]interface{})
 			mongoID["_id"] = versionesMongo[index]["_id"]
 			mongoID["id"] = versionesMongo[index]["id"]
+			mongoID["fechacreacion"] = versionesMongo[index]["fechacreacion"]
 			mongoIDs = append(mongoIDs, mongoID)
 		}
 		return mongoIDs, nil
