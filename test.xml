@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+	<testsuite tests="1" failures="0" time="0.405" name="github.com/udistrital/plan_adquisiciones_mid/calculator">
+		<properties>
+			<property name="go.version" value="go1.16.6"></property>
+		</properties>
+		<testcase classname="calculator" name="TestAdd" time="0.000"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="1" time="0.000" name="github.com/udistrital/plan_adquisiciones_mid/tests">
+		<properties>
+			<property name="go.version" value="go1.16.6"></property>
+		</properties>
+		<testcase classname="tests" name="[build failed]" time="0.000">
+			<failure message="Failed" type=""></failure>
+		</testcase>
+	</testsuite>
+	<testsuite tests="1" failures="1" time="0.613" name="github.com/udistrital/plan_adquisiciones_mid/tests/models_test">
+		<properties>
+			<property name="go.version" value="go1.16.6"></property>
+		</properties>
+		<testcase classname="models_test" name="TestObtenerRegistroPlanAdquisicion" time="0.090">
+			<failure message="Failed" type="">2021/08/01 12:43:30.147 �[1;31m[E]�[0m  Error reading response.  Get &#34;Registro_plan_adquisiciones/&#34;: unsupported protocol scheme &#34;&#34; &#xA;2021/08/01 12:43:30.238 �[1;31m[E]�[0m  Error reading response.  Get &#34;Registro_plan_adquisiciones/&#34;: unsupported protocol scheme &#34;&#34; &#xA;panic: runtime error: invalid memory address or nil pointer dereference [recovered]&#xA;panic: runtime error: invalid memory address or nil pointer dereference&#xA;C:/Program Files/Go/src/testing/testing.go:1143 +0x345&#xA;C:/Program Files/Go/src/testing/testing.go:1146 +0x4b6&#xA;C:/Program Files/Go/src/runtime/panic.go:965 +0x1c7&#xA;C:/Users/gojan/go/pkg/mod/github.com/udistrital/utils_oas@v0.0.0-20201230194626-bf49441f7130/request/request_tools.go:103 +0x11f&#xA;C:/Program Files/Go/src/runtime/panic.go:965 +0x1c7&#xA;C:/Users/gojan/go/pkg/mod/github.com/udistrital/utils_oas@v0.0.0-20201230194626-bf49441f7130/request/request_tools.go:118 +0x334&#xA;C:/Users/gojan/Documents/Trabajo/Go/src/github.com/udistrital/plan_adquisiciones_mid/models/registro_plan_adquisicion.go:15 +0xcb&#xA;C:/Users/gojan/Documents/Trabajo/Go/src/github.com/udistrital/plan_adquisiciones_mid/tests/models_test/registro_plan_adquisicion_test.go:10 +0x2d&#xA;C:/Program Files/Go/src/testing/testing.go:1193 +0xef&#xA;C:/Program Files/Go/src/testing/testing.go:1238 +0x2b3</failure>
+		</testcase>
+	</testsuite>
+</testsuites>
