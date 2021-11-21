@@ -1,6 +1,6 @@
-version: '3.4'
+version: "3.4"
 
-services: 
+services:
   api:
     build: ./bee_build
     image: ${SERVICE_NAME}
@@ -8,22 +8,22 @@ services:
     volumes:
       - gosrc:/go
       - .:/go/src/${API_BASE_DIR}/${API_NAME}
-    env_file: 
-      - .env
-    ports: 
+    env_file:
+      - .develop.env
+    ports:
       - "${PLAN_ADQUISICIONES_MID_PORT}:${PLAN_ADQUISICIONES_MID_PORT}"
     environment:
       - PLAN_ADQUISICIONES_MID_HTTP_PORT=${PLAN_ADQUISICIONES_MID_PORT}
       - API_NAME=${API_NAME}
       - PLAN_ADQUISICIONES_MID_RUN_MODE=dev
-      - RUN_MODE=dev 
-      - SERVICE_TAGS=traefik.enable=true,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:${SERVICE_NAME}.localhost   
+      - RUN_MODE=dev
+      - SERVICE_TAGS=traefik.enable=true,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:${SERVICE_NAME}.localhost
     command: sh -c 'cd ${API_BASE_DIR}/${API_NAME};go get -v -u ./...; go mod init; bee run'
-    networks: 
+    networks:
       - back_end
 volumes:
-  gosrc:  
+  gosrc:
 
-networks: 
+networks:
   back_end:
     external: true
