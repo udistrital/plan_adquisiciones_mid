@@ -5,8 +5,8 @@ go 1.15
 require (
 	github.com/astaxie/beego v1.12.3
 	github.com/prometheus/client_golang v1.9.0 // indirect
-	github.com/prometheus/common v0.15.0 // indirect
 	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18 // indirect
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/udistrital/utils_oas v0.0.0-20201230194626-bf49441f7130
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
