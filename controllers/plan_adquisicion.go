@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/plan_adquisiciones_mid/models"
 )
 
@@ -20,7 +21,7 @@ func (c *Plan_adquisicionController) URLMapping() {
 
 }
 
-// Post Funcion para ingresar una version de un plan de adquisicion a mongo si su campo publicado es true
+// Post Funcion para ingrsesar una version de un plan de adquisicion a mongo si su campo publicado es true
 // @Title Create
 // @Description create Plan_adquisicion
 // @Param	id		path 	string	true		"Id del registro de plan de adquisicion"
@@ -28,6 +29,20 @@ func (c *Plan_adquisicionController) URLMapping() {
 // @Failure 403 body is empty
 // @router /:id [post]
 func (c *Plan_adquisicionController) Post() {
+	defer func() {
+		if err := recover(); err != nil {
+			logs.Error(err)
+			localError := err.(map[string]interface{})
+			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "Plan_adquisicionController" + "/" + (localError["funcion"]).(string))
+			c.Data["data"] = (localError["err"])
+			if status, ok := localError["status"]; ok {
+				c.Abort(status.(string))
+			} else {
+				c.Abort("500")
+			}
+		}
+	}()
+
 	idStr := c.Ctx.Input.Param(":id")
 	var alertErr models.Alert
 	alertas := append([]interface{}{"Response:"})
