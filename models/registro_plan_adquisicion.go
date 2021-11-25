@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -152,31 +153,186 @@ func BuscarIndexPorCampo(RegistroPlanAdquisicion []map[string]interface{}, Rubro
 
 //IngresoPlanAdquisicion crea un registro de plan de adquisicion
 func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
-	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
-		_, errorDatos := IngresoRenglonPlanInversion(registroPlanAdquisicion)
-		if errorDatos != nil {
-			return nil, errorDatos
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"funcion": "IngresoPlanAdquisicion - Unhandled Error!",
+				"err":     err,
+				"status":  "500",
+			}
+			panic(outputError)
 		}
-		resultado, errorDatos := ObtenerRegistroMovimientoInversion(registroPlanAdquisicion)
-		if errorDatos != nil {
-			return nil, errorDatos
+	}()
+
+	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
+		resultadoPlan, err := IngresoRenglonPlanInversion(registroPlanAdquisicion)
+		if err != nil {
+			logs.Error(err)
+			outputError = map[string]interface{}{
+				"funcion": "IngresoPlanAdquisicion - IngresoRenglonPlanInversion(registroPlanAdquisicion)",
+				"err":     err,
+				"status":  "502",
+			}
+			return nil, outputError
 		} else {
-			return resultado, nil
+			idPlanAdquisiciones := int(registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+			if resultado, err := ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones); err != nil {
+				/* DATOS DE PRUEBA
+				resultadoPrueba := []MovimientoProcesoExternoId{
+					{
+						Id: 15,
+					},
+				}
+				var errorPrueba interface{}
+				errorPrueba = nil
+				if resultado, errorDatos := resultadoPrueba, errorPrueba; errorDatos != nil {*/
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "IngresoPlanAdquisicion - ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+					"err":     err,
+					"status":  "502",
+				}
+				return nil, outputError
+			} else {
+				if len(resultado) > 0 {
+					logs.Debug(resultado)
+					movimientoExternoID := resultado[0].Id
+					if resultado, err := ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID); err != nil {
+						logs.Error(err)
+						outputError = map[string]interface{}{
+							"funcion": "IngresoPlanAdquisicion - ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+							"err":     err,
+							"status":  "502",
+						}
+						return nil, outputError
+					} else {
+						logs.Debug(resultado)
+						return resultadoPlan, nil
+					}
+				} else {
+					if resultado, err := ObtenerMovimientoProcesoExterno(registroPlanAdquisicion); err != nil {
+						logs.Error(err)
+						outputError = map[string]interface{}{
+							"funcion": "IngresoPlanAdquisicion - ObtenerMovimientoProcesoExterno(registroPlanAdquisicion)",
+							"err":     err,
+							"status":  "502",
+						}
+						return nil, outputError
+					} else {
+						logs.Debug(resultado)
+						if resultado, err := ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones); err != nil {
+							logs.Error(err)
+							outputError = map[string]interface{}{
+								"funcion": "IngresoPlanAdquisicion - ObtenerMovimientoProcesoExterno(registroPlanAdquisicion)",
+								"err":     err,
+								"status":  "502",
+							}
+							return nil, outputError
+						} else {
+							logs.Debug(resultado)
+							movimientoExternoID := resultado[0].Id
+							if resultado, err := ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID); err != nil {
+								logs.Error(err)
+								outputError = map[string]interface{}{
+									"funcion": "IngresoPlanAdquisicion -  ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID)",
+									"err":     err,
+									"status":  "502",
+								}
+								return nil, outputError
+							} else {
+								logs.Debug(resultado)
+								return resultadoPlan, nil
+							}
+						}
+					}
+				}
+			}
 		}
 	} else {
-		_, errorDatos := IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)
-		if errorDatos != nil {
-			return nil, errorDatos
+		resultadoPlan, err := IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)
+		if err != nil {
+			logs.Error(err)
+			outputError = map[string]interface{}{
+				"funcion": "IngresoPlanAdquisicion -  IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)",
+				"err":     err,
+				"status":  "502",
+			}
+			return nil, outputError
 		} else {
-			resultado, errorDatos := ObtenerRegistroMovimientoInversion(registroPlanAdquisicion)
-			if errorDatos != nil {
-				return nil, errorDatos
+			idPlanAdquisiciones := int(registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
+			if resultado, err := ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones); err != nil {
+				// DATOS DE PRUEBA
+				/*resultadoPrueba := []MovimientoProcesoExternoId{
+					{
+						Id: 15,
+					},
+				}
+				var errorPrueba interface{}
+				errorPrueba = nil
+				if resultado, errorDatos := resultadoPrueba, errorPrueba; errorDatos != nil {*/
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "IngresoPlanAdquisicion -  ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+					"err":     err,
+					"status":  "502",
+				}
+				return nil, outputError
 			} else {
-				return resultado, nil
+				if len(resultado) > 0 {
+					logs.Debug(resultado)
+					movimientoExternoID := resultado[0].Id
+					if resultado, err := ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisicion, movimientoExternoID); err != nil {
+						logs.Error(err)
+						outputError = map[string]interface{}{
+							"funcion": "IngresoPlanAdquisicion -  ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+							"err":     err,
+							"status":  "502",
+						}
+						return nil, outputError
+					} else {
+						logs.Debug(resultado)
+						return resultadoPlan, nil
+					}
+				} else {
+					if resultado, err := ObtenerMovimientoProcesoExterno(registroPlanAdquisicion); err != nil {
+						logs.Error(err)
+						outputError = map[string]interface{}{
+							"funcion": "IngresoPlanAdquisicion -  ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+							"err":     err,
+							"status":  "502",
+						}
+						return nil, outputError
+					} else {
+						logs.Debug(resultado)
+						if resultado, err := ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones); err != nil {
+							logs.Error(err)
+							outputError = map[string]interface{}{
+								"funcion": "IngresoPlanAdquisicion -  ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+								"err":     err,
+								"status":  "502",
+							}
+							return nil, outputError
+						} else {
+							logs.Debug(resultado)
+							movimientoExternoID := resultado[0].Id
+							if resultado, err := ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisicion, movimientoExternoID); err != nil {
+								logs.Error(err)
+								outputError = map[string]interface{}{
+									"funcion": "IngresoPlanAdquisicion -  ObtenerMovimientosProcesoExternoPlan(idPlanAdquisiciones)",
+									"err":     err,
+									"status":  "502",
+								}
+								return nil, outputError
+							} else {
+								logs.Debug(resultado)
+								return resultadoPlan, nil
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-
 }
 
 func IngresoRenglonPlanInversion(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
