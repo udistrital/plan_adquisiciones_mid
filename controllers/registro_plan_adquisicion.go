@@ -59,7 +59,6 @@ func (c *Registro_plan_adquisicionController) Post() {
 
 	c.Data["json"] = alertErr
 	c.ServeJSON()
-
 }
 
 // GetOne Función para obterner un renglon con toda la información de un regristro de plan de adquisición incluye modalidad selección, CodigoArka, Plan_adquisicion_actividad y Fuente de financiamiento

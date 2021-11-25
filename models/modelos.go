@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type RegistroPlanAdquisicionRecibida struct {
+type RegistroPlanAdquisiciones struct {
 	AreaFuncional                    int
 	CentroGestor                     int
 	ResponsableId                    int
@@ -60,4 +60,38 @@ type ProductoAsociado struct {
 	Activo                 bool
 	ProductoAsociadoId     string
 	PorcentajeDistribucion int
+}
+
+type RegistrosMultiplesMovimientos struct {
+	Activo                     bool
+	Descripcion                string
+	Detalle                    string
+	FechaCreacion              time.Time
+	FechaModificacion          time.Time
+	Id                         int
+	MovimientoProcesoExternoId MovimientoProcesoExternoId
+	Saldo                      int
+	Valor                      int
+}
+
+type MovimientoProcesoExternoId struct {
+	Activo                   bool
+	Detalle                  string
+	FechaCreacion            time.Time
+	FechaModificacion        time.Time
+	Id                       int
+	MovimientoProcesoExterno int
+	ProcesoExterno           int
+	TipoMovimientoId         TipoMovimientoId
+}
+
+type TipoMovimientoId struct {
+	Acronimo          string
+	Activo            bool
+	Descripcion       string
+	FechaCreacion     time.Time
+	FechaModificacion time.Time
+	Id                int
+	Nombre            string
+	Parametros        string
 }
