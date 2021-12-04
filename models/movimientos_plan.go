@@ -1,12 +1,14 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
+	models_movimientosCrud "github.com/udistrital/movimientos_crud/models"
+	"github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -63,14 +65,14 @@ func ObtenerMovimientoProcesoExterno(registroPlanAdquisicion map[string]interfac
 				"status":  "500",
 			}
 		} else {
-			logs.Debug(resultado)
+			// logs.Debug(resultado)
 		}
 
 		return resultado, outputError
 	}
 }
 
-// Registrar el Movimiento Proceso Extorno según la estructura obtenida antes
+// Registrar el Movi	miento Proceso Extorno según la estructura obtenida antes
 func RegistrarMovimientoProcesoExterno(registroMovimientoProcesoExterno MovimientoProcesoExternoId) (registroMovimientoProcesoExternoRespuesta MovimientoProcesoExternoId, outputError interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -99,35 +101,11 @@ func RegistrarMovimientoProcesoExterno(registroMovimientoProcesoExterno Movimien
 	}
 }
 
-// Obtener los registros de Movimientos Procesos Externos vinculados a un Plan de Adquisiciones en estado Registrada
-func ObtenerMovimientosProcesoExternoPlan(idPlan int) (movimientosProcesoExternoRespuesta []MovimientoProcesoExternoId, outputError map[string]interface{}) {
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "ObtenerMovimientosProcesoExternoPlan - Unhandled Error!",
-				"err":     err,
-				"status":  "500",
-			}
-			panic(outputError)
-		}
-	}()
-
-	query := "Detalle__PlanAdquisicionesId:" + strconv.Itoa(idPlan) + ",Detalle__Estado:Registrado"
-	sortby := "Id"
-	orderby := "desc"
-	movimientosCrud.GetMovimientoProcesoExterno(query, "", sortby, orderby, "", "")
-	if resultado, err := movimientosCrud.GetMovimientoProcesoExterno(query, "", sortby, orderby, "", ""); err != nil {
-		logs.Debug(resultado)
-	}
-	return movimientosProcesoExternoRespuesta, outputError
-
-}
-
 // FIN Movimientos Procesos Externos
 
 // INICIO Registro Múltiple Rubros de Inversión
 // Obtener la estructura de registro múltiple para rubros de inversión
-func ObtenerRegistroMovimientoInversion(registroPlanAdquisiciones map[string]interface{}, idMovimientoExterno int) (registroMovimientosInversionRespuesta []RegistrosMultiplesMovimientos, outputError interface{}) {
+func ObtenerRegistroMovimientoInversion(registroPlanAdquisiciones map[string]interface{}, idMovimientoExterno int) (registroMovimientosInversionRespuesta []models_movimientosCrud.CuentasMovimientoProcesoExterno, outputError interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
@@ -143,33 +121,27 @@ func ObtenerRegistroMovimientoInversion(registroPlanAdquisiciones map[string]int
 
 	for i := range registroPlanAdquisicionesActividades {
 		for j := range registroPlanAdquisicionesActividades[i].(map[string]interface{})["FuentesFinanciamiento"].([]interface{}) {
-			registroMovimientoExternoId := MovimientoProcesoExternoId{Id: idMovimientoExterno}
-			detalle := "{\"RubroId\": \"" + registroPlanAdquisiciones["RubroId"].(string) + "\", \"ActividadId\": " + strconv.Itoa(int(registroPlanAdquisicionesActividades[i].(map[string]interface{})["ActividadId"].(float64))) + "}"
-			saldoValor := int(registroPlanAdquisicionesActividades[i].(map[string]interface{})["FuentesFinanciamiento"].([]interface{})[j].(map[string]interface{})["ValorAsignado"].(float64))
-			registroTemporal := RegistrosMultiplesMovimientos{
-				Activo:                     true,
-				Descripcion:                "Movimiento registrado de una fuente vinculada a una actividad",
-				Detalle:                    detalle,
-				MovimientoProcesoExternoId: registroMovimientoExternoId,
-				Saldo:                      saldoValor,
-				Valor:                      saldoValor,
+
+			registroMovimientoExternoId := strconv.Itoa(idMovimientoExterno)
+
+			detalleRaw := map[string]interface{}{
+				"RubroId":                registroPlanAdquisiciones["RubroId"].(string),
+				"ActividadId":            strconv.Itoa(int(registroPlanAdquisicionesActividades[i].(map[string]interface{})["ActividadId"].(float64))),
+				"FuenteFinanciamientoId": registroPlanAdquisicionesActividades[i].(map[string]interface{})["FuentesFinanciamiento"].([]interface{})[j].(map[string]interface{})["FuenteFinanciamientoId"].(string),
+			}
+
+			detalleCast, _ := json.Marshal(detalleRaw)
+
+			saldoValor := registroPlanAdquisicionesActividades[i].(map[string]interface{})["FuentesFinanciamiento"].([]interface{})[j].(map[string]interface{})["ValorAsignado"].(float64)
+
+			registroTemporal := models_movimientosCrud.CuentasMovimientoProcesoExterno{
+				Cuen_Pre:     string(detalleCast),
+				Mov_Proc_Ext: registroMovimientoExternoId,
+				Valor:        saldoValor,
 			}
 
 			registroMovimientosInversionRespuesta = append(registroMovimientosInversionRespuesta, registroTemporal)
 		}
-	}
-
-	logs.Debug(registroMovimientosInversionRespuesta)
-	if resultado, err := RegistrarMultiplesMovimientos(registroMovimientosInversionRespuesta); err != nil {
-		logs.Error(err)
-		outputError = map[string]interface{}{
-			"funcion": "ObtenerRegistroMovimientoInversion - RegistrarMultiplesMovimientos(registroMovimientosInversionRespuesta)",
-			"err":     err,
-			"status":  "500",
-		}
-		return nil, err
-	} else {
-		logs.Debug(resultado)
 	}
 
 	return registroMovimientosInversionRespuesta, nil
@@ -179,33 +151,29 @@ func ObtenerRegistroMovimientoInversion(registroPlanAdquisiciones map[string]int
 
 // INICIO Registro Múltiple Rubros de Funcionamiento
 // Obtener la estructura de registro múltiple para rubros de funcionamiento
-func ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisiciones map[string]interface{}, idMovimientoExterno int) (registroMovimientosFuncionamientoRespuesta []RegistrosMultiplesMovimientos, outputError interface{}) {
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "ObtenerRegistroMovimientoInversion - Unhandled Error!",
-				"err":     err,
-				"status":  "500",
-			}
-			panic(outputError)
-		}
-	}()
+func ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisiciones map[string]interface{}, idMovimientoExterno int) (registroMovimientosFuncionamientoRespuesta []models_movimientosCrud.CuentasMovimientoProcesoExterno, outputError interface{}) {
+	defer errorctrl.ErrorControlFunction("ObtenerRegistroMovimientoInversion - Unhandled Error!", "500")
 
-	registroMovimientoExternoId := MovimientoProcesoExternoId{Id: idMovimientoExterno}
-	detalle := "{\"RubroId\": \"" + registroPlanAdquisiciones["RubroId"].(string) + "\", \"FuenteFinanciamientoId\": " + registroPlanAdquisiciones["FuenteFinanciamientoId"].(string) + "}"
-	saldoValor := int(registroPlanAdquisiciones["ValorActividad"].(float64))
-	registroTemporal := RegistrosMultiplesMovimientos{
-		Activo:                     true,
-		Descripcion:                "Movimiento registrado de una fuente",
-		Detalle:                    detalle,
-		MovimientoProcesoExternoId: registroMovimientoExternoId,
-		Saldo:                      saldoValor,
-		Valor:                      saldoValor,
+	registroMovimientoExternoId := strconv.Itoa(idMovimientoExterno)
+
+	detalleRaw := map[string]interface{}{
+		"RubroId":                registroPlanAdquisiciones["RubroId"].(string),
+		"FuenteFinanciamientoId": registroPlanAdquisiciones["FuenteFinanciamientoId"].(string),
+	}
+
+	detalleCast, _ := json.Marshal(detalleRaw)
+
+	saldoValor := registroPlanAdquisiciones["ValorActividad"].(float64)
+
+	registroTemporal := models_movimientosCrud.CuentasMovimientoProcesoExterno{
+		Cuen_Pre:     string(detalleCast),
+		Mov_Proc_Ext: registroMovimientoExternoId,
+		Valor:        saldoValor,
 	}
 
 	registroMovimientosFuncionamientoRespuesta = append(registroMovimientosFuncionamientoRespuesta, registroTemporal)
 
-	logs.Debug(registroMovimientosFuncionamientoRespuesta)
+	/*logs.Debug(registroMovimientosFuncionamientoRespuesta)
 	if resultado, err := RegistrarMultiplesMovimientos(registroMovimientosFuncionamientoRespuesta); err != nil {
 		logs.Error(err)
 		outputError = map[string]interface{}{
@@ -216,7 +184,7 @@ func ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisiciones map[strin
 		return nil, err
 	} else {
 		logs.Debug(resultado)
-	}
+	}*/
 
 	return registroMovimientosFuncionamientoRespuesta, nil
 }
