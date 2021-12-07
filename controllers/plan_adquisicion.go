@@ -21,7 +21,7 @@ func (c *Plan_adquisicionController) URLMapping() {
 
 }
 
-// Post Funcion para ingrsesar una version de un plan de adquisicion a mongo si su campo publicado es true
+// Post Funcion para ingresar una version de un plan de adquisicion a mongo si su campo publicado es true
 // @Title Create
 // @Description create Plan_adquisicion
 // @Param	id		path 	string	true		"Id del registro de plan de adquisicion"

@@ -1,12 +1,12 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
+	"github.com/udistrital/plan_adquisiciones_mid/helpers/utils"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -72,14 +72,12 @@ func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr str
 
 			idPlan := int(PlanAdquisicionAntiguo["Id"].(float64))
 
-			filtroJsonB := map[string]interface{}{
+			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
 				"Estado":              "Preliminar",
 				"PlanAdquisicionesId": idPlan,
-			}
+			})
 
-			data, _ := json.Marshal(filtroJsonB)
-
-			query := string(data)
+			query := filtroJsonB
 
 			// Se sugiere ordenar por fecha de modificación
 			sortby := "FechaModificacion"
