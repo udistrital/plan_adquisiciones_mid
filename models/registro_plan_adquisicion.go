@@ -209,7 +209,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				}
 
 				if len(keys) > 0 {
-					logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
+					// logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
 					movimientoExternoID = int(movimientoObtenido["Id"].(float64))
 				} else {
 					if movimientoInsertar, err := ObtenerMovimientoProcesoExterno(idPlanAdquisiciones); err != nil {
@@ -298,7 +298,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				}
 
 				if len(keys) > 0 {
-					logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
+					// logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
 					movimientoExternoID = int(movimientoObtenido["Id"].(float64))
 				} else {
 					if movimientoInsertar, err := ObtenerMovimientoProcesoExterno(idPlanAdquisiciones); err != nil {
