@@ -157,7 +157,7 @@ func BuscarIndexPorCampo(RegistroPlanAdquisicion []map[string]interface{}, Rubro
 //IngresoPlanAdquisicion crea un registro de plan de adquisicion
 func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
 	defer errorctrl.ErrorControlFunction("IngresoPlanAdquisicion - Unhandled Error!", "500")
-
+	var movimientoExternoID int
 	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
 		resultadoPlan, err := IngresoRenglonPlanInversion(registroPlanAdquisicion)
 		// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
@@ -195,30 +195,54 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				return nil, outputError
 			} else {
 				// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
-				movimientoObtenido := resultado.([]interface{})[0].(map[string]interface{})
+				var movimientoObtenido map[string]interface{}
+				switch resultado.(type) {
+				case map[string]interface{}:
+					movimientoObtenido = resultado.(map[string]interface{})
+				case []interface{}:
+					movimientoObtenido = resultado.([]interface{})[0].(map[string]interface{})
+				}
+
 				keys := make([]string, 0, len(movimientoObtenido))
 				for k := range movimientoObtenido {
 					keys = append(keys, k)
 				}
 
 				if len(keys) > 0 {
-					movimientoExternoID := int(movimientoObtenido["Id"].(float64))
-					if resultado, err := ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID); err != nil {
+					logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
+					movimientoExternoID = int(movimientoObtenido["Id"].(float64))
+				} else {
+					if movimientoInsertar, err := ObtenerMovimientoProcesoExterno(idPlanAdquisiciones); err != nil {
 						logs.Error(err)
-						outputError = map[string]interface{}{
-							"funcion": "IngresoPlanAdquisicion - ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID)",
-							"err":     err,
-							"status":  "502",
-						}
-						return nil, outputError
+						return nil, err
 					} else {
-						if len(resultado) > 0 {
-							if _, err := movimientosCrud.CrearMovimientosDetalle(resultado); err != nil {
-								logs.Error(err)
-								outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientosDetalle(resultado)", err, "502")
-								return nil, outputError
-							}
+						if idMovimientoInsertado, err := movimientosCrud.CrearMovimientoProcesoExterno(movimientoInsertar); err != nil {
+							logs.Error(err)
+							outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientoProcesoExterno(movimientoInsertar)", err, "502")
+							return nil, outputError
+						} else {
+							// logs.Debug("ID OBTENIDO: ", int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64)))
+							movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64))
 						}
+					}
+				}
+
+			}
+
+			if resultado, err := ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID); err != nil {
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "IngresoPlanAdquisicion - ObtenerRegistroMovimientoInversion(registroPlanAdquisicion, movimientoExternoID)",
+					"err":     err,
+					"status":  "502",
+				}
+				return nil, outputError
+			} else {
+				if len(resultado) > 0 {
+					if _, err := movimientosCrud.CrearMovimientosDetalle(resultado); err != nil {
+						logs.Error(err)
+						outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientosDetalle(resultado)", err, "502")
+						return nil, outputError
 					}
 				}
 			}
@@ -260,31 +284,54 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				return nil, outputError
 			} else {
 				// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
-				movimientoObtenido := resultado.([]interface{})[0].(map[string]interface{})
+				var movimientoObtenido map[string]interface{}
+				switch resultado.(type) {
+				case map[string]interface{}:
+					movimientoObtenido = resultado.(map[string]interface{})
+				case []interface{}:
+					movimientoObtenido = resultado.([]interface{})[0].(map[string]interface{})
+				}
+
 				keys := make([]string, 0, len(movimientoObtenido))
 				for k := range movimientoObtenido {
 					keys = append(keys, k)
 				}
 
 				if len(keys) > 0 {
-					movimientoExternoID := int(movimientoObtenido["Id"].(float64))
-					if resultado, err := ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisicion, movimientoExternoID); err != nil {
+					logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
+					movimientoExternoID = int(movimientoObtenido["Id"].(float64))
+				} else {
+					if movimientoInsertar, err := ObtenerMovimientoProcesoExterno(idPlanAdquisiciones); err != nil {
 						logs.Error(err)
-						outputError = map[string]interface{}{
-							"funcion": "IngresoPlanAdquisicion -  ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisicion, movimientoExternoID)",
-							"err":     err,
-							"status":  "502",
-						}
-						return nil, outputError
+						return nil, err
 					} else {
-						// logs.Debug("Cuentas insertar: ", resultado)
-						if len(resultado) > 0 {
-							if _, err := movimientosCrud.CrearMovimientosDetalle(resultado); err != nil {
-								logs.Error(err)
-								outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientosDetalle(resultado)", err, "502")
-								return nil, outputError
-							}
+						if idMovimientoInsertado, err := movimientosCrud.CrearMovimientoProcesoExterno(movimientoInsertar); err != nil {
+							logs.Error(err)
+							outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientoProcesoExterno(movimientoInsertar)", err, "502")
+							return nil, outputError
+						} else {
+							// logs.Debug("ID OBTENIDO: ", int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64)))
+							movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64))
 						}
+					}
+				}
+			}
+
+			if resultado, err := ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisicion, movimientoExternoID); err != nil {
+				logs.Error(err)
+				outputError = map[string]interface{}{
+					"funcion": "IngresoPlanAdquisicion -  ObtenerRegistroMovimientoFuncionamiento(registroPlanAdquisicion, movimientoExternoID)",
+					"err":     err,
+					"status":  "502",
+				}
+				return nil, outputError
+			} else {
+				// logs.Debug("Cuentas insertar: ", resultado)
+				if len(resultado) > 0 {
+					if _, err := movimientosCrud.CrearMovimientosDetalle(resultado); err != nil {
+						logs.Error(err)
+						outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientosDetalle(resultado)", err, "502")
+						return nil, outputError
 					}
 				}
 			}
