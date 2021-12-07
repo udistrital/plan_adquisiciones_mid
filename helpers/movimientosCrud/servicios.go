@@ -6,7 +6,6 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/movimientos_crud/models"
-	models_movimientosCrud "github.com/udistrital/movimientos_crud/models"
 	"github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -58,7 +57,7 @@ func GetMovimientoProcesoExterno(query string, fields string, sortby string, ord
 	return ml.(map[string]interface{})["Body"], err
 }
 
-func CrearMovimientosPublicacion(idMovProcExt int) (movimientosDetalleRespuesta []models_movimientosCrud.MovimientoDetalle, err map[string]interface{}) {
+func CrearMovimientosPublicacion(idMovProcExt int) (movimientosDetalleRespuesta []models.MovimientoDetalle, err map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("CrearMovimientosPublicacion - Unhandled error!", "500")
 
 	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
@@ -73,7 +72,7 @@ func CrearMovimientosPublicacion(idMovProcExt int) (movimientosDetalleRespuesta 
 	return movimientosDetalleRespuesta, nil
 }
 
-func CrearMovimientosDetalle(insertarMovimientos []models_movimientosCrud.CuentasMovimientoProcesoExterno) (movimientosDetalleRespuesta interface{}, err map[string]interface{}) {
+func CrearMovimientosDetalle(insertarMovimientos []models.CuentasMovimientoProcesoExterno) (movimientosDetalleRespuesta interface{}, err map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("CrearMovimientosDetalle - Unhandled error!", "500")
 
 	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +

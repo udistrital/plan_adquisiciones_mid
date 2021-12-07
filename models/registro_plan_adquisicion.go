@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -9,6 +8,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
+	"github.com/udistrital/plan_adquisiciones_mid/helpers/utils"
 	"github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -163,19 +163,16 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 		// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
 		if err != nil {
 			logs.Error(err)
-			outputError := errorctrl.Error("IngresoPlanAdquisicion -  IngresoRenglonPlanInversion(registroPlanAdquisicion)", err, "502")
-			return nil, outputError
+			return nil, err
 		} else {
 			idPlanAdquisiciones := int(registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
 
-			filtroJsonB := map[string]interface{}{
+			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
 				"Estado":              "Preliminar",
 				"PlanAdquisicionesId": idPlanAdquisiciones,
-			}
+			})
 
-			data, _ := json.Marshal(filtroJsonB)
-
-			query := string(data)
+			query := filtroJsonB
 
 			// Se sugiere ordenar por fecha de modificación
 			sortby := "FechaModificacion"
@@ -257,14 +254,12 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 		} else {
 			idPlanAdquisiciones := int(registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
 
-			filtroJsonB := map[string]interface{}{
+			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
 				"Estado":              "Preliminar",
 				"PlanAdquisicionesId": idPlanAdquisiciones,
-			}
+			})
 
-			data, _ := json.Marshal(filtroJsonB)
-
-			query := string(data)
+			query := filtroJsonB
 
 			// Se sugiere ordenar por fecha de modificación
 			sortby := "FechaModificacion"
