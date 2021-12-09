@@ -184,11 +184,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 			limit := "1"
 
 			if resultado, err := movimientosCrud.GetMovimientoProcesoExterno(query, "", sortby, order, "", limit); err != nil {
-				outputError = map[string]interface{}{
-					"funcion": "IngresoPlanAdquisicion -  movimientosCrud.GetMovimientoProcesoExterno(query, \"\", sortby, order, \"\", limit)",
-					"err":     err,
-					"status":  "502",
-				}
+				outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.GetMovimientoProcesoExterno(query, \"\", sortby, order, \"\", limit)", err, "502")
 				return nil, outputError
 			} else {
 				// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
@@ -213,12 +209,13 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 						logs.Error(err)
 						return nil, err
 					} else {
+						// logs.Debug(movimientoInsertar)
 						if idMovimientoInsertado, err := movimientosCrud.CrearMovimientoProcesoExterno(movimientoInsertar); err != nil {
 							logs.Error(err)
 							outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.CrearMovimientoProcesoExterno(movimientoInsertar)", err, "502")
 							return nil, outputError
 						} else {
-							// logs.Debug("ID OBTENIDO: ", int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64)))
+							// logs.Debug("ID OBTENIDO: ", idMovimientoInsertado)
 							movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64))
 						}
 					}

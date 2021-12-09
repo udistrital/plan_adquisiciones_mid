@@ -90,10 +90,11 @@ func CrearMovimientosDetalle(insertarMovimientos []models.CuentasMovimientoProce
 }
 
 func CrearMovimientoProcesoExterno(insertarMovimiento models.MovimientoProcesoExterno) (movimientoProcesoExternoRespuesta interface{}, err map[string]interface{}) {
+	// logs.Debug(insertarMovimiento)
 	defer errorctrl.ErrorControlFunction("CrearMovimientoProcesoExterno - Unhandled error!", "500")
 
 	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
-		"movimiento_detalle/crearMovimientosDetalle"
+		"movimiento_proceso_externo"
 
 	if err := request.SendJson(urlPublicar, "POST", &movimientoProcesoExternoRespuesta, insertarMovimiento); err != nil {
 		logs.Error(err)
