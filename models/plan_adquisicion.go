@@ -4,6 +4,9 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
+	"github.com/udistrital/plan_adquisiciones_mid/helpers/utils"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -62,13 +65,45 @@ func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr str
 			"Publicado":     PlanAdquisicion["Publicado"],
 		}
 		error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones/"+idStr, "PUT", &PlanAdquisicionPut, PlanAdquisicionActualizar)
+		// logs.Debug("Plan PUT", PlanAdquisicionPut)
 		if error != nil {
 			return nil, error
 		} else {
+
+			idPlan := int(PlanAdquisicionAntiguo["Id"].(float64))
+
+			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
+				"Estado":              "Preliminar",
+				"PlanAdquisicionesId": idPlan,
+			})
+
+			query := filtroJsonB
+
+			// Se sugiere ordenar por fecha de modificación
+			sortby := "FechaModificacion"
+
+			// El orden descendente velará por traer el último registro modificado
+			order := "desc"
+
+			// Para traer el último
+			limit := "1"
+
+			if movimientoObtenido, err := movimientosCrud.GetMovimientoProcesoExterno(query, "", sortby, order, "", limit); err != nil {
+				logs.Error(err)
+				return nil, error
+			} else {
+				idMovimientoObtenido := int(movimientoObtenido.([]interface{})[0].(map[string]interface{})["Id"].(float64))
+				if _, err := movimientosCrud.CrearMovimientosPublicacion(idMovimientoObtenido); err != nil {
+					logs.Error(err)
+					return nil, error
+				}
+			}
+
 			PlanAdquisicionMongo, error := ObtenerPlanAdquisicionMongo(idStr)
 			if error != nil {
 				return PlanAdquisicionMongo, error
 			} else {
+				// logs.Debug("Plan Mongo", PlanAdquisicionMongo)
 				return PlanAdquisicionMongo, nil
 			}
 
