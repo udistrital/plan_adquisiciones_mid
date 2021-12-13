@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/astaxie/beego"
@@ -169,7 +170,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 
 			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
 				"Estado":              "Preliminar",
-				"PlanAdquisicionesId": idPlanAdquisiciones,
+				"PlanAdquisicionesId": strconv.Itoa(idPlanAdquisiciones),
 			})
 
 			query := filtroJsonB
@@ -253,7 +254,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 
 			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
 				"Estado":              "Preliminar",
-				"PlanAdquisicionesId": idPlanAdquisiciones,
+				"PlanAdquisicionesId": strconv.Itoa(idPlanAdquisiciones),
 			})
 
 			query := filtroJsonB

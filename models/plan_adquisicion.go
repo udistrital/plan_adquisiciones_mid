@@ -70,7 +70,7 @@ func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr str
 			return nil, error
 		} else {
 
-			idPlan := int(PlanAdquisicionAntiguo["Id"].(float64))
+			idPlan := fmt.Sprintf("%.0f", PlanAdquisicionAntiguo["Id"].(float64))
 
 			filtroJsonB, _ := utils.Serializar(map[string]interface{}{
 				"Estado":              "Preliminar",
