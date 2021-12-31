@@ -57,6 +57,7 @@ func IngresoRegistroActividad(registroActividad map[string]interface{}) (registr
 
 //RegistroActividadModificado descompone un array para actualizar uno a uno un registro de actividad
 func RegistroActividadModificado(registroPlanAdquisicion map[string]interface{}, idStr string) (outputError interface{}) {
+	// logs.Debug("registroPlanAdquisicion: ", formatdata.JsonPrint(registroPlanAdquisicion))
 	RegistroActividades := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
 	for Index := range RegistroActividades {
 		RegistroActividad := RegistroActividades[Index].(map[string]interface{})

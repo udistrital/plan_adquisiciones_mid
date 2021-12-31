@@ -109,15 +109,18 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 	registro := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	fuentesFinanciamiento := make([]map[string]interface{}, 0)
-	query := "?query=RegistroPlanAdquisicionesActividadId.RegistroPlanAdquisicionesId.Id:" + idStr + ",RegistroPlanAdquisicionesActividadId.Activo:true,Activo:true&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
+	query := "?query=RegistroPlanAdquisicionesActividadId__RegistroPlanAdquisicionesId__Id:" + idStr + ",RegistroPlanAdquisicionesActividadId.Activo:true,Activo:true&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
 
+	// logs.Debug("RegistroPlanAdquisicionActividadFuente: ", RegistroPlanAdquisicionActividadFuente)
+
+	// logs.Debug("beego.AppConfig.String(\"plan_adquicisiones_crud_url\") + \"Registro_inversion_actividad-Fuente_financiamiento/\" + query: ", beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query)
 	if error != nil {
 		return nil, error
 	} else {
 		if len(RegistroPlanAdquisicionActividadFuente) == 1 {
 			if len(RegistroPlanAdquisicionActividadFuente[0]) == 0 {
-				error := "No existe plan adquisicion"
+				error := "No existe plan adquisicion por fuente"
 				return nil, error
 			}
 		}
@@ -164,8 +167,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 
 			registro = map[string]interface{}{
 				"ActividadId":                 ActividadID,
-				"Numero":				   	   NumeroActividad,
-				"NumeroMeta":				   Meta["Numero"],
+				"Numero":                      NumeroActividad,
+				"NumeroMeta":                  Meta["Numero"],
 				"Nombre":                      NombreActividad,
 				"RegistroPlanAdquisicionesId": idStr,
 				"Valor":                       ValorActividad,

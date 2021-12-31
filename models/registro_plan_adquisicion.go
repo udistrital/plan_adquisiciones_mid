@@ -31,8 +31,9 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (PlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	registros := make([]map[string]interface{}, 0)
-	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=RubroId&order=asc"
+	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=FechaCreacion,RubroId&order=asc"
 	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
+	// logs.Debug("RegistroPlanAdquisicion: ", formatdata.JsonPrint(RegistroPlanAdquisicion))
 	if error != nil {
 		return nil, error
 	} else {
@@ -159,6 +160,7 @@ func BuscarIndexPorCampo(RegistroPlanAdquisicion []map[string]interface{}, Rubro
 func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
 	defer errorctrl.ErrorControlFunction("IngresoPlanAdquisicion - Unhandled Error!", "500")
 	var movimientoExternoID int
+	// logs.Debug("registroPlanAdquisicion: ", registroPlanAdquisicion)
 	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
 		resultadoPlan, err := IngresoRenglonPlanInversion(registroPlanAdquisicion)
 		// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
@@ -194,7 +196,12 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				case map[string]interface{}:
 					movimientoObtenido = resultado.(map[string]interface{})
 				case []interface{}:
+					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
 					movimientoObtenido = resultado.([]interface{})[0].(map[string]interface{})
+				case nil:
+					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
+				default:
+					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
 				}
 
 				keys := make([]string, 0, len(movimientoObtenido))
@@ -244,7 +251,9 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 			return resultadoPlan, nil
 		}
 	} else {
+		// logs.Debug("Bandera 1")
 		resultadoPlan, err := IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)
+		// logs.Debug("Bandera 2")
 		if err != nil {
 			logs.Error(err)
 			outputError := errorctrl.Error("IngresoPlanAdquisicion -  IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)", err, "502")
@@ -282,7 +291,12 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				case map[string]interface{}:
 					movimientoObtenido = resultado.(map[string]interface{})
 				case []interface{}:
+					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
 					movimientoObtenido = resultado.([]interface{})[0].(map[string]interface{})
+				case nil:
+					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
+				default:
+					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
 				}
 
 				keys := make([]string, 0, len(movimientoObtenido))
@@ -412,6 +426,7 @@ func IngresoRenglonPlanInversion(registroPlanAdquisicion map[string]interface{})
 }
 
 func IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion map[string]interface{}) (registroPlanAdquisicionRespuesta []map[string]interface{}, outputError interface{}) {
+	// logs.Debug("registroPlanAdquisicion: ", registroPlanAdquisicion)
 	registroPlanAdquisicionIngresado := make(map[string]interface{})
 	registroPlanAdquisicionPost := make(map[string]interface{})
 	result := []map[string]interface{}{}
@@ -434,7 +449,7 @@ func IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion map[string]interfa
 	ModalidadSeleccion := registroPlanAdquisicion["ModalidadSeleccion"].([]interface{})
 	CodigoArka := registroPlanAdquisicion["CodigoArka"].([]interface{})
 
-	// Ojo, se debe comprobar la suma de los rubros con los datos !!!!
+	// ! WARNING Ojo, se debe comprobar la suma de los rubros con los datos !!!!
 	// PlanAdquisicionesID := fmt.Sprintf("%.0f", registroPlanAdquisicion["PlanAdquisicionesId"].(float64))
 	// AreaFuncional := fmt.Sprintf("%.0f", registroPlanAdquisicion["AreaFuncional"].(float64))
 	// Vigencia, errorVigencia := VigenciaYCentroGestorByPlanID(PlanAdquisicionesID)
@@ -645,7 +660,7 @@ func ObtenerRenglonFuncionamiento(RenglonRegistro map[string]interface{}, idStr 
 
 //ActualizarRegistroPlanAdquisicion verifica y actualiza los campos de un renglon segun el ID de un registro plan de adquisicion
 func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interface{}, idStr string) (registroActividadRespuesta map[string]interface{}, outputError interface{}) {
-
+	// logs.Debug("registroPlanAdquisicion: ", formatdata.JsonPrint(registroPlanAdquisicion))
 	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
 		registro, error := ActualizarRegistroInversion(registroPlanAdquisicion, idStr)
 		if error != nil {
