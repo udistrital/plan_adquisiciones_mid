@@ -5,6 +5,7 @@ import (
 
 	models_movimientosCrud "github.com/udistrital/movimientos_crud/models"
 	"github.com/udistrital/plan_adquisiciones_mid/helpers/utils"
+	"github.com/udistrital/utils_oas/errorctrl"
 )
 
 // ObtenerRegistroMovimientoInversion obtiene la estructura de registro múltiple para rubros de inversión
@@ -17,16 +18,7 @@ func ObtenerRegistroMovimientoInversion(
 	registroMovimientosInversionRespuesta []models_movimientosCrud.CuentasMovimientoProcesoExterno,
 	outputError interface{},
 ) {
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "ObtenerRegistroMovimientoInversion - Unhandled Error!",
-				"err":     err,
-				"status":  "500",
-			}
-			panic(outputError)
-		}
-	}()
+	defer errorctrl.ErrorControlFunction("ObtenerRegistroMovimientoInversion - Unhandled Error!", "500")
 
 	registroPlanAdquisicionesActividades := registroPlanAdquisiciones["RegistroPlanAdquisicionActividad"].([]interface{})
 

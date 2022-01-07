@@ -7,22 +7,14 @@ import (
 	"github.com/astaxie/beego/logs"
 	models_movimientosCrud "github.com/udistrital/movimientos_crud/models"
 	"github.com/udistrital/plan_adquisiciones_mid/helpers/utils"
+	"github.com/udistrital/utils_oas/errorctrl"
 )
 
 // ObtenerMovimientoProcesoExterno construye la estructura para registrar el respectivo Movimiento Proceso Externo
 // * Función repetida en models, se pone en helpers para mejorar la estructura del proyecto y no tener importaciones recursivas
 // * Pendiente revisar para eliminar alguna repetida
 func ObtenerMovimientoProcesoExterno(idPlanAdqusiciones int) (registroMovimientoProcesoExternoRespuesta models_movimientosCrud.MovimientoProcesoExterno, outputError map[string]interface{}) {
-	defer func() {
-		if err := recover(); err != nil {
-			outputError = map[string]interface{}{
-				"funcion": "ObtenerMovimientoProcesoExterno - Unhandled Error!",
-				"err":     err,
-				"status":  "500",
-			}
-			panic(outputError)
-		}
-	}()
+	defer errorctrl.ErrorControlFunction("ObtenerMovimientoProcesoExterno - Unhandled error!", "500")
 
 	// * Estado por defecto preliminar
 	// ? Parametrizable o administrable
