@@ -12,7 +12,7 @@ import (
 
 // INICIO Movimientos Procesos Externos
 // ObtenerMovimientoProcesoExterno construye la estructura para registrar el respectivo Movimiento Proceso Externo
-func ObtenerMovimientoProcesoExterno(idPlanAdqusiciones int) (registroMovimientoProcesoExternoRespuesta models_movimientosCrud.MovimientoProcesoExterno, outputError interface{}) {
+func ObtenerMovimientoProcesoExterno(idPlanAdqusiciones int) (registroMovimientoProcesoExternoRespuesta models_movimientosCrud.MovimientoProcesoExterno, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{

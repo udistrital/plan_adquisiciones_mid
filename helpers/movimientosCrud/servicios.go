@@ -54,7 +54,13 @@ func GetMovimientoProcesoExterno(query string, fields string, sortby string, ord
 		return nil, outputError
 	}
 
-	return ml.(map[string]interface{})["Body"], err
+	// logs.Info(ml)
+
+	if ml == nil {
+		return []interface{}{}, nil
+	} else {
+		return ml.(map[string]interface{})["Body"], err
+	}
 }
 
 func CrearMovimientosPublicacion(idMovProcExt int) (movimientosDetalleRespuesta []models.MovimientoDetalle, err map[string]interface{}) {
