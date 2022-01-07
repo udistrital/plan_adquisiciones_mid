@@ -8,6 +8,7 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/plan_adquisiciones_mid/helpers"
 	"github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
 	"github.com/udistrital/plan_adquisiciones_mid/helpers/utils"
 	"github.com/udistrital/utils_oas/errorctrl"
@@ -666,6 +667,9 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 		if error != nil {
 			return nil, error
 		} else {
+			if err := helpers.RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion); err != nil {
+				return nil, err
+			}
 			return registro, nil
 		}
 	} else {
@@ -673,6 +677,9 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 		if error != nil {
 			return nil, error
 		} else {
+			if err := helpers.RegistrarMovimientoDetalleActualizacionFuncionamiento(registroPlanAdquisicion); err != nil {
+				return nil, err
+			}
 			return registro, nil
 		}
 	}

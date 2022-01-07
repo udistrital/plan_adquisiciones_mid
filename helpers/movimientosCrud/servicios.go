@@ -54,7 +54,7 @@ func GetMovimientoProcesoExterno(query string, fields string, sortby string, ord
 		return nil, outputError
 	}
 
-	logs.Info(ml)
+	// logs.Info(ml)
 
 	if ml == nil {
 		return []interface{}{}, nil
