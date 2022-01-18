@@ -10,11 +10,16 @@ import (
 	"github.com/udistrital/utils_oas/errorctrl"
 )
 
-func RegistrarMovimientoDetalleActualizacionFuncionamiento(registroPlanAdquisicion map[string]interface{}) (outputError map[string]interface{}) {
-	defer errorctrl.ErrorControlFunction("RegistrarMovimientoDetalleActualizacionInversion - Unhandled error!", "500")
+var RFC3339Nano string
 
+func init() {
 	// ? Parametrizable
-	RFC3339Nano := "2006-01-02T15:04:05.999999999Z07:00"
+	RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
+}
+
+func RegistrarMovimientoDetalleActualizacionFuncionamiento(registroPlanAdquisicion map[string]interface{}) (outputError map[string]interface{}) {
+	defer errorctrl.ErrorControlFunction("RegistrarMovimientoDetalleActualizacionFuncionamiento - Unhandled error!", "500")
+
 	var idPlanAdquisiciones int
 	var err error
 	var filtroJsonB string

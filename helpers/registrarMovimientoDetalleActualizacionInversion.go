@@ -10,6 +10,11 @@ import (
 	"github.com/udistrital/utils_oas/errorctrl"
 )
 
+func init() {
+	// ? Parametrizable
+	RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
+}
+
 func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion map[string]interface{}) (outputError map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("RegistrarMovimientoDetalleActualizacionInversion - Unhandled error!", "500")
 
