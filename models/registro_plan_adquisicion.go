@@ -192,27 +192,37 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				return nil, outputError
 			} else {
 				// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
-				var movimientoObtenido map[string]interface{}
+
+				// logs.Info("resultado: ", resultado.([]interface{}))
+
+				var movimientoObtenido []interface{}
 				switch resultado.(type) {
-				case map[string]interface{}:
-					movimientoObtenido = resultado.(map[string]interface{})
 				case []interface{}:
 					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
-					movimientoObtenido = resultado.([]interface{})[0].(map[string]interface{})
+					if len(resultado.([]interface{})) > 0 {
+						// logs.Debug("Traje información")
+						movimientoObtenido = resultado.([]interface{})
+					} else {
+						// logs.Debug("No encontré información")
+						movimientoObtenido = resultado.([]interface{})
+					}
 				case nil:
 					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
+					err := "La variable resultado es nil"
+					logs.Error(err)
+					outputError = errorctrl.Error("IngresoPlanAdquisicion - resultado.(type)", err, "400")
+					return nil, outputError
 				default:
 					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
+					err := "La variable resultado no tiene un tipo de dato coherente"
+					logs.Error(err)
+					outputError = errorctrl.Error("IngresoPlanAdquisicion - resultado.(type)", err, "400")
+					return nil, outputError
 				}
 
-				keys := make([]string, 0, len(movimientoObtenido))
-				for k := range movimientoObtenido {
-					keys = append(keys, k)
-				}
-
-				if len(keys) > 0 {
-					// logs.Debug("ID OBTENIDO: ", int(movimientoObtenido["Id"].(float64)))
-					movimientoExternoID = int(movimientoObtenido["Id"].(float64))
+				if len(movimientoObtenido) > 0 {
+					// logs.Debug("movimientoObtenido: ", int(movimientoObtenido[0].(map[string]interface{})["Id"].(float64)))
+					movimientoExternoID = int(movimientoObtenido[0].(map[string]interface{})["Id"].(float64))
 				} else {
 					if movimientoInsertar, err := ObtenerMovimientoProcesoExterno(idPlanAdquisiciones); err != nil {
 						logs.Error(err)
@@ -225,7 +235,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 							return nil, outputError
 						} else {
 							// logs.Debug("ID OBTENIDO: ", idMovimientoInsertado)
-							movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64))
+							movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Id"].(float64))
 						}
 					}
 				}
