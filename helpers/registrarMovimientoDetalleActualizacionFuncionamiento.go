@@ -95,7 +95,6 @@ func RegistrarMovimientoDetalleActualizacionFuncionamiento(registroPlanAdquisici
 	}
 
 	if len(movimientoPublicadoObtenido) > 0 && len(movimientoPreliminarObtenido) > 0 {
-		// movimientoObtenido[0].(map[string]interface{})["Id"].(float64)
 		// logs.Debug(reflect.TypeOf(movimientoPublicadoObtenido[0].(map[string]interface{})["FechaCreacion"]))
 		// logs.Debug(reflect.TypeOf(movimientoPreliminarObtenido[0].(map[string]interface{})["FechaCreacion"]))
 		tPreliminar, err := time.Parse(rFC3339Nano, movimientoPreliminarObtenido[0].(map[string]interface{})["FechaCreacion"].(string))
