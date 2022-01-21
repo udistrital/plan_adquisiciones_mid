@@ -191,9 +191,7 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 				outputError = errorctrl.Error("IngresoPlanAdquisicion -  movimientosCrud.GetMovimientoProcesoExterno(query, \"\", sortby, order, \"\", limit)", err, "502")
 				return nil, outputError
 			} else {
-				// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado)
-
-				// logs.Info("resultado: ", resultado.([]interface{}))
+				// logs.Debug("Tipo de Resultado: ", reflect.TypeOf(resultado), " - Resultado: ", resultado.([]interface{}))
 
 				var movimientoObtenido []interface{}
 				switch resultado.(type) {
@@ -208,15 +206,15 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 					}
 				case nil:
 					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
-					err := "La variable resultado es nil"
+					err := "No se encontraron resultados"
 					logs.Error(err)
-					outputError = errorctrl.Error("IngresoPlanAdquisicion - resultado.(type)", err, "400")
+					outputError = errorctrl.Error("IngresoPlanAdquisicion - resultado.(type)", err, "404")
 					return nil, outputError
 				default:
 					// logs.Debug("Tipo: ", reflect.TypeOf(resultado))
 					err := "La variable resultado no tiene un tipo de dato coherente"
 					logs.Error(err)
-					outputError = errorctrl.Error("IngresoPlanAdquisicion - resultado.(type)", err, "400")
+					outputError = errorctrl.Error("IngresoPlanAdquisicion - resultado.(type)", err, "409")
 					return nil, outputError
 				}
 

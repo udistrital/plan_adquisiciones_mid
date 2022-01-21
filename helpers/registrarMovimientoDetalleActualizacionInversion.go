@@ -15,6 +15,7 @@ func init() {
 	rFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
 }
 
+// RegistrarMovimientoDetalleActualizacionInversion se encarga de la lógica para registrar los movimientos detalle en la actualización de rubros de inversión
 func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion map[string]interface{}) (outputError map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("RegistrarMovimientoDetalleActualizacionInversion - Unhandled error!", "500")
 
@@ -94,7 +95,6 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 	}
 
 	if len(movimientoPublicadoObtenido) > 0 && len(movimientoPreliminarObtenido) > 0 {
-		// movimientoObtenido[0].(map[string]interface{})["Id"].(float64)
 		// logs.Debug(reflect.TypeOf(movimientoPublicadoObtenido[0].(map[string]interface{})["FechaCreacion"]))
 		// logs.Debug(reflect.TypeOf(movimientoPreliminarObtenido[0].(map[string]interface{})["FechaCreacion"]))
 		tPreliminar, err := time.Parse(rFC3339Nano, movimientoPreliminarObtenido[0].(map[string]interface{})["FechaCreacion"].(string))
