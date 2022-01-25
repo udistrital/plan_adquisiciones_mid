@@ -10,11 +10,15 @@ import (
 	"github.com/udistrital/utils_oas/errorctrl"
 )
 
+func init() {
+	// ? Parametrizable
+	rFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
+}
+
+// RegistrarMovimientoDetalleActualizacionInversion se encarga de la lógica para registrar los movimientos detalle en la actualización de rubros de inversión
 func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion map[string]interface{}) (outputError map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("RegistrarMovimientoDetalleActualizacionInversion - Unhandled error!", "500")
 
-	// ? Parametrizable
-	RFC3339Nano := "2006-01-02T15:04:05.999999999Z07:00"
 	var idPlanAdquisiciones int
 	var err error
 	var filtroJsonB string
@@ -27,8 +31,8 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 	order := "desc"
 	// Para traer el último
 	limit := "1"
-	var movimientoPublicadoObtenido map[string]interface{}
-	var movimientoPreliminarObtenido map[string]interface{}
+	var movimientoPublicadoObtenido []interface{}
+	var movimientoPreliminarObtenido []interface{}
 	var movimientoExternoID int
 
 	switch registroPlanAdquisicion["PlanAdquisicionesId"].(type) {
@@ -80,20 +84,20 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 		return outputError
 	}
 
-	keysPublicado, movimientoPublicadoObtenido, outputError := KeysMovimientoProcesoExterno(movimientoPublicado)
+	movimientoPublicadoObtenido, outputError = KeysMovimientoProcesoExterno(movimientoPublicado)
 	if outputError != nil {
 		return outputError
 	}
 
-	keysPreliminar, movimientoPreliminarObtenido, outputError := KeysMovimientoProcesoExterno(movimientoPreliminar)
+	movimientoPreliminarObtenido, outputError = KeysMovimientoProcesoExterno(movimientoPreliminar)
 	if outputError != nil {
 		return outputError
 	}
 
-	if len(keysPublicado) > 0 && len(keysPreliminar) > 0 {
-		// logs.Debug(reflect.TypeOf(movimientoPublicadoObtenido["FechaCreacion"]))
-		// logs.Debug(reflect.TypeOf(movimientoPreliminarObtenido["FechaCreacion"]))
-		tPreliminar, err := time.Parse(RFC3339Nano, movimientoPreliminarObtenido["FechaCreacion"].(string))
+	if len(movimientoPublicadoObtenido) > 0 && len(movimientoPreliminarObtenido) > 0 {
+		// logs.Debug(reflect.TypeOf(movimientoPublicadoObtenido[0].(map[string]interface{})["FechaCreacion"]))
+		// logs.Debug(reflect.TypeOf(movimientoPreliminarObtenido[0].(map[string]interface{})["FechaCreacion"]))
+		tPreliminar, err := time.Parse(rFC3339Nano, movimientoPreliminarObtenido[0].(map[string]interface{})["FechaCreacion"].(string))
 		if err != nil {
 			outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - time.Parse(RFC3339Nano, movimientoPreliminarObtenido[\"FechaCreacion\"].(string))", err, "500")
 			logs.Error(err)
@@ -101,7 +105,7 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 		}
 		// logs.Debug("tPreliminar: ", tPreliminar)
 
-		tPublicado, err := time.Parse(RFC3339Nano, movimientoPublicadoObtenido["FechaCreacion"].(string))
+		tPublicado, err := time.Parse(rFC3339Nano, movimientoPublicadoObtenido[0].(map[string]interface{})["FechaCreacion"].(string))
 		if err != nil {
 			outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - time.Parse(RFC3339Nano, movimientoPublicadoObtenido[\"FechaCreacion\"].(string))", err, "500")
 			logs.Error(err)
@@ -111,9 +115,9 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 
 		if tPreliminar.After(tPublicado) {
 			// logs.Debug("Es un preliminar después de publicar")
-			switch movimientoPreliminarObtenido["Id"].(type) {
+			switch movimientoPreliminarObtenido[0].(map[string]interface{})["Id"].(type) {
 			case float64:
-				movimientoExternoID = int(movimientoPreliminarObtenido["Id"].(float64))
+				movimientoExternoID = int(movimientoPreliminarObtenido[0].(map[string]interface{})["Id"].(float64))
 			case nil:
 				err := "El tipo de dato es nil"
 				outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - movimientoPreliminarObtenido[\"Id\"].(type)", err, "500")
@@ -136,28 +140,28 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 					return outputError
 				} else {
 					// logs.Debug("ID OBTENIDO: ", idMovimientoInsertado)
-					switch idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(type) {
+					switch idMovimientoInsertado.(map[string]interface{})["Id"].(type) {
 					case float64:
-						movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64))
+						movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Id"].(float64))
 					case nil:
 						err := "El tipo de dato es nil"
-						outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Body\"].(map[string]interface{})[\"Id\"].(type)", err, "500")
+						outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Id\"].(type)", err, "500")
 						logs.Error(err)
 						return outputError
 					default:
 						err := "No se reconoce el tipo de dato"
-						outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Body\"].(map[string]interface{})[\"Id\"].(type)", err, "500")
+						outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Id\"].(type)", err, "500")
 						logs.Error(err)
 						return outputError
 					}
 				}
 			}
 		}
-	} else if len(keysPreliminar) > 0 {
+	} else if len(movimientoPreliminarObtenido) > 0 {
 		// logs.Debug("No hay planes publicados")
-		switch movimientoPreliminarObtenido["Id"].(type) {
+		switch movimientoPreliminarObtenido[0].(map[string]interface{})["Id"].(type) {
 		case float64:
-			movimientoExternoID = int(movimientoPreliminarObtenido["Id"].(float64))
+			movimientoExternoID = int(movimientoPreliminarObtenido[0].(map[string]interface{})["Id"].(float64))
 		case nil:
 			err := "El tipo de dato es nil"
 			outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - movimientoPreliminarObtenido[\"Id\"].(type)", err, "500")
@@ -169,7 +173,7 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 			logs.Error(err)
 			return outputError
 		}
-	} else if len(keysPublicado) > 0 {
+	} else if len(movimientoPublicadoObtenido) > 0 {
 		// logs.Debug("No hay planes preliminares")
 		if movimientoInsertar, err := ObtenerMovimientoProcesoExterno(idPlanAdquisiciones); err != nil {
 			return err
@@ -180,17 +184,17 @@ func RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion ma
 				return outputError
 			} else {
 				// logs.Debug("ID OBTENIDO: ", idMovimientoInsertado)
-				switch idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(type) {
+				switch idMovimientoInsertado.(map[string]interface{})["Id"].(type) {
 				case float64:
-					movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Body"].(map[string]interface{})["Id"].(float64))
+					movimientoExternoID = int(idMovimientoInsertado.(map[string]interface{})["Id"].(float64))
 				case nil:
 					err := "El tipo de dato es nil"
-					outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Body\"].(map[string]interface{})[\"Id\"].(type)", err, "500")
+					outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Id\"].(type)", err, "500")
 					logs.Error(err)
 					return outputError
 				default:
 					err := "No se reconoce el tipo de dato"
-					outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Body\"].(map[string]interface{})[\"Id\"].(type)", err, "500")
+					outputError = errorctrl.Error("RegistrarMovimientoDetalleActualizacionInversion - idMovimientoInsertado.(map[string]interface{})[\"Id\"].(type)", err, "500")
 					logs.Error(err)
 					return outputError
 				}
