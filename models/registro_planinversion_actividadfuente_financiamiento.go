@@ -109,8 +109,8 @@ func ObtenerRegistroTablaActividades(idStr string) (registroPlanAdquisicionActiv
 	registro := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	fuentesFinanciamiento := make([]map[string]interface{}, 0)
-	query := "?query=RegistroPlanAdquisicionesActividadId__RegistroPlanAdquisicionesId__Id:" + idStr + ",RegistroPlanAdquisicionesActividadId.Activo:true,Activo:true&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc"
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento/"+query, &RegistroPlanAdquisicionActividadFuente)
+	query := "?query=RegistroPlanAdquisicionesActividadId__RegistroPlanAdquisicionesId__Id:" + idStr + ",RegistroPlanAdquisicionesActividadId__Activo:true,Activo:true&sortby=RegistroPlanAdquisicionesActividadId__Id&order=asc&limit=-1"
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_inversion_actividad-Fuente_financiamiento"+query, &RegistroPlanAdquisicionActividadFuente)
 
 	// logs.Debug("RegistroPlanAdquisicionActividadFuente: ", RegistroPlanAdquisicionActividadFuente)
 

@@ -32,38 +32,49 @@ func ObtenerRegistroPlanAdquisicion() (registroPlanAdquisicion []map[string]inte
 func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (PlanAdquisicion []map[string]interface{}, outputError interface{}) {
 	var RegistroPlanAdquisicion []map[string]interface{}
 	registros := make([]map[string]interface{}, 0)
-	query := "PlanAdquisicionesId:" + planAdquisicionID + "&sortby=FechaCreacion,RubroId&order=asc"
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query="+query, &RegistroPlanAdquisicion)
-	// logs.Debug("RegistroPlanAdquisicion: ", formatdata.JsonPrint(RegistroPlanAdquisicion))
+	// TODO: Dejar únicamente los campos necesarios para la consulta
+	query := beego.AppConfig.String("plan_adquicisiones_crud_url") + "Registro_plan_adquisiciones?query=" +
+		"PlanAdquisicionesId:" + planAdquisicionID + "&sortby=FechaCreacion,RubroId&order=asc"
+	// logs.Debug("query:", query)
+	error := request.GetJson(query, &RegistroPlanAdquisicion)
+	// logs.Debug("RegistroPlanAdquisicion:")
+	// formatdata.JsonPrint(RegistroPlanAdquisicion)
+	// logs.Debug("len(RegistroPlanAdquisicion):", len(RegistroPlanAdquisicion))
 	if error != nil {
 		return nil, error
 	} else {
-		if len(RegistroPlanAdquisicion[0]) == 0 {
+		if len(RegistroPlanAdquisicion) == 0 {
 			return RegistroPlanAdquisicion, nil
 		} else {
 			for index := range RegistroPlanAdquisicion {
+				// logs.Debug("Entre:", index)
 				id := fmt.Sprintf("%.0f", RegistroPlanAdquisicion[index]["Id"].(float64))
 				registro, error := ObtenerRenglonRegistroPlanAdquisicionByID(id)
+				// logs.Debug(error)
 				if error != nil {
-					return nil, error
+					logs.Warning(error)
+					// return nil, error
 				} else {
+					// logs.Debug("registro:", registro)
 					// if registro[0]["FuenteFinanciamientoId"] == "" {
 					// 	delete(registro[0], "registro_plan_adquisiciones-actividad")
 					// }
 					registros = append(registros, registro[0])
 				}
 			}
-			// fmt.Println(len(registros))
-			// fmt.Println(registros)
+			// fmt.Println("len(registros): ", len(registros))
+			// fmt.Println("registros: ", registros)
 			FuentesRegistroPlanAdquisicion, error := SepararRegistrosPorFuente(registros)
 			// RubrosRegistroPlanAdquisicion, error := SepararRegistrosPorRubro(registros)
 			if error != nil {
-				return nil, error
+				logs.Warning(error)
+				// return nil, error
 			} else {
-
 				return FuentesRegistroPlanAdquisicion, nil
 				// return RubrosRegistroPlanAdquisicion, nil
 			}
+
+			return
 		}
 	}
 }
@@ -507,19 +518,24 @@ func ObtenerRenglonRegistroPlanAdquisicionByID(idStr string) (renglonRegistroPla
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
 	// var RenglonRegistro []map[string]interface{}
 	// var Responsable []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:"+idStr, &RenglonRegistroPlanAdquisicion)
+	// TODO: Se podría reemplazar la petición dependiendo los datos necesarios
+	query := beego.AppConfig.String("plan_adquicisiones_crud_url") + "Registro_plan_adquisiciones?query=Id:" + idStr
+	// logs.Debug("query:", query)
+	error := request.GetJson(query, &RenglonRegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
 		// fmt.Println(RenglonRegistroPlanAdquisicion)
-		if len(RenglonRegistroPlanAdquisicion) == 1 && len(RenglonRegistroPlanAdquisicion[0]) == 0 {
+		if len(RenglonRegistroPlanAdquisicion) == 0 {
 			error := "No existe Registro Plan Adquisicion"
 			return nil, error
 		} else {
 			// fmt.Println(RenglonRegistroPlanAdquisicion[0])
 			if RenglonRegistroPlanAdquisicion[0]["FuenteFinanciamientoId"] == "" {
 				RenglonRegistro, errorDatos := ObtenerRenglonInversion(RenglonRegistroPlanAdquisicion[0], idStr)
+				// logs.Debug("errorDatos:", errorDatos)
 				if errorDatos != nil {
+					logs.Warning(errorDatos)
 					return nil, errorDatos
 				} else {
 					return RenglonRegistro, nil
@@ -542,19 +558,23 @@ func ObtenerRenglonInversion(RenglonRegistro map[string]interface{}, idStr strin
 
 	var RenglonRegistroPlanAdquisicion []map[string]interface{}
 	var Responsable []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones/?query=Id:"+idStr, &RenglonRegistroPlanAdquisicion)
+	query := beego.AppConfig.String("plan_adquicisiones_crud_url") + "Registro_plan_adquisiciones/?query=Id:" + idStr
+	error := request.GetJson(query, &RenglonRegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
-		if len(RenglonRegistroPlanAdquisicion) == 1 && len(RenglonRegistroPlanAdquisicion[0]) == 0 {
+		if len(RenglonRegistroPlanAdquisicion) == 0 {
 			error := "No existe Registro Plan Adquisicion"
 			return nil, error
 		}
 		CodigoArka, error := ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr)
+		// logs.Debug("CodigoArka:", CodigoArka)
+		// logs.Debug("error: ", error)
 		if error != nil {
 			return nil, error
 		} else {
 			ModalidadSeleccion, error := ObtenerRegistroModalidadSeleccionByIDPlanAdquisicion(idStr)
+			// logs.Debug("error: ", error)
 			if error != nil {
 				return nil, error
 			} else {
@@ -567,6 +587,7 @@ func ObtenerRenglonInversion(RenglonRegistro map[string]interface{}, idStr strin
 						return nil, error
 					} else {
 						RegistroPlanAdquisicionActividad, error := ObtenerRegistroTablaActividades(idStr)
+						// logs.Debug("len(RegistroPlanAdquisicionActividad): ", len(RegistroPlanAdquisicionActividad))
 						if error != nil {
 							return nil, error
 						} else {
