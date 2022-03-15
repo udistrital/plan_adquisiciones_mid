@@ -58,8 +58,7 @@ func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []ma
 	} else {
 		for index := range codigoArka {
 			ElementoCodigoArka, error := CatalogoElementosArka(codigoArka[index]["CodigoArka"].(string))
-			// logs.Debug("ElementoCodigoArka: ", ElementoCodigoArka)
-			// logs.Debug(fmt.Sprintf("error: %+v", error))
+			// logs.Debug("error: ", error)
 			if error != nil {
 				return nil, error
 			} else {
@@ -175,7 +174,6 @@ func CatalogoElementosArka(idStr string) (NombreElemento map[string]interface{},
 	}
 	// logs.Debug("queryCatalogoSubgrupo:", queryCatalogoSubgrupo)
 	error := request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)
-	// logs.Debug("ElementoCodigoArka:", ElementoCodigoArka)
 	if error != nil {
 		// logs.Debug("error: ", error)
 		outputError = error

@@ -42,7 +42,6 @@ func (c *Plan_adquisicion_por_fuentesController) GetAll() {
 		alertErr.Body = alertas
 		// c.Ctx.Output.SetStatus(404)
 	}
-	// logs.Debug(alertErr.Body)
 	c.Data["json"] = alertErr
 	c.ServeJSON()
 
