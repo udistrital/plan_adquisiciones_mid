@@ -203,7 +203,8 @@ func IngresoPlanAdquisicionMongo(registroPlanAdquisicion map[string]interface{})
 	if error != nil {
 		return nil, error
 	} else {
-		return "Copia Generada", nil
+		// logs.Debug(fmt.Sprintf("PlanAdquisicionPost: %+v", PlanAdquisicionPost))
+		return PlanAdquisicionPost, nil
 	}
 
 }
