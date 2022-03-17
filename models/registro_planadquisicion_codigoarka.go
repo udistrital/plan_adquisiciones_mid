@@ -7,6 +7,7 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -176,7 +177,7 @@ func CatalogoElementosArka(idStr string) (NombreElemento map[string]interface{},
 	error := request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)
 	if error != nil {
 		// logs.Debug("error: ", error)
-		outputError = error
+		outputError = errorctrl.Error("request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)", error, "500")
 	} else {
 		if len(ElementoCodigoArka) == 1 {
 			NombreElemento = ElementoCodigoArka[0]
@@ -186,7 +187,7 @@ func CatalogoElementosArka(idStr string) (NombreElemento map[string]interface{},
 				NombreElemento = ElementoCodigoArka[0]
 			}
 			logs.Warning("Código", idStr, "no encontrado")
-			outputError = fmt.Errorf("404")
+			outputError = errorctrl.Error("request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)", error, "500")
 		}
 	}
 

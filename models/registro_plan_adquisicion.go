@@ -35,10 +35,7 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (PlanAdqui
 	// TODO: Dejar únicamente los campos necesarios para la consulta
 	query := beego.AppConfig.String("plan_adquicisiones_crud_url") + "Registro_plan_adquisiciones?query=" +
 		"PlanAdquisicionesId:" + planAdquisicionID + "&sortby=FechaCreacion,RubroId&order=asc"
-	// logs.Debug("query:", query)
 	error := request.GetJson(query, &RegistroPlanAdquisicion)
-	// logs.Debug("RegistroPlanAdquisicion:")
-	// formatdata.JsonPrint(RegistroPlanAdquisicion)
 	if error != nil {
 		return nil, error
 	} else {
@@ -51,7 +48,6 @@ func ObtenerRegistroPlanAdquisicionByIDplan(planAdquisicionID string) (PlanAdqui
 				// logs.Debug(error)
 				if error != nil {
 					logs.Warning(error)
-					// return nil, error
 				} else {
 					registros = append(registros, registro[0])
 				}
