@@ -168,11 +168,7 @@ func RegistroCodigoArkaValidacion(registroCodigoArka map[string]interface{}, Reg
 func CatalogoElementosArka(idStr string) (NombreElemento map[string]interface{}, outputError interface{}) {
 	var ElementoCodigoArka []map[string]interface{}
 	// logs.Debug("idStr:", idStr)
-	queryCatalogoSubgrupo := beego.AppConfig.String("catalogo_elementos_arka_url") + "subgrupo?fields=Id,Codigo,Descripcion&query=Activo:true,Codigo:" + idStr
-	if len(idStr) > 6 {
-		queryCatalogoSubgrupo = beego.AppConfig.String("catalogo_elementos_arka_url") + "elemento?fields=Id,Codigo,Descripcion&query=Activo:true,Codigo:" + idStr
-
-	}
+	queryCatalogoSubgrupo := beego.AppConfig.String("catalogo_elementos_arka_url") + "subgrupo?fields=Id,Codigo,Descripcion&query=Activo:true,Id:" + idStr
 	// logs.Debug("queryCatalogoSubgrupo:", queryCatalogoSubgrupo)
 	error := request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)
 	if error != nil {
