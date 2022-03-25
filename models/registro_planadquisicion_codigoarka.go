@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -47,16 +49,23 @@ func GuardarCodigoArka(CodigosArka []interface{}, idPost interface{}) (registroC
 //ObtenerRegistroCodigoArkaByIDPlanAdquisicion regresa registro codigo arka segun ID de registro plan adquisiciones
 func ObtenerRegistroCodigoArkaByIDPlanAdquisicion(idStr string) (CodigoArka []map[string]interface{}, outputError interface{}) {
 	var codigoArka []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Codigo_arka/?query=RegistroPlanAdquisicionesId.id:"+idStr+",Activo:true", &codigoArka)
+	query := beego.AppConfig.String("plan_adquicisiones_crud_url") +
+		"Registro_plan_adquisiciones-Codigo_arka?query=RegistroPlanAdquisicionesId__Id:" + idStr + ",Activo:true&limit=-1"
+	// logs.Debug("queryArka: ", query)
+	error := request.GetJson(query, &codigoArka)
+	// logs.Debug("error: ", error)
 	if error != nil {
 		return nil, error
 	} else {
 		for index := range codigoArka {
 			ElementoCodigoArka, error := CatalogoElementosArka(codigoArka[index]["CodigoArka"].(string))
+			// logs.Debug("error: ", error)
 			if error != nil {
 				return nil, error
 			} else {
-				codigoArka[index]["Descripcion"] = ElementoCodigoArka["Codigo"].(string) + "-" + ElementoCodigoArka["Descripcion"].(string)
+				if len(ElementoCodigoArka) > 0 {
+					codigoArka[index]["Descripcion"] = ElementoCodigoArka["Codigo"].(string) + "-" + ElementoCodigoArka["Descripcion"].(string)
+				}
 			}
 		}
 		return codigoArka, nil
@@ -158,11 +167,26 @@ func RegistroCodigoArkaValidacion(registroCodigoArka map[string]interface{}, Reg
 //CatalogoElementosArka Consulta nombre en el catalogo de elementos de arka
 func CatalogoElementosArka(idStr string) (NombreElemento map[string]interface{}, outputError interface{}) {
 	var ElementoCodigoArka []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("catalogo_elementos_arka_url")+"subgrupo?fields=Id,Codigo,Descripcion&query=Id:"+idStr, &ElementoCodigoArka)
+	// logs.Debug("idStr:", idStr)
+	queryCatalogoSubgrupo := beego.AppConfig.String("catalogo_elementos_arka_url") + "subgrupo?fields=Id,Codigo,Descripcion&query=Activo:true,Id:" + idStr
+	// logs.Debug("queryCatalogoSubgrupo:", queryCatalogoSubgrupo)
+	error := request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)
 	if error != nil {
-		return nil, error
+		// logs.Debug("error: ", error)
+		outputError = errorctrl.Error("request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)", error, "500")
 	} else {
-		return ElementoCodigoArka[0], nil
+		if len(ElementoCodigoArka) == 1 {
+			NombreElemento = ElementoCodigoArka[0]
+		} else {
+			if len(ElementoCodigoArka) > 1 {
+				logs.Warning("Código", idStr, "duplicado en catálogo de elementos")
+				NombreElemento = ElementoCodigoArka[0]
+			}
+			logs.Warning("Código", idStr, "no encontrado")
+			outputError = errorctrl.Error("request.GetJson(queryCatalogoSubgrupo, &ElementoCodigoArka)", error, "500")
+		}
 	}
+
+	return
 
 }

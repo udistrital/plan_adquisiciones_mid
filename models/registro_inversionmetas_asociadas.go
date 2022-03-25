@@ -15,9 +15,9 @@ func IngresoRegistroMetasAsociadas(registroMetasAsociadas map[string]interface{}
 	registroMetasAsociadasPost := make(map[string]interface{})
 
 	registroMetasAsociadasIngresado = map[string]interface{}{
-		"RegistroPlanAdquisicionesId": 	map[string]interface{}{"Id": registroMetasAsociadas["RegistroPlanAdquisicionesId"]},
-		"MetaId":        				map[string]interface{}{"Id": registroMetasAsociadas["MetaId"]},
-		"Activo":                      	registroMetasAsociadas["Activo"],
+		"RegistroPlanAdquisicionesId": map[string]interface{}{"Id": registroMetasAsociadas["RegistroPlanAdquisicionesId"]},
+		"MetaId":                      map[string]interface{}{"Id": registroMetasAsociadas["MetaId"]},
+		"Activo":                      registroMetasAsociadas["Activo"],
 	}
 	error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/", "POST", &registroMetasAsociadasPost, registroMetasAsociadasIngresado)
 	if error != nil {
@@ -48,7 +48,7 @@ func GuardarMetasAsociadas(Metas_Asociadas []interface{}, idPost interface{}) (r
 //ObtenerRegistroMetasAsociadasByIDPlanAdquisicion regresa una registro de la tabla modalidad de seleccioón segun un Id de un registro_plan_adquisicion
 func ObtenerRegistroMetasAsociadasByIDPlanAdquisicion(idStr string) (MetasAsociadas []map[string]interface{}, outputError interface{}) {
 	var metasAsociadas map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/?query=RegistroPlanAdquisicionesId.Id:"+idStr+",Activo:true&fields=Id,MetaId,Activo,FechaCreacion,FechaModificacion", &metasAsociadas)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas?query=RegistroPlanAdquisicionesId__Id:"+idStr+",Activo:true&fields=Id,MetaId,Activo,FechaCreacion,FechaModificacion", &metasAsociadas)
 	if error != nil {
 		return nil, error
 	} else {
@@ -90,7 +90,6 @@ func MetasAsociadasModificado(registroPlanAdquisicion map[string]interface{}, id
 func ActualizarRegistroMetasAsociadas(registroMetasAsociadas map[string]interface{}, idStr string, idStrPlanAdquisicion string) (registroMetasAsociadasRespuesta map[string]interface{}, outputError interface{}) {
 	MetasAsociadasPut := make(map[string]interface{})
 	MetasAsociadasActualizar := make(map[string]interface{})
-	
 
 	if registroMetasAsociadas["Id"].(float64) == 0 {
 
@@ -107,10 +106,10 @@ func ActualizarRegistroMetasAsociadas(registroMetasAsociadas map[string]interfac
 		idint, _ := strconv.Atoi(idStrPlanAdquisicion)
 		registroMetasAsociadas["RegistroPlanAdquisicionesId"] = idint
 		MetasAsociadasActualizar = map[string]interface{}{
-			"RegistroPlanAdquisicionesId": 	map[string]interface{}{"Id": registroMetasAsociadas["RegistroPlanAdquisicionesId"]},
-			"FechaCreacion":               	RegistroMetasAsociadasAntiguo["FechaCreacion"],
-			"MetaId":        				map[string]interface{}{"Id": registroMetasAsociadas["MetaId"]},
-			"Activo":                      	registroMetasAsociadas["Activo"],
+			"RegistroPlanAdquisicionesId": map[string]interface{}{"Id": registroMetasAsociadas["RegistroPlanAdquisicionesId"]},
+			"FechaCreacion":               RegistroMetasAsociadasAntiguo["FechaCreacion"],
+			"MetaId":                      map[string]interface{}{"Id": registroMetasAsociadas["MetaId"]},
+			"Activo":                      registroMetasAsociadas["Activo"],
 		}
 		// fmt.Println(MetasAsociadasActualizar)
 		error2 := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Registro_plan_adquisiciones-Metas_Asociadas/"+idStr, "PUT", &MetasAsociadasPut, MetasAsociadasActualizar)
