@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -33,11 +34,15 @@ func ObtenerLineamiento(idMeta string) (InfoLineamiento []map[string]interface{}
 func ObtenerActividadById(idActividad interface{}) (Actividad map[string]interface{}, outputError interface{}) {
 	var ActividadAsociada []map[string]interface{}
 	s := fmt.Sprintf("%.0f", idActividad.(float64))
-	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Actividad/?query=Id:"+s+"&fields=Nombre,Numero", &ActividadAsociada)
+	error := request.GetJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Actividad?query=Id:"+s+"&fields=Nombre,Numero", &ActividadAsociada)
+	// logs.Debug("ActividadAsociada: ", ActividadAsociada)
 	if error != nil {
 		return nil, error
 	} else {
-		return ActividadAsociada[0], nil
+		if len(ActividadAsociada) > 0 {
+			Actividad = ActividadAsociada[0]
+		}
+		return Actividad, nil
 	}
 
 }

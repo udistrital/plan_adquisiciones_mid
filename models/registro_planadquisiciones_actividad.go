@@ -59,6 +59,7 @@ func IngresoRegistroActividad(registroActividad map[string]interface{}) (registr
 func RegistroActividadModificado(registroPlanAdquisicion map[string]interface{}, idStr string) (outputError interface{}) {
 	// logs.Debug("registroPlanAdquisicion: ", formatdata.JsonPrint(registroPlanAdquisicion))
 	RegistroActividades := registroPlanAdquisicion["RegistroPlanAdquisicionActividad"].([]interface{})
+	// logs.Debug("RegistroActividades: ", RegistroActividades)
 	for Index := range RegistroActividades {
 		RegistroActividad := RegistroActividades[Index].(map[string]interface{})
 		idFloat, _ := strconv.ParseFloat(idStr, 64)
@@ -76,6 +77,7 @@ func ActualizarRegistroActividad(registroActividad map[string]interface{}, idStr
 	registroActividadPut := make(map[string]interface{})
 	registroActividadActualizar := make(map[string]interface{})
 	RegistroPlanAdquisicionActividad, error := ObtenerRegistroPlanAdquisicionActividadByID(idStr)
+	// logs.Debug("registroActividad: ", registroActividad)
 	if error != nil {
 		return nil, error
 	} else {
@@ -148,9 +150,12 @@ func ObtenerRegistroPlanAdquisicionActividadByID(idStr string) (registroPlanAdqu
 	if error != nil {
 		return nil, error
 	} else {
-		return RegistroPlanAdquisicionActividad[0], nil
-	}
+		if len(RegistroPlanAdquisicionActividad) > 0 {
+			registroPlanAdquisicionActividad = RegistroPlanAdquisicionActividad[0]
+		}
 
+		return registroPlanAdquisicionActividad, nil
+	}
 }
 
 //RegistroActividadValidacion valida si se modificaron campos de un registro de actividad
@@ -183,6 +188,7 @@ func RegistroActividadValidacion(registroActividad map[string]interface{}, Regis
 //FuenteFinanciamientoModificado valida si se modificaron campos de una fuente de financiamiento
 func FuenteFinanciamientoModificado(registroActividad map[string]interface{}, idStr string) (outputError interface{}) {
 	FuentesFinanciamiento := registroActividad["FuentesFinanciamiento"].([]interface{})
+	// logs.Debug("FuentesFinanciamiento: ", FuentesFinanciamiento)
 	for fuenteIndex := range FuentesFinanciamiento {
 		FuenteFinanciamiento := FuentesFinanciamiento[fuenteIndex].(map[string]interface{})
 		_, errRegistroActividadFuente := ActualizarRegistroActividadFuente(FuenteFinanciamiento, fmt.Sprintf("%v", FuenteFinanciamiento["Id"]), idStr)
