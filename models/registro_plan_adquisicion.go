@@ -614,6 +614,7 @@ func ObtenerRenglonFuncionamiento(RenglonRegistro map[string]interface{}, idStr 
 					if error != nil {
 						return nil, error
 					} else {
+						// logs.Debug("RenglonRegistroPlanAdquisicion[0][\"ActividadId\"]: ", RenglonRegistroPlanAdquisicion[0]["ActividadId"])
 						ActividadData, error := ObtenerActividadById(RenglonRegistroPlanAdquisicion[0]["ActividadId"])
 						if error != nil {
 							return nil, error
