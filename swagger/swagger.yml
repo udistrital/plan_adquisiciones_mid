@@ -77,8 +77,7 @@ paths:
     get:
       tags:
       - RegistrosOrdenadoPorRubro
-      description: Obtiene todos los planes de adquisición separados por fuente de
-        recurso y divididos por rubros segun el id dado
+      description: Obtiene todos los planes de adquisición separados por fuente de recurso y divididos por rubros segun el id dado
       operationId: Plan_adquisicion_por_fuentesController.GetAll
       parameters:
       - in: path
@@ -188,8 +187,7 @@ paths:
         type: string
       - in: query
         name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
+        description: Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...
         type: string
       - in: query
         name: limit
@@ -259,8 +257,7 @@ paths:
       parameters:
       - in: body
         name: body
-        description: body for Registro_PlanInversion_ActividadFuente_financiamiento
-          content
+        description: body for Registro_PlanInversion_ActividadFuente_financiamiento content
         required: true
         schema:
           $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
@@ -285,8 +282,7 @@ paths:
         type: string
       - in: body
         name: body
-        description: body for Registro_PlanInversion_ActividadFuente_financiamiento
-          content
+        description: body for Registro_PlanInversion_ActividadFuente_financiamiento content
         required: true
         schema:
           $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
@@ -323,8 +319,7 @@ paths:
         type: string
       - in: query
         name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
+        description: Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...
         type: string
       - in: query
         name: limit

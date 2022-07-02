@@ -554,7 +554,7 @@ func ObtenerRenglonInversion(RenglonRegistro map[string]interface{}, idStr strin
 						return nil, error
 					} else {
 						RegistroPlanAdquisicionActividad, error := ObtenerRegistroTablaActividades(idStr)
-						logs.Debug("error: ", error)
+						//logs.Debug("error: ", error)
 						// logs.Debug("len(RegistroPlanAdquisicionActividad): ", len(RegistroPlanAdquisicionActividad))
 						if error != nil {
 							return nil, error
