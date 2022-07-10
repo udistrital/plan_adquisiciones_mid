@@ -95,3 +95,25 @@ type TipoMovimientoId struct {
 	Nombre            string
 	Parametros        string
 }
+
+type MovimientoProcesoExterno struct {
+	TipoMovimientoId         int
+	ProcesoExterno           int
+	MovimientoProcesoExterno int
+	Activo                   bool
+	Detalle                  string
+}
+
+type DetalleMovimientoProcesoExterno struct {
+	Estado              string
+	PlanAdquisicionesId int
+}
+
+type MovimientosDetalle struct {
+	MovimientoProcesoExternoId int
+	Valor                      float64
+	Descripcion                string
+	Activo                     bool
+	Saldo                      float64
+	Detalle                    string
+}

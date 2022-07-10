@@ -5,7 +5,8 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/udistrital/movimientos_crud/models"
+	models_movimientosCrud "github.com/udistrital/movimientos_crud/models"
+	"github.com/udistrital/plan_adquisiciones_mid/models"
 	"github.com/udistrital/utils_oas/errorctrl"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -59,28 +60,61 @@ func GetMovimientoProcesoExterno(query string, fields string, sortby string, ord
 	return
 }
 
-func CrearMovimientosPublicacion(idMovProcExt int) (movimientosDetalleRespuesta []models.MovimientoDetalle, err map[string]interface{}) {
-	defer errorctrl.ErrorControlFunction("CrearMovimientosPublicacion - Unhandled error!", "500")
-
-	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
-		"movimiento_detalle/publicarMovimientosDetalle"
-
-	if err := request.SendJson(urlPublicar, "POST", &movimientosDetalleRespuesta, idMovProcExt); err != nil {
-		logs.Error(err)
-		outputError := errorctrl.Error("CrearMovimientosPublicacion - request.SendJson(urlPublicar, \"POST\", &movimientosDetalleRespuesta, idMovProcExt)", err, "500")
-		return nil, outputError
+func CrearMovimientoProcesoExterno(detalle []byte) (movimientoProcesoExternoRespuesta models_movimientosCrud.MovimientoProcesoExterno, outputError map[string]interface{}) {
+	defer errorctrl.ErrorControlFunction("CrearMovimientoProcesoExterno - Unhandled error!", "500")
+	tipoMovimientoId, err := beego.AppConfig.Int("tipoMovimientoIdAfectacionCuenPre")
+	if err != nil {
+		outputError = errorctrl.Error("CrearMovimientoProcesoExterno - beego.AppConfig.Int(\"tipoMovimientoIdAfectacionCuenPre\")", err, "500")
+		return models_movimientosCrud.MovimientoProcesoExterno{}, outputError
 	}
 
-	return movimientosDetalleRespuesta, nil
+	tipoMovimiento := models_movimientosCrud.TipoMovimiento{
+		Id: tipoMovimientoId,
+	}
+
+	// var movimientoEstructura models.MovimientoProcesoExterno
+	nuevoMovimiento := models_movimientosCrud.MovimientoProcesoExterno{
+		TipoMovimientoId: &tipoMovimiento,
+		Activo:           true,
+		Detalle:          string(detalle),
+	}
+
+	// logs.Debug("nuevoMovimiento: ", nuevoMovimiento)
+	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
+		"movimiento_proceso_externo/"
+
+	if err := request.SendJson(urlPublicar, "POST", &movimientoProcesoExternoRespuesta, nuevoMovimiento); err != nil {
+		outputError = errorctrl.Error("CrearMovimientoProcesoExterno - request.SendJson(urlPublicar, \"POST\", &movimientoProcesoExternoRespuesta, insertarMovimiento)", err, "500")
+		return models_movimientosCrud.MovimientoProcesoExterno{}, outputError
+	}
+
+	return movimientoProcesoExternoRespuesta, nil
 }
 
-func CrearMovimientosDetalle(insertarMovimientos []models.CuentasMovimientoProcesoExterno) (movimientosDetalleRespuesta interface{}, err map[string]interface{}) {
+func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, idMovimientoProcesoExterno int) (movimientosDetalle []models.MovimientosDetalle, err error) {
+	urlConsultarId := beego.AppConfig.String("plan_adquicisiones_crud_url") +
+		"Plan_adquisiciones_mongo/diferencia/" + idPlanAdquisicionesMongo
+
+	if err := request.GetJson(urlConsultarId, &movimientosDetalle); err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+
+	for keyMovimiento := range movimientosDetalle {
+		movimientosDetalle[keyMovimiento].MovimientoProcesoExternoId = idMovimientoProcesoExterno
+		movimientosDetalle[keyMovimiento].Activo = true
+	}
+
+	return
+}
+
+func CrearMovimientosDetalle(insertarMovimientos []models.MovimientosDetalle) (movimientosDetalleRespuesta []models_movimientosCrud.MovimientoDetalle, outputError map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("CrearMovimientosDetalle - Unhandled error!", "500")
 
-	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
+	urlCrearMovimientos := beego.AppConfig.String("movimientos_api_crud_url") +
 		"movimiento_detalle/crearMovimientosDetalle"
 
-	if err := request.SendJson(urlPublicar, "POST", &movimientosDetalleRespuesta, insertarMovimientos); err != nil {
+	if err := request.SendJson(urlCrearMovimientos, "POST", &movimientosDetalleRespuesta, insertarMovimientos); err != nil {
 		logs.Error(err)
 		outputError := errorctrl.Error("CrearMovimientosDetalle - request.SendJson(urlPublicar, \"POST\", &movimientosDetalleRespuesta, insertarMovimientos)", err, "500")
 		return nil, outputError
@@ -89,22 +123,4 @@ func CrearMovimientosDetalle(insertarMovimientos []models.CuentasMovimientoProce
 	}
 
 	return movimientosDetalleRespuesta, nil
-}
-
-func CrearMovimientoProcesoExterno(insertarMovimiento models.MovimientoProcesoExterno) (movimientoProcesoExternoRespuesta interface{}, err map[string]interface{}) {
-	// logs.Debug(insertarMovimiento)
-	defer errorctrl.ErrorControlFunction("CrearMovimientoProcesoExterno - Unhandled error!", "500")
-
-	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
-		"movimiento_proceso_externo"
-
-	if err := request.SendJson(urlPublicar, "POST", &movimientoProcesoExternoRespuesta, insertarMovimiento); err != nil {
-		logs.Error(err)
-		outputError := errorctrl.Error("CrearMovimientoProcesoExterno - request.SendJson(urlPublicar, \"POST\", &movimientoProcesoExternoRespuesta, insertarMovimiento)", err, "500")
-		return nil, outputError
-	} else {
-		// logs.Debug(movimientoProcesoExternoRespuesta)
-	}
-
-	return movimientoProcesoExternoRespuesta, nil
 }

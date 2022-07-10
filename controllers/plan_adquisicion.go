@@ -5,6 +5,7 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	helpersCrud "github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
 	"github.com/udistrital/plan_adquisiciones_mid/models"
 )
 
@@ -49,11 +50,18 @@ func (c *Plan_adquisicionController) Post() {
 
 	PlanAdquisicionRespuesta, errPlanAdquisicion := models.ObtenerPlanAdquisicionMongo(idStr)
 
+	// formatdata.JsonPrint(PlanAdquisicionRespuesta)
+
 	if PlanAdquisicionRespuesta != nil {
-		alertErr.Type = "OK"
-		alertErr.Code = "200"
-		alertErr.Body = PlanAdquisicionRespuesta
-		//alertErr.Body = models.CrearSuccess("Registro de actividad ingresado con exito")
+		planAdquisiconesId := int(PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["id"].(float64))
+		planAdquisiconesIdMongo := PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["IdMongo"].(string)
+
+		MovimientosRespuesta, err := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
+		if err != nil {
+			alertErr.Type = "OK"
+			alertErr.Code = "200"
+			alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
+		}
 	} else {
 		alertErr.Type = "error"
 		alertErr.Code = "400"
@@ -84,11 +92,18 @@ func (c *Plan_adquisicionController) Put() {
 
 		PlanAdquisicionRespuesta, errPlanAdquisicion := models.ActualizarPlanAdquisicion(PlanAdquisicionRecibida, idStr)
 
-		if PlanAdquisicionRespuesta != nil {
-			alertErr.Type = "OK"
-			alertErr.Code = "200"
-			alertErr.Body = PlanAdquisicionRespuesta
-			//alertErr.Body = models.CrearSuccess("Registro de actividad ingresado con exito")
+		// formatdata.JsonPrint(PlanAdquisicionRespuesta)
+
+		if PlanAdquisicionRespuesta != nil || alertErr.Type == "error" {
+			planAdquisiconesId := int(PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["id"].(float64))
+			planAdquisiconesIdMongo := PlanAdquisicionRespuesta.(map[string]interface{})["IdMongo"].(string)
+
+			MovimientosRespuesta, err := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
+			if err != nil {
+				alertErr.Type = "OK"
+				alertErr.Code = "200"
+				alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
+			}
 		} else {
 			alertErr.Type = "error"
 			alertErr.Code = "400"
