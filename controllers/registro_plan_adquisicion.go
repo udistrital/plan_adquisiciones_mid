@@ -44,11 +44,14 @@ func (c *Registro_plan_adquisicionController) Post() {
 		} else {
 			alertErr.Type = "error"
 			alertErr.Code = "400"
-			alertas = append(alertas, errPlanAdquisicion)
+			if errPlanAdquisicion != nil {
+				alertas = append(alertas, errPlanAdquisicion)
+			} else {
+				alertas = append(alertas, "Otra cosa")
+			}
 			alertErr.Body = alertas
 			c.Ctx.Output.SetStatus(400)
 		}
-
 	} else {
 		alertErr.Type = "error"
 		alertErr.Code = "400"

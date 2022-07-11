@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 
 	"github.com/astaxie/beego/logs"
+	models_movimientosCrud "github.com/udistrital/movimientos_crud/models"
 	"github.com/udistrital/plan_adquisiciones_mid/models"
 	"github.com/udistrital/utils_oas/errorctrl"
 )
 
-func CrearMovimientosDetallePlan(planAdquisiconesId int, planAdquisicionesMongoId string) (res map[string]interface{}, outputError map[string]interface{}) {
+func CrearMovimientosDetallePlan(planAdquisiconesId int, planAdquisicionesMongoId string) (movimientosDetalleInsertados []models_movimientosCrud.MovimientoDetalle, outputError map[string]interface{}) {
 	// logs.Debug("planAdquisiconesId: ", planAdquisiconesId)
 
 	detalle, err := json.Marshal(models.DetalleMovimientoProcesoExterno{
-		Estado:              "Publicado",
 		PlanAdquisicionesId: planAdquisiconesId,
 	})
 	if err != nil {
@@ -36,8 +36,8 @@ func CrearMovimientosDetallePlan(planAdquisiconesId int, planAdquisicionesMongoI
 	// logs.Debug("movimientosDetalle: ")
 	// formatdata.JsonPrint(movimientosDetalle)
 
-	movimientosDetalleInsertados, outputError := CrearMovimientosDetalle(movimientosDetalle)
-	if len(movimientosDetalleInsertados) == 0 {
+	movimientosDetalleInsertados, outputError = CrearMovimientosDetalle(movimientosDetalle)
+	if outputError != nil {
 		// logs.Debug(fmt.Sprintf("outputError: %+v", outputError))
 		return nil, outputError
 	}

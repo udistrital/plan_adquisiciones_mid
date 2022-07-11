@@ -56,8 +56,8 @@ func (c *Plan_adquisicionController) Post() {
 		planAdquisiconesId := int(PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["id"].(float64))
 		planAdquisiconesIdMongo := PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["IdMongo"].(string)
 
-		MovimientosRespuesta, _ := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
-		if len(MovimientosRespuesta) != 0 {
+		MovimientosRespuesta, outputError := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
+		if outputError != nil || len(outputError) == 0 {
 			alertErr.Type = "OK"
 			alertErr.Code = "200"
 			alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
@@ -98,8 +98,8 @@ func (c *Plan_adquisicionController) Put() {
 			planAdquisiconesId := int(PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["id"].(float64))
 			planAdquisiconesIdMongo := PlanAdquisicionRespuesta.(map[string]interface{})["IdMongo"].(string)
 
-			MovimientosRespuesta, _ := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
-			if len(MovimientosRespuesta) != 0 {
+			MovimientosRespuesta, outputError := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
+			if outputError != nil || len(outputError) == 0 {
 				alertErr.Type = "OK"
 				alertErr.Code = "200"
 				alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}

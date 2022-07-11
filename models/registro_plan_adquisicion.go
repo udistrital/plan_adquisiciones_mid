@@ -153,16 +153,15 @@ func IngresoPlanAdquisicion(registroPlanAdquisicion map[string]interface{}) (reg
 	const funcion = "IngresoPlanAdquisicion - "
 	defer errorctrl.ErrorControlFunction(funcion+"Unhandled Error!", "500")
 	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
-		_, err := IngresoRenglonPlanInversion(registroPlanAdquisicion)
-		if err != nil {
-			logs.Error(err)
-			return nil, err
+		registroPlanAdquisicionRespuesta, outputError = IngresoRenglonPlanInversion(registroPlanAdquisicion)
+		if outputError != nil {
+			// logs.Error(err)
+			return nil, outputError
 		}
 	} else {
-		_, err := IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)
-		if err != nil {
-			logs.Error(err)
-			outputError := errorctrl.Error("IngresoPlanAdquisicion -  IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)", err, "502")
+		registroPlanAdquisicionRespuesta, outputError = IngresoRenglonPlanFuncionamiento(registroPlanAdquisicion)
+		if outputError != nil {
+			// logs.Error(err)
 			return nil, outputError
 		}
 	}

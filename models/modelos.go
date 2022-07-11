@@ -105,7 +105,6 @@ type MovimientoProcesoExterno struct {
 }
 
 type DetalleMovimientoProcesoExterno struct {
-	Estado              string
 	PlanAdquisicionesId int
 }
 
