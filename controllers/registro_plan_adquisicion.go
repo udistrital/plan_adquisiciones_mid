@@ -47,7 +47,7 @@ func (c *Registro_plan_adquisicionController) Post() {
 			if errPlanAdquisicion != nil {
 				alertas = append(alertas, errPlanAdquisicion)
 			} else {
-				alertas = append(alertas, errPlanAdquisicion)
+				alertas = append(alertas, "Los datos retornados fueron nil")
 			}
 			alertErr.Body = alertas
 			c.Ctx.Output.SetStatus(400)
