@@ -1,0 +1,20 @@
+# Binarios y Temporales
+*.exe
+*.log
+*.tmp
+*.zip
+*~
+plan_adquisiciones_mid
+main
+
+# Variables de entorno
+*.env
+!*template.env
+!*develop.env
+
+# IDEs y otros
+.vscode
+.scannerwork/
+swagger/**
+!swagger/swagger.json
+!swagger/swagger.yml

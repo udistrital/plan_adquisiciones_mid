@@ -1,0 +1,370 @@
+swagger: "2.0"
+info:
+  title: beego Test API
+  description: beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: astaxie@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /PlanAdquisicion/{id}:
+    put:
+      tags:
+      - PlanAdquisicion
+      description: update the Plan_adquisicion
+      operationId: Plan_adquisicionController.Put
+      parameters:
+      - in: path
+        name: id
+        description: ID del plan de adquisicion a actualizar
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for Plan_adquisicion content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Plan_adquisicion'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Plan_adquisicion'
+        "403":
+          description: :id is not int
+    post:
+      tags:
+      - PlanAdquisicion
+      description: create Plan_adquisicion
+      operationId: Plan_adquisicionController.Create
+      parameters:
+      - in: path
+        name: id
+        description: Id del registro de plan de adquisicion
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Plan_adquisicion'
+        "403":
+          description: body is empty
+  /PlanAdquisicion/versiones/{id}:
+    get:
+      tags:
+      - PlanAdquisicion
+      description: get Plan_adquisicionController by id
+      operationId: Plan_adquisicionController.GetOne
+      parameters:
+      - in: path
+        name: id
+        description: Id de un  plan de adquisicion
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Plan_adquisicion'
+        "403":
+          description: :id is empty
+  /RegistrosOrdenadoPorRubro/{planAdquisicionID}:
+    get:
+      tags:
+      - RegistrosOrdenadoPorRubro
+      description: Obtiene todos los planes de adquisición separados por fuente de recurso y divididos por rubros segun el id dado
+      operationId: Plan_adquisicion_por_fuentesController.GetAll
+      parameters:
+      - in: path
+        name: planAdquisicionID
+        description: Id del plan_de_adquisicion
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Plan_adquisicion_por_fuentes'
+        "403":
+          description: ""
+  /RegistrosPlanAdquisicion/:
+    get:
+      tags:
+      - RegistrosPlanAdquisicion
+      description: Obtiene todos los registros de planes de adquisicion
+      operationId: Registro_plan_adquisicionController.GetAll
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_plan_adquisicion'
+        "404":
+          description: ""
+    post:
+      tags:
+      - RegistrosPlanAdquisicion
+      description: create Registro_plan_adquisicionController
+      operationId: Registro_plan_adquisicionController.Create
+      parameters:
+      - in: body
+        name: body
+        description: body for Registro_plan_adquisicion content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Registro_plan_adquisicion'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_plan_adquisicion'
+        "403":
+          description: body is empty
+  /RegistrosPlanAdquisicion/{id}:
+    get:
+      tags:
+      - RegistrosPlanAdquisicion
+      description: get Registro_plan_adquisicionController by id
+      operationId: Registro_plan_adquisicionController.GetOne
+      parameters:
+      - in: path
+        name: id
+        description: Id de un registro de plan de adquisicion
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_plan_adquisicion'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - RegistrosPlanAdquisicion
+      description: update the Registro_plan_adquisicionController
+      operationId: Registro_plan_adquisicionController.Put
+      parameters:
+      - in: path
+        name: id
+        description: Id del registro del plan de adquisición que se actualizará
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for Registro_plan_adquisicion content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Registro_plan_adquisicion'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_plan_adquisicion'
+        "403":
+          description: :id is not int
+  /RegistrosPlanAdquisicionActividad/:
+    get:
+      tags:
+      - RegistrosPlanAdquisicionActividad
+      description: get Registro_PlanAdquisiciones_Actividad
+      operationId: Registro_PlanAdquisiciones_ActividadController.GetAll
+      parameters:
+      - in: query
+        name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: fields
+        description: Fields returned. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: sortby
+        description: Sorted-by fields. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: order
+        description: Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...
+        type: string
+      - in: query
+        name: limit
+        description: Limit the size of result set. Must be an integer
+        type: string
+      - in: query
+        name: offset
+        description: Start position of result set. Must be an integer
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_PlanAdquisiciones_Actividad'
+        "403":
+          description: ""
+    post:
+      tags:
+      - RegistrosPlanAdquisicionActividad
+      description: create Registro_PlanAdquisiciones_Actividad
+      operationId: Registro_PlanAdquisiciones_ActividadController.Create
+      parameters:
+      - in: body
+        name: body
+        description: body for Registro_PlanAdquisiciones_Actividad content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Registro_PlanAdquisiciones_Actividad'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_PlanAdquisiciones_Actividad'
+        "403":
+          description: body is empty
+  /RegistrosPlanAdquisicionActividad/{id}:
+    put:
+      tags:
+      - RegistrosPlanAdquisicionActividad
+      description: update the Registro_PlanAdquisiciones_Actividad
+      operationId: Registro_PlanAdquisiciones_ActividadController.Put
+      parameters:
+      - in: path
+        name: id
+        description: Id del registro_plan_adquisición_actividad
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for Registro_PlanAdquisiciones_Actividad content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Registro_PlanAdquisiciones_Actividad'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_PlanAdquisiciones_Actividad'
+        "403":
+          description: :id is not int
+  /RegistrosPlanInversionActividadFuente/:
+    post:
+      tags:
+      - RegistrosPlanInversionActividadFuente
+      description: create Registro_PlanInversion_ActividadFuente_financiamiento
+      operationId: Registro_PlanInversion_ActividadFuente_financiamientoController.Create
+      parameters:
+      - in: body
+        name: body
+        description: body for Registro_PlanInversion_ActividadFuente_financiamiento content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
+        "403":
+          description: body is empty
+  /RegistrosPlanInversionActividadFuente/{id}:
+    put:
+      tags:
+      - RegistrosPlanInversionActividadFuente
+      description: update the Registro_PlanInversion_ActividadFuente_financiamiento
+      operationId: Registro_PlanInversion_ActividadFuente_financiamientoController.Put
+      parameters:
+      - in: path
+        name: id
+        description: Id de un elemento de la tabla registro_inversion_actividad-Fuente_financiamiento
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for Registro_PlanInversion_ActividadFuente_financiamiento content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
+        "403":
+          description: :id is not int
+  /RegistrosPlanInversionActividadFuente/{idPlanAdquisicion}:
+    get:
+      tags:
+      - RegistrosPlanInversionActividadFuente
+      description: get Registro_PlanInversion_ActividadFuente_financiamiento
+      operationId: Registro_PlanInversion_ActividadFuente_financiamientoController.GetAll
+      parameters:
+      - in: path
+        name: id
+        description: Id de un elemento de la tabla registro_plan_adquisicion
+        required: true
+        type: string
+      - in: query
+        name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: fields
+        description: Fields returned. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: sortby
+        description: Sorted-by fields. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: order
+        description: Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...
+        type: string
+      - in: query
+        name: limit
+        description: Limit the size of result set. Must be an integer
+        type: string
+      - in: query
+        name: offset
+        description: Start position of result set. Must be an integer
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Registro_PlanInversion_ActividadFuente_financiamiento'
+        "403":
+          description: ""
+definitions:
+  models.Plan_adquisicion:
+    title: Plan_adquisicion
+    type: object
+  models.Plan_adquisicion_por_fuentes:
+    title: Plan_adquisicion_por_fuentes
+    type: object
+  models.Registro_PlanAdquisiciones_Actividad:
+    title: Registro_PlanAdquisiciones_Actividad
+    type: object
+  models.Registro_PlanInversion_ActividadFuente_financiamiento:
+    title: Registro_PlanInversion_ActividadFuente_financiamiento
+    type: object
+  models.Registro_plan_adquisicion:
+    title: Registro_plan_adquisicion
+    type: object
+tags:
+- name: RegistrosPlanAdquisicion
+  description: |
+    Registro_plan_adquisicionController operations for Registro_plan_adquisicion
+- name: RegistrosOrdenadoPorRubro
+  description: |
+    Plan_adquisicion_por_fuentesController operations for Plan_adquisicion_por_fuentes
+- name: RegistrosPlanAdquisicionActividad
+  description: |
+    Registro_PlanAdquisiciones_ActividadController operations for Registro_PlanAdquisiciones_Actividad
+- name: RegistrosPlanInversionActividadFuente
+  description: |
+    Registro_PlanInversion_ActividadFuente_financiamientoController operations for Registro_PlanInversion_ActividadFuente_financiamiento
+- name: PlanAdquisicion
+  description: |
+    Plan_adquisicionController operations for Plan_adquisicion
