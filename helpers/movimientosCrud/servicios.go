@@ -112,15 +112,17 @@ func CrearMovimientosDetalle(insertarMovimientos []models.MovimientosDetalle) (m
 	defer errorctrl.ErrorControlFunction("CrearMovimientosDetalle - Unhandled error!", "500")
 
 	urlCrearMovimientos := beego.AppConfig.String("movimientos_api_crud_url") +
-		"movimiento_detalle/crearMovimientosDetalle"
+		"movimiento_detalle/insertarMovimientosDetalle"
+
+	// logs.Debug(fmt.Sprintf("insertarMovimientos: %+v", insertarMovimientos))
 
 	if err := request.SendJson(urlCrearMovimientos, "POST", &movimientosDetalleRespuesta, insertarMovimientos); err != nil {
 		logs.Error(err)
-		outputError := errorctrl.Error("CrearMovimientosDetalle - request.SendJson(urlPublicar, \"POST\", &movimientosDetalleRespuesta, insertarMovimientos)", err, "500")
+		outputError := errorctrl.Error("CrearMovimientosDetalle - request.SendJson(urlCrearMovimientos, \"POST\", &movimientosDetalleRespuesta, insertarMovimientos)", err, "500")
 		return nil, outputError
 	} else {
-		// logs.Debug(movimientosDetalleRespuesta)
+		// logs.Debug(fmt.Sprintf("movimientosDetalleRespuesta: %+v", movimientosDetalleRespuesta))
 	}
 
-	return movimientosDetalleRespuesta, nil
+	return
 }

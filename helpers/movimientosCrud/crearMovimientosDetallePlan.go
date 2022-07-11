@@ -6,12 +6,10 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/plan_adquisiciones_mid/models"
 	"github.com/udistrital/utils_oas/errorctrl"
-	"github.com/udistrital/utils_oas/formatdata"
 )
 
 func CrearMovimientosDetallePlan(planAdquisiconesId int, planAdquisicionesMongoId string) (res map[string]interface{}, outputError map[string]interface{}) {
-
-	logs.Debug("planAdquisiconesId: ", planAdquisiconesId)
+	// logs.Debug("planAdquisiconesId: ", planAdquisiconesId)
 
 	detalle, err := json.Marshal(models.DetalleMovimientoProcesoExterno{
 		Estado:              "Publicado",
@@ -35,16 +33,17 @@ func CrearMovimientosDetallePlan(planAdquisiconesId int, planAdquisicionesMongoI
 		return nil, outputError
 	}
 
-	logs.Debug("movimientosDetalle: ")
-	formatdata.JsonPrint(movimientosDetalle)
+	// logs.Debug("movimientosDetalle: ")
+	// formatdata.JsonPrint(movimientosDetalle)
 
-	respuesta, outputError := CrearMovimientosDetalle(movimientosDetalle)
-	if outputError != nil {
+	movimientosDetalleInsertados, outputError := CrearMovimientosDetalle(movimientosDetalle)
+	if len(movimientosDetalleInsertados) == 0 {
+		// logs.Debug(fmt.Sprintf("outputError: %+v", outputError))
 		return nil, outputError
 	}
 
-	logs.Debug("respuesta: ")
-	formatdata.JsonPrint(respuesta)
+	// logs.Debug("movimientosDetalleInsertados: ")
+	// formatdata.JsonPrint(movimientosDetalleInsertados)
 
 	return
 }
