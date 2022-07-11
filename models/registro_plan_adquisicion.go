@@ -469,14 +469,14 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 	// logs.Debug("registroPlanAdquisicion: ")
 	// formatdata.JsonPrint(registroPlanAdquisicion)
 	if registroPlanAdquisicion["FuenteFinanciamientoId"] == "" {
-		_, error := ActualizarRegistroInversion(registroPlanAdquisicion, idStr)
-		if error != nil {
-			return nil, error
+		registroActividadRespuesta, outputError = ActualizarRegistroInversion(registroPlanAdquisicion, idStr)
+		if outputError != nil {
+			return nil, outputError
 		}
 	} else {
-		_, error := ActualizarRegistroFuncionamiento(registroPlanAdquisicion, idStr)
-		if error != nil {
-			return nil, error
+		registroActividadRespuesta, outputError = ActualizarRegistroFuncionamiento(registroPlanAdquisicion, idStr)
+		if outputError != nil {
+			return nil, outputError
 		}
 	}
 
