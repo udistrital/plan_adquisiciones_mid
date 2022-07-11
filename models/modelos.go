@@ -117,3 +117,10 @@ type MovimientosDetalle struct {
 	Saldo                      float64
 	Detalle                    string
 }
+
+type MovimientosInsertar struct {
+	Cuen_Pre     string
+	Mov_Proc_Ext string
+	Saldo        float64
+	Valor        float64
+}

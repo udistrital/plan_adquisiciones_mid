@@ -2,6 +2,7 @@ package movimientosCrud
 
 import (
 	"net/url"
+	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -81,7 +82,7 @@ func CrearMovimientoProcesoExterno(detalle []byte) (movimientoProcesoExternoResp
 
 	// logs.Debug("nuevoMovimiento: ", nuevoMovimiento)
 	urlPublicar := beego.AppConfig.String("movimientos_api_crud_url") +
-		"movimiento_proceso_externo/"
+		"movimiento_proceso_externo"
 
 	if err := request.SendJson(urlPublicar, "POST", &movimientoProcesoExternoRespuesta, nuevoMovimiento); err != nil {
 		outputError = errorctrl.Error("CrearMovimientoProcesoExterno - request.SendJson(urlPublicar, \"POST\", &movimientoProcesoExternoRespuesta, insertarMovimiento)", err, "500")
@@ -91,7 +92,8 @@ func CrearMovimientoProcesoExterno(detalle []byte) (movimientoProcesoExternoResp
 	return movimientoProcesoExternoRespuesta, nil
 }
 
-func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, idMovimientoProcesoExterno int) (movimientosDetalle []models.MovimientosDetalle, err error) {
+func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, idMovimientoProcesoExterno int) (movimientosDetalleRespuesta []models.MovimientosInsertar, err error) {
+	var movimientosDetalle []models.MovimientosDetalle
 	urlConsultarId := beego.AppConfig.String("plan_adquicisiones_crud_url") +
 		"Plan_adquisiciones_mongo/diferencia/" + idPlanAdquisicionesMongo
 
@@ -100,19 +102,23 @@ func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, idMovimient
 		return nil, err
 	}
 
-	for keyMovimiento := range movimientosDetalle {
-		movimientosDetalle[keyMovimiento].MovimientoProcesoExternoId = idMovimientoProcesoExterno
-		movimientosDetalle[keyMovimiento].Activo = true
+	for _, movimiento := range movimientosDetalle {
+		movimientoDetalleInsertar := models.MovimientosInsertar{
+			Cuen_Pre:     movimiento.Detalle,
+			Mov_Proc_Ext: strconv.Itoa(idMovimientoProcesoExterno),
+			Valor:        movimiento.Valor,
+		}
+		movimientosDetalleRespuesta = append(movimientosDetalleRespuesta, movimientoDetalleInsertar)
 	}
 
 	return
 }
 
-func CrearMovimientosDetalle(insertarMovimientos []models.MovimientosDetalle) (movimientosDetalleRespuesta []models_movimientosCrud.MovimientoDetalle, outputError map[string]interface{}) {
+func CrearMovimientosDetalle(insertarMovimientos []models.MovimientosInsertar) (movimientosDetalleRespuesta []models_movimientosCrud.MovimientoDetalle, outputError map[string]interface{}) {
 	defer errorctrl.ErrorControlFunction("CrearMovimientosDetalle - Unhandled error!", "500")
 
 	urlCrearMovimientos := beego.AppConfig.String("movimientos_api_crud_url") +
-		"movimiento_detalle/insertarMovimientosDetalle"
+		"movimiento_detalle/crearMovimientosDetalle"
 
 	// logs.Debug(fmt.Sprintf("insertarMovimientos: %+v", insertarMovimientos))
 

@@ -473,11 +473,6 @@ func ActualizarRegistroPlanAdquisicion(registroPlanAdquisicion map[string]interf
 		_, error := ActualizarRegistroInversion(registroPlanAdquisicion, idStr)
 		if error != nil {
 			return nil, error
-		} else {
-			// if err := helpers.RegistrarMovimientoDetalleActualizacionInversion(registroPlanAdquisicion); err != nil {
-			// 	return nil, err
-			// }
-			// return registro, nil
 		}
 	} else {
 		_, error := ActualizarRegistroFuncionamiento(registroPlanAdquisicion, idStr)
