@@ -47,7 +47,7 @@ func (c *Registro_plan_adquisicionController) Post() {
 			if errPlanAdquisicion != nil {
 				alertas = append(alertas, errPlanAdquisicion)
 			} else {
-				alertas = append(alertas, "Otra cosa")
+				alertas = append(alertas, errPlanAdquisicion)
 			}
 			alertErr.Body = alertas
 			c.Ctx.Output.SetStatus(400)
