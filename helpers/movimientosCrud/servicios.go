@@ -1,6 +1,7 @@
 package movimientosCrud
 
 import (
+	"encoding/json"
 	"net/url"
 	"strconv"
 
@@ -92,7 +93,7 @@ func CrearMovimientoProcesoExterno(detalle []byte) (movimientoProcesoExternoResp
 	return movimientoProcesoExternoRespuesta, nil
 }
 
-func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, idMovimientoProcesoExterno int) (movimientosDetalleRespuesta []models.MovimientosInsertar, err error) {
+func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, planAdquisiconesId int) (movimientosDetalleRespuesta []models.MovimientosInsertar, err error) {
 	var movimientosDetalle []models.MovimientosDetalle
 	urlConsultarId := beego.AppConfig.String("plan_adquicisiones_crud_url") +
 		"Plan_adquisiciones_mongo/diferencia/" + idPlanAdquisicionesMongo
@@ -102,13 +103,30 @@ func AñadirDatosMovimientosDetalle(idPlanAdquisicionesMongo string, idMovimient
 		return nil, err
 	}
 
-	for _, movimiento := range movimientosDetalle {
-		movimientoDetalleInsertar := models.MovimientosInsertar{
-			Cuen_Pre:     movimiento.Detalle,
-			Mov_Proc_Ext: strconv.Itoa(idMovimientoProcesoExterno),
-			Valor:        movimiento.Valor,
+	if len(movimientosDetalle) > 0 {
+		for _, movimiento := range movimientosDetalle {
+			detalle, err := json.Marshal(models.DetalleMovimientoProcesoExterno{
+				PlanAdquisicionesId: planAdquisiconesId,
+			})
+			if err != nil {
+				logs.Error(err)
+				return nil, err
+			}
+
+			movimientoProcesoExternoRespuesta, outputError := CrearMovimientoProcesoExterno(detalle)
+			if err != nil {
+				logs.Error(err)
+				return nil, outputError["err"].(error)
+
+			}
+
+			movimientoDetalleInsertar := models.MovimientosInsertar{
+				Cuen_Pre:     movimiento.Detalle,
+				Mov_Proc_Ext: strconv.Itoa(movimientoProcesoExternoRespuesta.Id),
+				Valor:        movimiento.Valor,
+			}
+			movimientosDetalleRespuesta = append(movimientosDetalleRespuesta, movimientoDetalleInsertar)
 		}
-		movimientosDetalleRespuesta = append(movimientosDetalleRespuesta, movimientoDetalleInsertar)
 	}
 
 	return
