@@ -1,11 +1,12 @@
 package main
 
 import (
-	_ "github.com/udistrital/plan_adquisiciones_mid/routers"
-	apistatus "github.com/udistrital/utils_oas/apiStatusLib"
-
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/plugins/cors"
+
+	_ "github.com/udistrital/plan_adquisiciones_mid/routers"
+	apistatus "github.com/udistrital/utils_oas/apiStatusLib"
+	"github.com/udistrital/utils_oas/auditoria"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
-
+	auditoria.InitMiddleware()
 	apistatus.Init()
 	beego.Run()
 }

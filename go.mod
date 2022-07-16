@@ -6,7 +6,7 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/udistrital/movimientos_crud v0.5.0
-	github.com/udistrital/utils_oas v0.0.0-20211125230753-1091d2af48e2
+	github.com/udistrital/utils_oas v0.0.0-20220521085529-fbd949fcf4e2
 )
 
 require (
