@@ -5,7 +5,6 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	helpersCrud "github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
 	"github.com/udistrital/plan_adquisiciones_mid/models"
 )
 
@@ -48,20 +47,14 @@ func (c *Plan_adquisicionController) Post() {
 	var alertErr models.Alert
 	alertas := append([]interface{}{"Response:"})
 
-	PlanAdquisicionRespuesta, errPlanAdquisicion := models.ObtenerPlanAdquisicionMongo(idStr)
+	PlanAdquisicionRespuesta, MovimientosRespuesta, errPlanAdquisicion := models.ObtenerPlanAdquisicionMongo(idStr)
 
 	// formatdata.JsonPrint(PlanAdquisicionRespuesta)
 
-	if PlanAdquisicionRespuesta != nil {
-		planAdquisiconesId := int(PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["id"].(float64))
-		planAdquisiconesIdMongo := PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["IdMongo"].(string)
-
-		MovimientosRespuesta, outputError := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
-		if outputError != nil || len(outputError) == 0 {
-			alertErr.Type = "OK"
-			alertErr.Code = "200"
-			alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
-		}
+	if PlanAdquisicionRespuesta != nil && MovimientosRespuesta != nil {
+		alertErr.Type = "OK"
+		alertErr.Code = "200"
+		alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
 	} else {
 		alertErr.Type = "error"
 		alertErr.Code = "400"
@@ -90,20 +83,14 @@ func (c *Plan_adquisicionController) Put() {
 	alertas := append([]interface{}{"Response:"})
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &PlanAdquisicionRecibida); err == nil {
 
-		PlanAdquisicionRespuesta, errPlanAdquisicion := models.ActualizarPlanAdquisicion(PlanAdquisicionRecibida, idStr)
+		PlanAdquisicionRespuesta, MovimientosRespuesta, errPlanAdquisicion := models.ActualizarPlanAdquisicion(PlanAdquisicionRecibida, idStr)
 
 		// formatdata.JsonPrint(PlanAdquisicionRespuesta)
 
-		if PlanAdquisicionRespuesta != nil || alertErr.Type == "error" {
-			planAdquisiconesId := int(PlanAdquisicionRespuesta.(map[string]interface{})["PlanAdquisiconesMongo"].(map[string]interface{})["id"].(float64))
-			planAdquisiconesIdMongo := PlanAdquisicionRespuesta.(map[string]interface{})["IdMongo"].(string)
-
-			MovimientosRespuesta, outputError := helpersCrud.CrearMovimientosDetallePlan(planAdquisiconesId, planAdquisiconesIdMongo)
-			if outputError != nil || len(outputError) == 0 {
-				alertErr.Type = "OK"
-				alertErr.Code = "200"
-				alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
-			}
+		if PlanAdquisicionRespuesta != nil && MovimientosRespuesta != nil {
+			alertErr.Type = "OK"
+			alertErr.Code = "200"
+			alertErr.Body = map[string]interface{}{"PlanAdquisiciones": PlanAdquisicionRespuesta, "Movimientos": MovimientosRespuesta}
 		} else {
 			alertErr.Type = "error"
 			alertErr.Code = "400"
