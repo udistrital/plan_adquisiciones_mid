@@ -6,10 +6,13 @@ import (
 	"github.com/udistrital/utils_oas/errorctrl"
 )
 
-func CrearMovimientosDetallePlan(planAdquisiconesId int, planAdquisicionesMongoId string) (movimientosDetalleInsertados []models_movimientosCrud.MovimientoDetalle, outputError map[string]interface{}) {
+func CrearMovimientosDetallePlan(versionPlan map[string]interface{}) (movimientosDetalleInsertados []models_movimientosCrud.MovimientoDetalle, outputError map[string]interface{}) {
 	// logs.Debug("planAdquisiconesId: ", planAdquisiconesId)
 
-	movimientosDetalle, err := AñadirDatosMovimientosDetalle(planAdquisicionesMongoId, planAdquisiconesId)
+	// logs.Debug("versionPlan: ")
+	// formatdata.JsonPrint(versionPlan)
+
+	movimientosDetalle, err := AñadirDatosMovimientosDetalle(versionPlan)
 	if err != nil {
 		logs.Error(err)
 		outputError = errorctrl.Error("CrearMovimientosDetallePlan - AñadirDatosMovimientosDetalle()", err, "500")

@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
+	"github.com/udistrital/movimientos_crud/models"
+	"github.com/udistrital/plan_adquisiciones_mid/helpers/movimientosCrud"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -47,12 +49,12 @@ func ObtenerVersionesMongoByID(idstr string) (respuestaVersionesMongo []map[stri
 }
 
 //ActualizarPlanAdquisicion actualizar los campo Publicado de la tabla plan de adquisicion
-func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta interface{}, outputError interface{}) {
+func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr string) (PlanAdquisionRespuesta interface{}, MovimientosRespuesta []models.MovimientoDetalle, outputError interface{}) {
 	PlanAdquisicionPut := make(map[string]interface{})
 	PlanAdquisicionActualizar := make(map[string]interface{})
 	PlanAdquisicionAntiguo, error := ObtenerPlanAdquisicionByID(idStr)
 	if error != nil {
-		return PlanAdquisicionActualizar, nil
+		return PlanAdquisicionActualizar, MovimientosRespuesta, nil
 	} else {
 		PlanAdquisicionActualizar = map[string]interface{}{
 			"Descripcion":   PlanAdquisicionAntiguo["Descripcion"],
@@ -64,14 +66,14 @@ func ActualizarPlanAdquisicion(PlanAdquisicion map[string]interface{}, idStr str
 		error := request.SendJson(beego.AppConfig.String("plan_adquicisiones_crud_url")+"Plan_adquisiciones/"+idStr, "PUT", &PlanAdquisicionPut, PlanAdquisicionActualizar)
 		// logs.Debug("Plan PUT", PlanAdquisicionPut)
 		if error != nil {
-			return nil, error
+			return nil, nil, error
 		} else {
-			PlanAdquisicionMongo, error := ObtenerPlanAdquisicionMongo(idStr)
+			PlanAdquisicionMongo, MovimientosRespuesta, error := ObtenerPlanAdquisicionMongo(idStr)
 			if error != nil {
-				return PlanAdquisicionMongo, error
+				return PlanAdquisicionMongo, nil, error
 			} else {
 				// logs.Debug("Plan Mongo", PlanAdquisicionMongo)
-				return PlanAdquisicionMongo, nil
+				return PlanAdquisicionMongo, MovimientosRespuesta, nil
 			}
 
 		}
@@ -115,22 +117,22 @@ func ObtenerActividadbyID(idstr string) (respuestaActividad []map[string]interfa
 }
 
 //ObtenerPlanAdquisicionMongo construye un de plan de adquisicion segun ID con el formato Json plan_adquisiciones_mongo
-func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo interface{}, outputError interface{}) {
+func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo interface{}, MovimientosRespuesta []models.MovimientoDetalle, outputError interface{}) {
 	PlanAdquisicionMongo := make(map[string]interface{})
 	registros := make([]map[string]interface{}, 0)
 	PlanAdquisicion, error := ObtenerPlanAdquisicionByID(idStr)
 	if error != nil || !PlanAdquisicion["Publicado"].(bool) {
-		return PlanAdquisicionMongo, error
+		return PlanAdquisicionMongo, nil, error
 	} else {
 		PlanAdquisicionMongo = PlanAdquisicion
 		FichaEBMGA, error := ObtenerFichaEBMGAByIDPlan(idStr)
 		if error != nil {
-			return nil, error
+			return nil, nil, error
 		} else {
 			PlanAdquisicionMongo["ficha_eb_imga"] = FichaEBMGA
 			RegistrosID, error := ObtenerIDRegistrosPlanAdquisicion(idStr)
 			if error != nil {
-				return nil, error
+				return nil, nil, error
 			} else {
 				for _, index := range RegistrosID {
 					id := fmt.Sprintf("%.0f", index["Id"].(float64))
@@ -150,16 +152,23 @@ func ObtenerPlanAdquisicionMongo(idStr string) (respuestaPlanAdquisicionMongo in
 				}
 				registrosSperados, _ := SepararRegistrosPorFuente(registros)
 				PlanAdquisicionMongo["registro_plan_adquisiciones"] = registrosSperados
-				planMongo, erroMOngo := IngresoPlanAdquisicionMongo(PlanAdquisicionMongo)
-				if erroMOngo != nil {
-					return nil, erroMOngo
+				// logs.Debug("PlanAdquisicionMongo: ")
+				// formatdata.JsonPrint(PlanAdquisicionMongo)
+				MovimientosRespuesta, outputError := movimientosCrud.CrearMovimientosDetallePlan(PlanAdquisicionMongo)
+				if outputError != nil {
+					return nil, nil, outputError
 				}
-				return planMongo, nil
-
+				if len(MovimientosRespuesta) > 0 {
+					planMongo, erroMOngo := IngresoPlanAdquisicionMongo(PlanAdquisicionMongo)
+					if erroMOngo != nil {
+						return nil, nil, erroMOngo
+					}
+					return planMongo, MovimientosRespuesta, nil
+				} else {
+					return PlanAdquisicionMongo, MovimientosRespuesta, nil
+				}
 			}
-
 		}
-
 	}
 }
 
