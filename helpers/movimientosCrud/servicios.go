@@ -99,15 +99,13 @@ func AñadirDatosMovimientosDetalle(versionPlan map[string]interface{}) (movimie
 	urlConsultarId := beego.AppConfig.String("plan_adquicisiones_crud_url") +
 		"Plan_adquisiciones_mongo/diferencia"
 
-	// logs.Debug("versionPlan: ")
-	// formatdata.JsonPrint(versionPlan)
+	// logs.Debug("movimientosDetalle: ")
+	// formatdata.JsonPrint(movimientosDetalle)
 
 	if err := request.SendJson(urlConsultarId, "POST", &movimientosDetalle, versionPlan); err != nil {
 		logs.Error(err)
 		return nil, err
 	}
-	// logs.Debug("movimientosDetalle: ")
-	// formatdata.JsonPrint(movimientosDetalle)
 	if len(movimientosDetalle) > 0 {
 		for _, movimiento := range movimientosDetalle {
 			detalle, err := json.Marshal(mockups.DetalleMovimientoProcesoExterno{
