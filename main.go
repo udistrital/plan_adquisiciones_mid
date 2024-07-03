@@ -7,6 +7,7 @@ import (
 	_ "github.com/udistrital/plan_adquisiciones_mid/routers"
 	apistatus "github.com/udistrital/utils_oas/apiStatusLib"
 	"github.com/udistrital/utils_oas/auditoria"
+	"github.com/udistrital/utils_oas/xray"
 )
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 	auditoria.InitMiddleware()
+	xray.InitXRay()
 	apistatus.Init()
 	beego.Run()
 }
